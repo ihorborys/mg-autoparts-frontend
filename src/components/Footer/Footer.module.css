@@ -1,0 +1,59 @@
+.wrapper {
+    background-color: var(--grey);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nav {
+    margin: 16px 0;
+}
+
+.logo {
+    display: inline-block;
+}
+
+.logoImg {
+    width: 150px;
+}
+
+.copyright {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 14px;
+}
+
+.copyrightLink {
+    cursor: pointer;
+    transition: color 0.3s ease-in;
+}
+
+.copyrightLink:hover {
+    color: var(--red);
+}
+
+@media screen and (min-width: 1440px) {
+    .logoImg {
+        width: 200px;
+    }
+}
+
+@media screen and (max-width: 549px) {
+    .addressList {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .copyright {
+        font-size: 12px;
+    }
+
+    .nav {
+        align-self: center;
+    }
+}

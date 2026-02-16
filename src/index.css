@@ -1,0 +1,60 @@
+@import './styles/variables.css';
+@import './styles/reset.css';
+@import './styles/base.css';
+
+
+/*!*?????????????????????????????????????????????????????*!*/
+/*!* ======================================================*/
+/*   WRAPPER STYLES*/
+/*====================================================== *!*/
+
+/*.wrapper {*/
+/*    border-bottom: 1px solid var(--red);*/
+/*}*/
+
+/*.wrapper.search {*/
+/*    border-bottom: none;*/
+/*}*/
+
+/*.wrapper.footer {*/
+/*    border-bottom: none;*/
+/*}*/
+
+/*!*!* Styles for Tablet devices *!*!*/
+/*@media only screen and (min-width: 768px) {*/
+/*    .wrapper {*/
+/*        border-bottom: 2px solid var(--red);*/
+/*    }*/
+/*}*/
+
+/*!*!* Styles for Desktop devices *!*!*/
+/*@media only screen and (min-width: 1280px) {*/
+/*    .wrapper {*/
+/*        border-bottom: 3px solid var(--red);*/
+/*    }*/
+/*}*/
+
+/*!*!* Styles for Widescreen devices *!*!*/
+/*@media only screen and (min-width: 1440px) {*/
+
+/*}*/
+
+/*!*?????????????????????????????????????????????????????*!*/
+/*!* ======================================================*/
+/*   UNKNOWN STYLES*/
+/*====================================================== *!*/
+
+/*body {*/
+/*    !*display: flex;*!*/
+/*    !*flex-direction: column;*!*/
+/*    !*min-width: 100vw;*!*/
+/*    !*min-height: 100vh;*!*/
+/*    !*margin: 0;*!*/
+/*    !*background-color: var(--white);*!*/
+/*}*/
+
+/*h1 {*/
+/*    !*font-family: var(--second-family), serif;*!*/
+/*    font-size: 72px;*/
+/*    font-weight: 700;*/
+/*}*/
