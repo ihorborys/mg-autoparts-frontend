@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Вказуємо адресу вашого локального бекенду
-axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Асинхронний thunk для пошуку товарів
 export const fetchProductsByQuery = createAsyncThunk(
