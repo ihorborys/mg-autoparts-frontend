@@ -16,8 +16,9 @@ const CatalogItem = ({product}) => {
       <div className={styles.container}>
         <section>
           <h4 className={styles.brand}>{product.brand}</h4>
-          <p className={styles.unicode}>{product.unicode}</p>
-          <img src="/img/catalog/no_item.png" alt="No picture available"
+          <p className={styles.unicode}>{product.code}</p>
+          const imageUrl = `https://placehold.co/400x400?text=${product.code || 'No+Image'}`;
+          <img src={imageUrl} alt=alt={product.name}
                width="120px"/>
         </section>
 
