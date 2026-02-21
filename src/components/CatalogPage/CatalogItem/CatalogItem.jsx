@@ -18,7 +18,7 @@ const CatalogItem = ({product}) => {
           <h4 className={styles.brand}>{product.brand}</h4>
           <p className={styles.unicode}>{product.unicode}</p>
           <img src="/img/catalog/no_item.png" alt="No picture available"
-               width="150px"/>
+               width="120px"/>
         </section>
 
         <section className={styles.section}>
