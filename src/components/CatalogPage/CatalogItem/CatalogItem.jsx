@@ -17,9 +17,8 @@ const CatalogItem = ({product}) => {
         <section>
           <h4 className={styles.brand}>{product.brand}</h4>
           <p className={styles.unicode}>{product.code}</p>
-          const imageUrl = `https://placehold.co/400x400?text=${product.code || 'No+Image'}`;
-          <img src={imageUrl} alt=alt={product.name}
-               width="120px"/>
+          const imageUrl = `https://placehold.co/200x120?text=${product.code || 'No+Image'}`;
+          <img src={imageUrl} alt={product.name}/>
         </section>
 
         <section className={styles.section}>
