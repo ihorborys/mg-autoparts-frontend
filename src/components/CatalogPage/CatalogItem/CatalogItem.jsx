@@ -17,7 +17,7 @@ const CatalogItem = ({product}) => {
         <section>
           <h4 className={styles.brand}>{product.brand}</h4>
           <p className={styles.unicode}>{product.unicode}</p>
-          <img src="/img/luk_602000700.jpg" alt="/img/catalog/no_item.png"
+          <img src="/img/catalog/luk_602000700.jpg" alt="/img/catalog/no_item.png"
                width="150px"/>
         </section>
 
