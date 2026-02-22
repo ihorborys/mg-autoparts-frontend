@@ -7,7 +7,7 @@ const CatalogPage = () => {
   return (
     <Container>
       <div className={styles.containerCatalogPage}>
-        <section>FILTERS</section>
+        {/*<section>FILTERS</section>*/}
         <section>
           <h2 className={styles.title}>Каталог Автозапчастин</h2>
           <Searchbar/>
