@@ -15,7 +15,7 @@ const Searchbar = () => {
     if (query.trim() === "") {
       toast.error("Введіть артикул або бренд!", {
         duration: 2000,
-        position: 'top-right',
+        position: 'bottom-right',
         style: {
           background: '#333',
           color: '#fff',

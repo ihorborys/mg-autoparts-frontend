@@ -20,7 +20,7 @@ function App() {
     <div>
 
        <Toaster
-        position="bottom-right"
+        position="top-center"
         reverseOrder={false}
         toastOptions={{
           style: {
