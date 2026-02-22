@@ -3,6 +3,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Loader from "./components/Loader/Loader.jsx";
+import { Toaster } from 'react-hot-toast';
 
 // Імпортуємо тільки потрібні сторінки
 // Я прибрав штучну затримку (setTimeout) для HomePage, вона не потрібна в реальному проєкті
@@ -17,6 +18,20 @@ const CatalogLayout = lazy(() => import("./layouts/CatalogLayout/CatalogLayout.j
 function App() {
   return (
     <div>
+
+       <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            fontSize: '16px',
+            borderRadius: '8px',
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
+
       <Suspense fallback={<Loader/>}>
         <Routes>
           {/* Головна сторінка */}

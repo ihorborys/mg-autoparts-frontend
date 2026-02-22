@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchProductsByQuery } from "../../redux/productsOps";
 import styles from "./Searchbar.module.css";
+import { toast } from "react-toastify";
 
 
 const Searchbar = () => {
@@ -10,9 +11,19 @@ const Searchbar = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim() === "") return;
 
-    // Відправляємо екшн в Redux, щоб запустити пошук на бекенді
+    if (query.trim() === "") {
+      toast.error("Введіть артикул або бренд!", {
+        duration: 2000,
+        position: 'top-right',
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      return; // Зупиняємо функцію, щоб dispatch не спрацював
+    }
+
     dispatch(fetchProductsByQuery(query));
   };
 
