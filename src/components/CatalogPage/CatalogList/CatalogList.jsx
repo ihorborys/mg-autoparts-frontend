@@ -4,7 +4,7 @@ import CatalogItem from "../CatalogItem/CatalogItem"; // Імпортуємо н
 
 
 const CatalogList = () => {
-  const {items, isLoading, error} = useSelector((state) => state.products);
+  const {items, isLoading, error, searchPerformed} = useSelector((state) => state.products);
 
   if (isLoading) return <Loader/>;
   if (error) return <p style={{color: 'red', textAlign: 'center'}}>Помилка: {error}</p>;
