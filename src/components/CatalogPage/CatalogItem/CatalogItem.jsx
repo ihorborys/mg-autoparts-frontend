@@ -14,11 +14,10 @@ const CatalogItem = ({product}) => {
   return (
     <li className={styles.wrapper}>
       <div className={styles.container}>
-        <section>
+        <section className={styles.sectionBrandCodeImg}>
           <h4 className={styles.brand}>{product.brand}</h4>
-          <p className={styles.unicode}>{product.code}</p>
-          <img src="/img/catalog/no_item.png" alt="No picture available"
-               width="120px"/>
+          <p className={styles.code}>{product.code}</p>
+          <img className={styles.image} src="/img/catalog/no_item.png" alt="No picture available"/>
         </section>
 
         <section className={styles.section}>
@@ -26,18 +25,15 @@ const CatalogItem = ({product}) => {
         </section>
 
         <section className={styles.section}>
-          {/* Об'єднуємо базовий клас і динамічний колір */}
           <p className={`${styles.stock} ${stockColorClass}`}>
             {product.stock}
           </p>
 
-        </section>
-        <section className={styles.section} npm>
           <p className={styles.price}>
             {product.price_eur}
           </p>
         </section>
-        
+
       </div>
 
     </li>
