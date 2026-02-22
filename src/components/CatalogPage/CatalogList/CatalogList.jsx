@@ -23,7 +23,7 @@ const CatalogList = () => {
 // 1. Стан: Користувач ще нічого не шукав
   if (!searchPerformed) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
+      <div style={{ textAlign: 'center', marginTop: '40px', color: '#888' }}>
         <h2>Вітаємо в нашому магазині!</h2>
       </div>
     );
@@ -33,7 +33,9 @@ const CatalogList = () => {
   if (searchPerformed && items.length === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h3>На жаль, за запитом "{lastQuery}" нічого не знайдено</h3>
+        <h3>На жаль, за запитом
+          <p style={{ color: 'red'}}>"{lastQuery}"</p>
+          нічого не знайдено</h3>
         <p>Спробуйте інший артикул або перевірте розкладку клавіатури.</p>
       </div>
     );
