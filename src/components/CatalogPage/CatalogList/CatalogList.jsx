@@ -12,7 +12,7 @@ const CatalogList = () => {
   if (items.length === 0) {
     return (
       <p style={{textAlign: 'center', marginTop: '20px', color: '#666'}}>
-        {/* Порожній стан */}
+        {<p>Нічого не знайдено, спробуйте перевірити пошуковий запит</>}
       </p>
     );
   }
