@@ -9,19 +9,22 @@ const CatalogList = () => {
   if (isLoading) return <Loader/>;
   if (error) return <p style={{color: 'red', textAlign: 'center'}}>Помилка: {error}</p>;
 
-// Якщо масив порожній (нічого не знайдено)
+// 1. Стан: Користувач ще нічого не шукав
+  if (!searchPerformed) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
+        <h2>Вітаємо в магазині Maxgear! 🚗</h2>
+        <p>Введіть артикул або назву запчастини, щоб почати пошук.</p>
+      </div>
+    );
+  }
+
+  // 2. Стан: Пошук відбувся, але масив порожній
   if (items.length === 0) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px', color: '#666' }}>
-        {/* Використовуємо твою картинку-заглушку або сервіс */}
-        <img
-          src="/img/catalog/no_item.png"
-          alt="Нічого не знайдено"
-          style={{ width: '150px', opacity: 0.6, marginBottom: '20px' }}
-          onError={(e) => { e.target.src = "https://placehold.co/150x150?text=No+Results"; }}
-        />
-        <h3 style={{ marginBottom: '10px' }}>Нічого не знайдено 🔍</h3>
-        <p>Спробуйте інший артикул або назву деталі.</p>
+      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        <img src="/img/catalog/no_item.png" alt="Немає результатів" style={{ width: '120px' }} />
+        <h3>На жаль, за цим запитом нічого не знайдено 🔍</h3>
       </div>
     );
   }
