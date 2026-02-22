@@ -5,8 +5,8 @@ const initialState = {
   items: [],       // Масив знайдених товарів
   isLoading: false, // Індикатор завантаження
   error: null,     // Текст помилки, якщо вона є
-  searchPerformed: false, // Додаємо цей прапорець
-
+  searchPerformed: false, // Чи відбувся вже пошук
+  lastQuery: "", // Останній запит
 };
 
 const productsSlice = createSlice({
@@ -15,9 +15,10 @@ const productsSlice = createSlice({
   // Тут ми обробляємо результати асинхронного запиту fetchProductsByQuery
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProductsByQuery.pending, (state) => {
+      .addCase(fetchProductsByQuery.pending, (state, action) => {
         state.isLoading = true;
         state.error = null;
+        state.lastQuery = action.meta.arg;
       })
       .addCase(fetchProductsByQuery.fulfilled, (state, action) => {
         state.isLoading = false;

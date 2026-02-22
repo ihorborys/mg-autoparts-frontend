@@ -4,27 +4,37 @@ import CatalogItem from "../CatalogItem/CatalogItem"; // Імпортуємо н
 
 
 const CatalogList = () => {
-  const {items, isLoading, error, searchPerformed} = useSelector((state) => state.products);
+  const {items, isLoading, error, searchPerformed, lastQuery} = useSelector((state) => state.products);
 
-  if (isLoading) return <Loader/>;
+  // Стан завантаження
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '30px' }}>
+        <Loader />
+        <p style={{ marginTop: '10px', color: '#666', fontStyle: 'italic' }}>
+          Шукаємо: <strong>"{lastQuery}"</strong>...
+        </p>
+      </div>
+    );
+  }
+
   if (error) return <p style={{color: 'red', textAlign: 'center'}}>Помилка: {error}</p>;
 
 // 1. Стан: Користувач ще нічого не шукав
   if (!searchPerformed) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
-        <h2>Вітаємо в магазині Maxgear! 🚗</h2>
-        <p>Введіть артикул або назву запчастини, щоб почати пошук.</p>
+        <h2>Вітаємо в нашому магазині!</h2>
       </div>
     );
   }
 
-  // 2. Стан: Пошук відбувся, але масив порожній
-  if (items.length === 0) {
+// Стан: Пошук завершено, але нічого не знайдено
+  if (searchPerformed && items.length === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <img src="/img/catalog/no_item.png" alt="Немає результатів" style={{ width: '120px' }} />
-        <h3>На жаль, за цим запитом нічого не знайдено 🔍</h3>
+        <h3>На жаль, за запитом "{lastQuery}" нічого не знайдено</h3>
+        <p>Спробуйте інший артикул або перевірте розкладку клавіатури.</p>
       </div>
     );
   }
