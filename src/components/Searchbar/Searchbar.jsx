@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchProductsByQuery } from "../../redux/productsOps";
 import styles from "./Searchbar.module.css";
-import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 
 
 const Searchbar = () => {
