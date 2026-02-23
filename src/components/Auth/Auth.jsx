@@ -12,9 +12,9 @@ export const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = isLogin
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password });
+    const {error} = isLogin
+      ? await supabase.auth.signInWithPassword({email, password})
+      : await supabase.auth.signUp({email, password});
 
     if (error) {
       toast.error(`Помилка: ${error.message}`);
@@ -25,12 +25,22 @@ export const Auth = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '80px auto', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '12px', color: 'white' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>
-        {isLogin ? 'Вхід у MaxGear' : 'Реєстрація клієнта'}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '15px',
+      maxWidth: '350px',
+      margin: '80px auto',
+      padding: '20px',
+      backgroundColor: '#1a1a1a',
+      borderRadius: '12px',
+      color: 'white'
+    }}>
+      <h2 style={{textAlign: 'center', marginBottom: '10px'}}>
+        {isLogin ? 'Вхід у Maxgear' : 'Реєстрація клієнта'}
       </h2>
 
-      <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <form onSubmit={handleAuth} style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
         <input
           className="auth-input"
           type="email"
@@ -48,16 +58,24 @@ export const Auth = () => {
           required
         />
 
-        <button type="submit" disabled={loading} style={{ padding: '12px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <button type="submit" disabled={loading} style={{
+          padding: '12px',
+          backgroundColor: '#2563eb',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}>
           {loading ? 'Секунду...' : (isLogin ? 'Увійти' : 'Створити акаунт')}
         </button>
       </form>
 
-      <p style={{ textAlign: 'center', fontSize: '14px' }}>
+      <p style={{textAlign: 'center', fontSize: '14px'}}>
         {isLogin ? 'Ще не маєте акаунту?' : 'Вже є акаунт?'}
         <span
           onClick={() => setIsLogin(!isLogin)}
-          style={{ color: '#60a5fa', cursor: 'pointer', marginLeft: '8px', textDecoration: 'underline' }}
+          style={{color: '#60a5fa', cursor: 'pointer', marginLeft: '8px', textDecoration: 'underline'}}
         >
           {isLogin ? 'Зареєструватися' : 'Увійти'}
         </span>
