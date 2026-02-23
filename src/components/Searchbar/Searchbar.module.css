@@ -37,8 +37,13 @@
         flex-direction: column;
     }
 
+    .input {
+        border-radius: 4px 4px 0  0 ;
+    }
+
     .button {
         padding: 15px;
-        font-weight: 7400;
+        font-weight: 700;
+        border-radius: 0 0 4px 4px;
     }
 }
