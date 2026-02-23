@@ -27,7 +27,7 @@ export const Auth = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '80px auto', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '12px', color: 'white' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>
-        {isLogin ? 'Вхід у Max Gear' : 'Реєстрація клієнта'}
+        {isLogin ? 'Вхід у MaxGear' : 'Реєстрація клієнта'}
       </h2>
 
       <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
