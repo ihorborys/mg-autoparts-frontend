@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
+    "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.12.2",
     "normalize.css": "^8.0.1",
     "react": "^19.1.1",
