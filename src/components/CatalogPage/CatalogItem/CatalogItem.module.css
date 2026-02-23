@@ -22,14 +22,31 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    min-width: 100px;
 }
 
 .brand {
     font-weight: 700;
+    color: var(--grey);
 }
 
 .code {
     font-weight: 600;
+}
+
+.brand, .code {
+    /* 1. Забороняємо перенос на новий рядок */
+    white-space: nowrap;
+
+    /* 2. Ховаємо все, що виходить за межі блоку */
+    overflow: hidden;
+
+    /* 3. Магія: додаємо три крапки "..." */
+    text-overflow: ellipsis;
+
+    /* 4. Важливо для Flexbox: дозволяємо блоку стискатися */
+    display: block;
+    width: 100%;
 }
 
 .image {
@@ -60,17 +77,24 @@
 }
 
 .name {
-    /*text-align: center;*/
     font-size: 14px;
 }
 
 .stock {
+    /* 1. Робимо елемент гнучким контейнером */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+
     color: var(--white);
-    font-weight: 500;
-    padding: 5px 20px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 5px;
 }
 
 .price {
+    font-weight: 600;
 }
 
 .outOfStock {
@@ -83,4 +107,43 @@
 
 .goodStock {
     background-color: green;
+}
+
+
+@media (max-width: 1000px) {
+    .container {
+        margin: 0px;
+    }
+}
+
+@media (max-width: 768px) {
+    .name {
+        font-size: 12px;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .name {
+        display: none;
+    }
+
+}
+
+@media (max-width: 520px) {
+    .container {
+        padding: 12px 24px;
+    }
+
+    .image {
+        display: none;
+    }
+
+    .brand, .code {
+        font-size: 14px;
+    }
+
+    .stock, .price {
+        font-size: 14px;
+    }
 }
