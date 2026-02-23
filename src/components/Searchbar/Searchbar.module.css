@@ -1,8 +1,7 @@
 .container {
     display: flex;
-    gap: 10px;
     margin-bottom: 20px;
-    padding: 24px 48px 24px 96px;
+    padding: 20px;
     border: 1px solid var(--grey);
     border-radius: 5px;
     background-color: var(--grey);
@@ -13,8 +12,8 @@
     flex-grow: 1;
     padding: 12px 24px;
     font-size: 20px;
-    border: 1px solid var(--grey);
-    border-radius: 4px;
+    border: 1px solid var(--white);
+    border-radius: 4px 0  0 4px;
     text-align: center;
 }
 
@@ -24,11 +23,22 @@
     color: var(--white);
     background-color: var(--red);
     border: none;
-    border-radius: 4px;
+    border-radius: 0 4px 4px 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .button:hover {
     background-color: var(--red-hover);
+}
+@media (max-width: 768px) {
+    .container {
+        padding: 0px;
+        flex-direction: column;
+    }
+
+    .button {
+        padding: 10px;
+        font-weight: 7400;
+    }
 }
