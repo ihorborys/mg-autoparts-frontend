@@ -3,10 +3,10 @@ import Navigation from "../../components/Navigation/MainNav/Navigation.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
 
-const HomeLayout = () => {
+const HomeLayout = ({session}) => {
   return (
     <div>
-      <Header/>
+      <Header session={session}/>
       <Navigation/>
       <Outlet/>
       <Footer/>

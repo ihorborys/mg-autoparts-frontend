@@ -1,0 +1,54 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.userBadge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    background: #2563eb;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+.email {
+    font-size: 13px;
+    color: #bbb;
+}
+
+.logoutBtn {
+    background: none;
+    border: 1px solid #444;
+    color: #888;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: color 0.3s ease-in, border-color 0.3s ease-in;
+}
+
+.logoutBtn:hover {
+    color: var(--red);;
+    border-color: var(--red);;
+}
+
+
+@media (max-width: 620px) {
+    .email {
+        display: none;
+    }
+}

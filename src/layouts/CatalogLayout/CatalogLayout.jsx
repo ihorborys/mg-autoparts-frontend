@@ -4,10 +4,10 @@ import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
 
 
-const CatalogLayout = () => {
+const CatalogLayout = ({session}) => {
   return (
     <div>
-      <Header/>
+      <Header session={session}/>
       <Navigation/>
       <Outlet/>
       <Footer/>

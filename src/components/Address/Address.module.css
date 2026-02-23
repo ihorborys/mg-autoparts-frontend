@@ -4,8 +4,10 @@
 
 .addressList {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    gap: 10px;
 }
 
 .addressItem {
@@ -38,8 +40,8 @@
     color: var(--red);
 }
 
-@media screen and (max-width: 549px) {
-    .addressList {
-        flex-direction: column;
+@media screen and (max-width: 620px) {
+    .address {
+        font-size: 12px;
     }
 }
