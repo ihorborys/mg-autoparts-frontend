@@ -71,6 +71,13 @@
 
 .section {
     display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
+}
+
+.section {
+    display: flex;
     justify-content: center;
     align-items: center;
     gap: 20px;
@@ -78,6 +85,7 @@
 
 .name {
     font-size: 14px;
+    word-break: break-word;
 }
 
 .stock {
@@ -112,7 +120,7 @@
 
 @media (max-width: 1000px) {
     .container {
-        margin: 0px;
+        margin: 0;
     }
 }
 
