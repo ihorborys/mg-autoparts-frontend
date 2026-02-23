@@ -17,6 +17,11 @@
     text-align: center;
 }
 
+.input:focus {
+    outline: none;
+    border-color: var(--black); /* Твій новий колір при фокусі (синій, зелений тощо) */
+}
+
 .button {
     padding: 12px 24px;
     font-weight: 700;
@@ -31,7 +36,20 @@
 .button:hover {
     background-color: var(--red-hover);
 }
-@media (max-width: 768px) {
+
+@media (max-width: 1000px) {
+    ::placeholder {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 862px) {
+    ::placeholder {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 767px) {
     .container {
         padding: 0px;
         flex-direction: column;
@@ -46,4 +64,9 @@
         font-weight: 700;
         border-radius: 0 0 4px 4px;
     }
+
+    ::placeholder {
+        font-size: 16px;
+    }
+
 }
