@@ -60,7 +60,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { lazy, Suspense, useEffect, useState } from "react"; // Додали useEffect та useState
 import { supabase } from "./supabaseClient"; // Імпортуємо твій клієнт
-import { Auth } from "./components/Auth"; // Імпортуємо компонент авторизації
+import { Auth } from "./components/Auth/Auth.jsx"; // Імпортуємо компонент авторизації
 import Loader from "./components/Loader/Loader.jsx";
 import { Toaster } from 'react-hot-toast';
 
