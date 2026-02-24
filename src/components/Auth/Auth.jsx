@@ -7,6 +7,7 @@ export const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true); // Стан: true — вхід, false — реєстрація
+  const [isMailSent, setIsMailSent] = useState(false);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -19,7 +20,8 @@ export const Auth = () => {
     if (error) {
       toast.error(`Помилка: ${error.message}`);
     } else {
-      toast.success(isLogin ? 'З поверненням!' : 'Реєстрація успішна!');
+      toast.success(isLogin ? 'З поверненням!' : 'Підтвердіть, будь ласка, реєстрацію - лист надіслано на пошту.',
+        {duration: 5000});
     }
     setLoading(false);
   };
