@@ -12,9 +12,8 @@ export const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Визначаємо адресу, на яку треба повернути юзера
-    // Якщо ти на localhost, то поверне на localhost, якщо на Vercel — на Vercel
-    const redirectUrl = `${window.location.origin}/catalog`;
+// Визначаємо адресу динамічно: де ми зараз, туди й повертаємось
+    const currentOrigin = window.location.origin; // http://localhost:5173 або Vercel
 
     const {error} = isLogin
       ? await supabase.auth.signInWithPassword({email, password})
@@ -22,8 +21,8 @@ export const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl
-        }
+          emailRedirectTo: `${currentOrigin}/catalog`,
+        },
       });
 
     if (error) {

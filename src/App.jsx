@@ -17,9 +17,11 @@ function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
+    // Прапорець, щоб не показувати тост двічі в одному циклі
+    let isToastShown = false;
+
 // 1. ОДРАЗУ зберігаємо стан хешу, поки Supabase його не прибрав
     const isConfirmingEmail = window.location.hash.includes('type=signup');
-    console.log("Чи це підтвердження пошти?:", isConfirmingEmail);
 
     // 1. Отримуємо сесію при завантаженні
     supabase.auth.getSession().then(({data: {session}}) => {
@@ -30,10 +32,10 @@ function App() {
     const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
 
-      console.log("Подія авторизації:", event);
-
 // Перевіряємо SIGNED_IN або INITIAL_SESSION (перший вхід)
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail && !isToastShown) {
+        isToastShown = true; // Блокуємо повторний запуск сповіщення
+
         toast.success("Акаунт активовано! Ласкаво просимо до Maxgear.", {
           duration: 6000,
           icon: '✅'
