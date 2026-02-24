@@ -17,10 +17,10 @@ function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
+// 1. ОДРАЗУ зберігаємо стан хешу, поки Supabase його не прибрав
+    const isConfirmingEmail = window.location.hash.includes('type=signup');
+    console.log("Чи це підтвердження пошти?:", isConfirmingEmail);
 
-    console.log("Повна адреса при завантаженні:", window.location.href);
-    console.log("Хеш адреси:", window.location.hash);
-    
     // 1. Отримуємо сесію при завантаженні
     supabase.auth.getSession().then(({data: {session}}) => {
       setSession(session);
@@ -30,15 +30,22 @@ function App() {
     const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
 
-      // --- ЛОГІКА ТОСТЕРА ТЕПЕР ВСЕРЕДИНІ СЛУХАЧА ---
-      if (event === 'SIGNED_IN' && window.location.hash.includes('type=signup')) {
-        toast.success("Пошту підтверджено! Реєстрація успішна!", {});
+      console.log("Подія авторизації:", event);
+
+// Перевіряємо SIGNED_IN або INITIAL_SESSION (перший вхід)
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail) {
+        toast.success("Акаунт активовано! Ласкаво просимо до Maxgear.", {
+          duration: 6000,
+          icon: '✅'
+        });
+
         // Очищаємо хеш, щоб тост не вискакував при кожному F5
         window.history.replaceState(null, null, window.location.pathname);
       }
     });
 
     return () => subscription.unsubscribe();
+
   }, []); // Тут тепер все закрито правильно
 
   return (
