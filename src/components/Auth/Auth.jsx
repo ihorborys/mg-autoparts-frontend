@@ -7,15 +7,24 @@ export const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true); // Стан: true — вхід, false — реєстрація
-  // const [isMailSent, setIsMailSent] = useState(false);
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    // Визначаємо адресу, на яку треба повернути юзера
+    // Якщо ти на localhost, то поверне на localhost, якщо на Vercel — на Vercel
+    const redirectUrl = `${window.location.origin}/catalog`;
+
     const {error} = isLogin
       ? await supabase.auth.signInWithPassword({email, password})
-      : await supabase.auth.signUp({email, password});
+      : await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      });
 
     if (error) {
       toast.error(`Помилка: ${error.message}`);
