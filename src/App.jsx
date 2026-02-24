@@ -36,10 +36,16 @@ function App() {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail && !isToastShown) {
         isToastShown = true; // Блокуємо повторний запуск сповіщення
 
-        toast.success("Акаунт активовано! Ласкаво просимо до Maxgear.", {
-          duration: 6000,
-          icon: '✅'
-        });
+        toast.success(
+          <div>
+            Акаунт активовано!
+            <br/>
+            Ласкаво просимо до Maxgear!
+          </div>,
+          {
+            duration: 6000,
+            icon: '✅'
+          });
 
         // Очищаємо хеш, щоб тост не вискакував при кожному F5
         window.history.replaceState(null, null, window.location.pathname);
