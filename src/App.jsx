@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useState } from "react"; // Додали use
 import { supabase } from "./supabaseClient"; // Імпортуємо твій клієнт
 import { Auth } from "./components/Auth/Auth.jsx"; // Імпортуємо компонент авторизації
 import Loader from "./components/Loader/Loader.jsx";
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const HomePage = lazy(() => import("./pages/HomePage/HomePage.jsx"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage/CatalogPage.jsx"));
@@ -17,18 +17,29 @@ function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    // 1. Отримуємо поточну сесію при завантаженні
-    supabase.auth.getSession().then(({ data: { session } }) => {
+
+    console.log("Повна адреса при завантаженні:", window.location.href);
+    console.log("Хеш адреси:", window.location.hash);
+    
+    // 1. Отримуємо сесію при завантаженні
+    supabase.auth.getSession().then(({data: {session}}) => {
       setSession(session);
     });
 
-    // 2. Слухаємо зміни стану (вхід/вихід)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // 2. Слухаємо зміни стану
+    const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+
+      // --- ЛОГІКА ТОСТЕРА ТЕПЕР ВСЕРЕДИНІ СЛУХАЧА ---
+      if (event === 'SIGNED_IN' && window.location.hash.includes('type=signup')) {
+        toast.success("Пошту підтверджено! Реєстрація успішна!", {});
+        // Очищаємо хеш, щоб тост не вискакував при кожному F5
+        window.history.replaceState(null, null, window.location.pathname);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, []); // Тут тепер все закрито правильно
 
   return (
     <div>
@@ -55,7 +66,7 @@ function App() {
           {/* Сторінка каталогу — ЗАХИЩЕНА */}
           <Route path={"/catalog"} element={<CatalogLayout session={session}/>}>
             {/* Якщо сесія є — показуємо каталог, якщо ні — форму входу */}
-            <Route index element={session ? <CatalogPage/> : <Auth />}></Route>
+            <Route index element={session ? <CatalogPage/> : <Auth/>}></Route>
           </Route>
 
           <Route path="*" element={<NotFoundPage/>}/>

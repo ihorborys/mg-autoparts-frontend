@@ -7,7 +7,7 @@ export const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true); // Стан: true — вхід, false — реєстрація
-  const [isMailSent, setIsMailSent] = useState(false);
+  // const [isMailSent, setIsMailSent] = useState(false);
 
   const handleAuth = async (e) => {
     e.preventDefault();
