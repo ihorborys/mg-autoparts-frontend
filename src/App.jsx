@@ -40,7 +40,7 @@ function App() {
           <div>
             Акаунт активовано!
             <br/>
-            Ласкаво просимо до Maxgear!
+            Ласкаво просимо до Maxgear.
           </div>,
           {
             duration: 6000,

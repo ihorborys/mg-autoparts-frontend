@@ -6,14 +6,27 @@ export const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true); // Стан: true — вхід, false — реєстрація
+  const [isLogin, setIsLogin] = useState(true);
+
+  // 1. Функція для Google Auth
+  const handleGoogleLogin = async () => {
+    const {error} = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/catalog`,
+      },
+    });
+
+    if (error) {
+      toast.error(`Помилка Google: ${error.message}`);
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-// Визначаємо адресу динамічно: де ми зараз, туди й повертаємось
-    const currentOrigin = window.location.origin; // http://localhost:5173 або Vercel
+    const currentOrigin = window.location.origin;
 
     const {error} = isLogin
       ? await supabase.auth.signInWithPassword({email, password})
@@ -28,8 +41,10 @@ export const Auth = () => {
     if (error) {
       toast.error(`Помилка: ${error.message}`);
     } else {
-      toast.success(isLogin ? 'З поверненням!' : 'Підтвердіть, будь ласка, реєстрацію - лист надіслано на пошту.',
-        {duration: 5000});
+      toast.success(
+        isLogin ? 'З поверненням!' : 'Підтвердіть реєстрацію - лист надіслано на пошту.',
+        {duration: 5000}
+      );
     }
     setLoading(false);
   };
@@ -41,10 +56,11 @@ export const Auth = () => {
       gap: '15px',
       maxWidth: '350px',
       margin: '80px auto',
-      padding: '20px',
+      padding: '25px',
       backgroundColor: '#1a1a1a',
-      borderRadius: '12px',
-      color: 'white'
+      borderRadius: '16px',
+      color: 'white',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
     }}>
       <h2 style={{textAlign: 'center', marginBottom: '10px'}}>
         {isLogin ? 'Вхід у Maxgear' : 'Реєстрація клієнта'}
@@ -62,7 +78,7 @@ export const Auth = () => {
         <input
           className="auth-input"
           type="password"
-          placeholder="Пароль (мін. 6 символів)"
+          placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -73,15 +89,52 @@ export const Auth = () => {
           backgroundColor: '#2563eb',
           color: 'white',
           border: 'none',
-          borderRadius: '6px',
+          borderRadius: '8px',
           cursor: 'pointer',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          marginTop: '5px',
         }}>
           {loading ? 'Секунду...' : (isLogin ? 'Увійти' : 'Створити акаунт')}
         </button>
       </form>
 
-      <p style={{textAlign: 'center', fontSize: '14px'}}>
+      {/* --- Розділювач --- */}
+      <div style={{display: 'flex', alignItems: 'center', margin: '10px 0'}}>
+        <div style={{flex: 1, height: '1px', backgroundColor: '#444'}}></div>
+        <span style={{padding: '0 10px', color: '#888', fontSize: '12px'}}>АБО</span>
+        <div style={{flex: 1, height: '1px', backgroundColor: '#444'}}></div>
+      </div>
+
+      {/* 2. Кнопка Google */}
+      <button
+        onClick={handleGoogleLogin}
+        type="button"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+          padding: '12px',
+          backgroundColor: 'transparent',
+          color: 'white',
+          border: '1px solid #444',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: '500',
+          transition: 'background 0.3s'
+        }}
+        onMouseOver={(e) => e.target.style.backgroundColor = '#333'}
+        onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+      >
+        <img
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+          alt="G"
+          style={{width: '18px'}}
+        />
+        Продовжити з Google
+      </button>
+
+      <p style={{textAlign: 'center', fontSize: '14px', marginTop: '10px'}}>
         {isLogin ? 'Ще не маєте акаунту?' : 'Вже є акаунт?'}
         <span
           onClick={() => setIsLogin(!isLogin)}
