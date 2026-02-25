@@ -10,6 +10,7 @@
 .container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 20px;
     color: var(--black);
     background-color: var(--white);
@@ -18,11 +19,23 @@
     margin: 10px;
 }
 
-.sectionBrandCodeImg {
+{ /* Секція 1: Бренд, Код, Фото, Назва товару */
+}
+
+.info {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 40px;
+    flex: 1;
+}
+
+.brandCodeImg {
+    width: 150px;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    min-width: 100px;
+    /*min-width: 100px;*/
 }
 
 .brand {
@@ -51,12 +64,12 @@
 
 .image {
     /* 1. Встановлюємо чіткі розміри */
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
 
     /* 2. ЖОРСТКО ЗАБОРОНЯЄМО ставати меншою (це база) */
-    min-width: 100px;
-    min-height: 100px;
+    min-width: 120px;
+    min-height: 120px;
 
     /* 3. Забороняємо флекс-контейнеру стискати її */
     flex-shrink: 0;
@@ -69,23 +82,29 @@
     background-color: #f5f5f5;
 }
 
-.section {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 20px;
-}
-
-.section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-}
-
 .name {
     font-size: 14px;
     word-break: break-word;
+}
+
+
+{ /* Секція 2: Склад, Ціна, Кнопки вибору та Кошик */
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    /*min-width: 120px;*/
+}
+
+.stockPrice {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 .stock {
@@ -115,6 +134,64 @@
 
 .goodStock {
     background-color: green;
+}
+
+.controlsBasket {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.qtyBtn {
+    background: #f0f0f0;
+    border: none;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.qtyBtn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.qtyInput {
+    width: 40px;
+    text-align: center;
+    border: none;
+    /*border-left: 1px solid #ddd;*/
+    /*border-right: 1px solid #ddd;*/
+    font-size: 14px;
+}
+
+.addToCartBtn {
+    background-color: var(--blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.addToCartBtn:hover:not(:disabled) {
+    background-color: var(--blue-hover);
+}
+
+.addToCartBtn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 
