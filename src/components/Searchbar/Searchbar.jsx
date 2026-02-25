@@ -40,6 +40,18 @@ const Searchbar = () => {
       return; // Зупиняємо функцію, щоб dispatch не спрацював
     }
 
+    if (query.trim().length === 1) {
+      toast.error("Введіть мінімум 2 символи для пошуку", {
+        duration: 2000,
+        position: 'top-center',
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      return; // Зупиняємо функцію, щоб dispatch не спрацював
+    }
+
     dispatch(fetchProductsByQuery(query));
   };
 
