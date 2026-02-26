@@ -266,13 +266,19 @@
 
 @media (max-width: 520px) {
     .brandCodeImg {
-        width: 170px;
+        width: 120px;
     }
+
 }
 
-@media (max-width: 460px) {
+@media (max-width: 400px) {
     .container {
         flex-direction: column;
         text-align: center;
+        gap: 10px;
+    }
+
+    .brandCodeImg {
+        width: 165px;
     }
 }
