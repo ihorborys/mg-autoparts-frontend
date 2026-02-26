@@ -35,7 +35,6 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    /*min-width: 100px;*/
 }
 
 .brand {
@@ -145,16 +144,24 @@
 }
 
 .quantityControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
 }
 
 .qtyBtn {
-
+    display: inline-flex; /* Дозволяє кнопці бути в рядку, але працювати як flex */
+    align-items: center; /* Центрує SVG по вертикалі */
+    justify-content: center; /* Центрує SVG по горизонталі */
+    width: 28px;
+    height: 28px;
+    padding: 0;
 }
 
 .qtyBtn:disabled {
-    /*color: #ccc;*/
-    /*cursor: not-allowed;*/
+    color: var(--grey);
+    cursor: not-allowed;
 }
 
 .qtyInput {
@@ -178,7 +185,7 @@
 }
 
 .addToCartBtn:disabled {
-    background-color: #ccc;
+    background-color: var(--grey);
     cursor: not-allowed;
 }
 
@@ -200,7 +207,6 @@
 @media (max-width: 780px) {
     .container {
         padding: 12px 24px;
-        margin: 0;
     }
 
     .brand, .code {
@@ -253,5 +259,14 @@
 }
 
 @media (max-width: 560px) {
+    .actions {
+        gap: 20px;
+    }
+}
 
+@media (max-width: 520px) {
+    .container {
+        flex-direction: column;
+        justify-content: left;
+    }
 }
