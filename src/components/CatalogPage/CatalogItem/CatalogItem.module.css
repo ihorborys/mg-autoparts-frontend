@@ -102,7 +102,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 3px;
     flex-shrink: 0;
 }
 
@@ -123,6 +123,10 @@
     font-weight: 600;
 }
 
+.delivery {
+    font-size: 12px;
+}
+
 .outOfStock {
     background-color: var(--red);
 }
@@ -140,7 +144,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
 }
 
 .quantityControls {
@@ -242,6 +246,10 @@
 
     .stock, .price {
         font-size: 12px;
+    }
+
+    .delivery {
+        font-size: 10px;
     }
 
     .qtyInput {

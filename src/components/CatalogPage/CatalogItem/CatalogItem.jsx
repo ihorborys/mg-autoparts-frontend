@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import styles from './CatalogItem.module.css';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
+import { getDeliveryTime } from "../../../utils/helpers.js";
+
 
 const CatalogItem = ({product}) => {
+  const deliveryTerm = getDeliveryTime(product.supplier_id);
+
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);
+
+  console.log(product);
 
   // Функції для зміни кількості
   const increment = () => {
@@ -26,6 +32,7 @@ const CatalogItem = ({product}) => {
       ? styles.lowStock
       : styles.goodStock;
 
+
   return (
     <li className={styles.wrapper}>
       <div className={styles.container}>
@@ -46,6 +53,7 @@ const CatalogItem = ({product}) => {
             <p className={`${styles.stock} ${stockColorClass}`}>
               {product.stock === 0 ? 'Немає' : `${product.stock} шт.`}
             </p>
+            <p className={styles.delivery}><span>{deliveryTerm} днів</span></p>
             <p className={styles.price}>
               {product.price_eur} €
             </p>
