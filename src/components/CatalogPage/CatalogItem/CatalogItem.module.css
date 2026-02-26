@@ -151,7 +151,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
 
 .qtyBtn {
@@ -208,7 +207,7 @@
     }
 }
 
-@media (max-width: 780px) {
+@media (max-width: 820px) {
     .container {
         padding: 12px 24px;
     }
@@ -235,7 +234,7 @@
 }
 
 
-@media (max-width: 680px) {
+@media (max-width: 700px) {
     .container {
         padding: 6px 12px;
     }
@@ -266,31 +265,35 @@
 
 }
 
-@media (max-width: 560px) {
+@media (max-width: 620px) {
     .actions {
         gap: 20px;
     }
 
-    .stockPrice {
-        /*gap: 2px;*/
+    .controlsBasket {
+        gap: 2px;
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 560px) {
     .brandCodeImg {
         width: 190px;
     }
 
+    .actions {
+        gap: 10px;
+    }
+
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
     .brandCodeImg {
         width: 160px;
     }
 
 }
 
-@media (max-width: 440px) {
+@media (max-width: 490px) {
     .brandCodeImg {
         width: 110px;
     }
@@ -300,19 +303,27 @@
     }
 
     .actions {
-        gap: 10px;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 490px) {
+    .brandCodeImg {
+        width: 70px;
     }
 
+    .brand, .code {
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 359px) {
     .container {
         flex-direction: column;
         text-align: center;
-
     }
 
-    .brandCodeImg {
-        /*width: 165px;*/
+    .info {
+
     }
 }
