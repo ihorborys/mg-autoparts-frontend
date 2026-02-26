@@ -145,33 +145,41 @@
 }
 
 .quantityControls {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*border: 1px solid #ddd;*/
+    /*border-radius: 4px;*/
+    /*overflow: hidden;*/
 }
 
 .qtyBtn {
-    background: #f0f0f0;
-    border: none;
-    padding: 5px 12px;
-    cursor: pointer;
-    font-weight: bold;
+    /*background: #f0f0f0;*/
+    /*border: none;*/
+    /*padding: 5px 12px;*/
+    /*cursor: pointer;*/
+    /*font-weight: bold;*/
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
 }
 
 .qtyBtn:disabled {
-    color: #ccc;
-    cursor: not-allowed;
+    /*color: #ccc;*/
+    /*cursor: not-allowed;*/
 }
 
 .qtyInput {
     width: 40px;
     text-align: center;
+    /*box-sizing: border-box;*/
     border: none;
+    /*padding: 0;*/
+    /*-webkit-appearance: none;*/
+    /*margin: 0;*/
+    /*-moz-appearance: textfield;*/
     /*border-left: 1px solid #ddd;*/
     /*border-right: 1px solid #ddd;*/
-    font-size: 14px;
+    /*font-size: 14px;*/
 }
 
 .addToCartBtn {

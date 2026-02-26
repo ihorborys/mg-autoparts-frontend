@@ -52,32 +52,31 @@ const CatalogItem = ({product}) => {
           </div>
           <div className={styles.controlsBasket}>
             <div className={styles.quantityControls}>
+
               <button
                 onClick={decrement}
                 disabled={product.stock === 0 || quantity <= 1}
                 className={styles.qtyBtn}
               >
-                -
+                <Minus size={12} strokeWidth={2}/>
               </button>
-              {/*<button className={styles.qtyBtn}>*/}
-              {/*  <Minus size={24} strokeWidth={2}/>*/}
-              {/*</button>*/}
+
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={quantity}
                 readOnly
                 className={styles.qtyInput}
               />
+
               <button
                 onClick={increment}
                 disabled={product.stock === 0 || quantity >= product.stock}
                 className={styles.qtyBtn}
               >
-                +
+                <Plus size={12} strokeWidth={2}/>
               </button>
-              {/*<button className={styles.qtyBtn}>*/}
-              {/*  <Plus size={24} strokeWidth={2}/>*/}
-              {/*</button>*/}
+
             </div>
 
             <button
