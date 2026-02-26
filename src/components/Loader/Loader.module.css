@@ -1,8 +1,8 @@
 .loaderWrapper {
     position: fixed; /* або absolute, якщо всередині контейнера */
-    top: 50%;
+    top: 75%;
     left: 50%;
-    transform: translate(-50%, -25%);
+    transform: translate(-50%, -50%);
     z-index: 9999; /* щоб був поверх усього */
     display: flex;
     justify-content: center;
