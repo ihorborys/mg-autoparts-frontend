@@ -1,15 +1,21 @@
-import {RingLoader} from "react-spinners";
+import { RingLoader } from "react-spinners";
 import styles from "./Loader.module.css";
 
 const Loader = () => {
-    const redColor = getComputedStyle(document.documentElement)
-        .getPropertyValue("--red")
-        .trim();
+  const redColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--red")
+    .trim();
 
-    return (
-        <div className={styles.loaderWrapper}>
-            <RingLoader size={60} color={redColor}/>
-        </div>
-    );
+  const greyColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--grey")
+    .trim();
+
+  const loaderSize = window.innerWidth < 768 ? 30 : 60;
+
+  return (
+    <div className={styles.loaderWrapper}>
+      <RingLoader size={loaderSize} color={greyColor}/>
+    </div>
+  );
 };
 export default Loader;
