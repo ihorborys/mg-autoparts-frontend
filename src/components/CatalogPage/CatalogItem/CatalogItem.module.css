@@ -31,7 +31,7 @@
 }
 
 .brandCodeImg {
-    width: 150px;
+    /*width: 150px;*/
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -145,22 +145,11 @@
 }
 
 .quantityControls {
-    /*display: flex;*/
-    /*align-items: center;*/
-    /*border: 1px solid #ddd;*/
-    /*border-radius: 4px;*/
-    /*overflow: hidden;*/
+
 }
 
 .qtyBtn {
-    /*background: #f0f0f0;*/
-    /*border: none;*/
-    /*padding: 5px 12px;*/
-    /*cursor: pointer;*/
-    /*font-weight: bold;*/
-    /*display: flex;*/
-    /*justify-content: center;*/
-    /*align-items: center;*/
+
 }
 
 .qtyBtn:disabled {
@@ -171,15 +160,7 @@
 .qtyInput {
     width: 40px;
     text-align: center;
-    /*box-sizing: border-box;*/
     border: none;
-    /*padding: 0;*/
-    /*-webkit-appearance: none;*/
-    /*margin: 0;*/
-    /*-moz-appearance: textfield;*/
-    /*border-left: 1px solid #ddd;*/
-    /*border-right: 1px solid #ddd;*/
-    /*font-size: 14px;*/
 }
 
 .addToCartBtn {
@@ -190,7 +171,6 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 100%;
 }
 
 .addToCartBtn:hover:not(:disabled) {
@@ -207,29 +187,20 @@
     .container {
         margin: 0;
     }
-}
-
-@media (max-width: 768px) {
-    .name {
-        font-size: 12px;
-    }
-}
-
-
-@media (max-width: 600px) {
-    .name {
-        display: none;
-    }
-
-}
-
-@media (max-width: 520px) {
-    .container {
-        padding: 12px 24px;
-    }
 
     .image {
         display: none;
+    }
+
+    .name {
+        display: none;
+    }
+}
+
+@media (max-width: 780px) {
+    .container {
+        padding: 12px 24px;
+        margin: 0;
     }
 
     .brand, .code {
@@ -239,4 +210,48 @@
     .stock, .price {
         font-size: 14px;
     }
+
+    .qtyInput {
+        font-size: 14px;
+    }
+
+    .addToCartBtn {
+        font-size: 14px;
+    }
+
+    .qtyInput {
+        width: 32px;
+    }
+}
+
+
+@media (max-width: 680px) {
+    .container {
+        padding: 6px 12px;
+    }
+
+    .brand, .code {
+        font-size: 12px;
+    }
+
+    .stock, .price {
+        font-size: 12px;
+    }
+
+    .qtyInput {
+        font-size: 12px;
+    }
+
+    .addToCartBtn {
+        font-size: 12px;
+    }
+
+    .qtyInput {
+        width: 24px;
+    }
+
+}
+
+@media (max-width: 560px) {
+
 }
