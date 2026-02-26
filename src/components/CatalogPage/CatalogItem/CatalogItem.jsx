@@ -4,8 +4,10 @@ import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { getDeliveryTime } from "../../../utils/helpers.js";
 
 
-const CatalogItem = ({product}) => {
+const CatalogItem = ({product, exchangeRate}) => {
   const deliveryTerm = getDeliveryTime(product.supplier_id);
+  const priceEuro27 = (product.price_eur / 1.33 * 1.27).toFixed(2);
+  const priceUah27 = (product.price_eur / 1.33 * 1.27 * exchangeRate).toFixed(0);
 
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);
@@ -54,10 +56,17 @@ const CatalogItem = ({product}) => {
               {product.stock === 0 ? 'Немає' : `${product.stock} шт.`}
             </p>
             <p className={styles.delivery}><span>{deliveryTerm} днів</span></p>
+          </div>
+
+          <div className={styles.stockPrice}>
             <p className={styles.price}>
-              {product.price_eur} €
+              {priceEuro27} €
+            </p>
+            <p className={styles.price}>
+              {priceUah27} ₴
             </p>
           </div>
+
           <div className={styles.controlsBasket}>
             <div className={styles.quantityControls}>
 

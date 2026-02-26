@@ -102,7 +102,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
     flex-shrink: 0;
 }
 
@@ -144,7 +144,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
 }
 
 .quantityControls {
@@ -270,11 +270,15 @@
     .actions {
         gap: 20px;
     }
+
+    .stockPrice {
+        /*gap: 2px;*/
+    }
 }
 
 @media (max-width: 520px) {
     .brandCodeImg {
-        width: 200px;
+        width: 190px;
     }
 
 }
