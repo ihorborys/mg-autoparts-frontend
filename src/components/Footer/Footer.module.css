@@ -56,4 +56,14 @@
     .nav {
         align-self: center;
     }
+
+
 }
+
+@media screen and (max-width: 280px) {
+    .copyright {
+        font-size: 8px;
+        /*flex-direction: column;*/
+    }
+}
+

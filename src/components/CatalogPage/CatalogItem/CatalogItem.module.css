@@ -265,8 +265,14 @@
 }
 
 @media (max-width: 520px) {
+    .brandCodeImg {
+        width: 170px;
+    }
+}
+
+@media (max-width: 460px) {
     .container {
         flex-direction: column;
-        justify-content: left;
+        text-align: center;
     }
 }
