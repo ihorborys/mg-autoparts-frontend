@@ -95,7 +95,6 @@
     justify-content: center;
     align-items: center;
     gap: 40px;
-    /*min-width: 120px;*/
 }
 
 .stockPrice {
@@ -104,6 +103,7 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .stock {
@@ -266,19 +266,41 @@
 
 @media (max-width: 520px) {
     .brandCodeImg {
-        width: 120px;
+        width: 200px;
     }
 
 }
 
-@media (max-width: 400px) {
+@media (max-width: 480px) {
+    .brandCodeImg {
+        width: 160px;
+    }
+
+}
+
+@media (max-width: 440px) {
+    .brandCodeImg {
+        width: 110px;
+    }
+
     .container {
-        flex-direction: column;
-        text-align: center;
         gap: 10px;
     }
 
+    .actions {
+        gap: 10px;
+    }
+
+}
+
+@media (max-width: 359px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+
+    }
+
     .brandCodeImg {
-        width: 165px;
+        /*width: 165px;*/
     }
 }
