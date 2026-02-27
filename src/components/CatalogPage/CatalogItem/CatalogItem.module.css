@@ -46,6 +46,11 @@
     font-weight: 600;
 }
 
+.unicode {
+    font-weight: 400;
+    font-size: 14px;
+}
+
 .brand, .code {
     /* 1. Забороняємо перенос на новий рядок */
     white-space: nowrap;

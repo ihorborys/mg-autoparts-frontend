@@ -39,11 +39,12 @@ const CatalogItem = ({product, exchangeRate}) => {
     <li className={styles.wrapper}>
       <div className={styles.container}>
 
-        {/* Секція 1: Бренд, Код, Фото, Назва товару */}
+        {/* Секція 1: Бренд, Код, Unicode, Фото, Назва товару */}
         <section className={styles.info}>
           <div className={styles.brandCodeImg}>
             <h4 className={styles.brand}>{product.brand}</h4>
             <p className={styles.code}>{product.code}</p>
+            <p className={styles.unicode}>{product.unicode}</p>
             <img className={styles.image} src="/img/catalog/no_item.png" alt="No picture available"/>
           </div>
           <p className={styles.name}>{product.name}</p>
