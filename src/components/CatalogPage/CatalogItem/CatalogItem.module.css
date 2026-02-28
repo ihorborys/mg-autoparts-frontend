@@ -30,11 +30,20 @@
     flex: 1;
 }
 
-.brandCodeImg {
+.infoContainer {
     /*width: 150px;*/
     display: flex;
+    /*flex-direction: column;*/
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.brandCodeContainer {
+    display: flex;
     flex-direction: column;
-    gap: 5px;
+    justify-content: center;
+    align-items: start;
 }
 
 .brand {
@@ -85,6 +94,7 @@
     border-radius: 8px;
     background-color: #f5f5f5;
 }
+
 
 .name {
     font-size: 14px;
@@ -203,9 +213,6 @@
         margin: 0;
     }
 
-    .image {
-        display: none;
-    }
 
     .name {
         display: none;
@@ -242,6 +249,13 @@
 @media (max-width: 700px) {
     .container {
         padding: 6px 12px;
+    }
+
+    .image {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        min-height: 80px;
     }
 
     .brand, .code {
@@ -281,10 +295,9 @@
 }
 
 @media (max-width: 560px) {
-    .brandCodeImg {
-        width: 190px;
-    }
-
+    /*.infoContainer {*/
+    /*    width: 190px;*/
+    /*}*/
     .actions {
         gap: 10px;
     }
@@ -292,15 +305,17 @@
 }
 
 @media (max-width: 520px) {
-    .brandCodeImg {
-        width: 160px;
-    }
-
+    /*.infoContainer {*/
+    /*    width: 160px;*/
+    /*}*/
 }
 
 @media (max-width: 490px) {
-    .brandCodeImg {
-        width: 110px;
+    /*.infoContainer {*/
+    /*    width: 110px;*/
+    /*}*/
+    .image {
+        display: none;
     }
 
     .container {
@@ -313,10 +328,9 @@
 }
 
 @media (max-width: 490px) {
-    .brandCodeImg {
-        width: 70px;
-    }
-
+    /*.infoContainer {*/
+    /*    width: 70px;*/
+    /*}*/
     .brand, .code {
         font-size: 12px;
     }
@@ -329,10 +343,18 @@
 @media (max-width: 359px) {
     .container {
         flex-direction: column;
-        text-align: center;
+        text-align: start;
     }
 
-    .brandCodeImg {
-        width: 200px;
+    .image {
+        display: block;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        min-height: 100px;
     }
+
+    /*.infoContainer {*/
+    /*    width: 200px;*/
+    /*}*/
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styles from './CatalogItem.module.css';
-import { Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { getDeliveryTime } from "../../../utils/helpers.js";
+import CopyAction from "../../CopyAction/CopyAction.jsx";
 
 
 const CatalogItem = ({product, exchangeRate}) => {
@@ -28,6 +29,7 @@ const CatalogItem = ({product, exchangeRate}) => {
     alert(`Додано ${quantity} шт. товару ${product.code}`);
   };
 
+
   const stockColorClass = product.stock === 0
     ? styles.outOfStock
     : product.stock < 5
@@ -41,11 +43,17 @@ const CatalogItem = ({product, exchangeRate}) => {
 
         {/* Секція 1: Бренд, Код, Unicode, Фото, Назва товару */}
         <section className={styles.info}>
-          <div className={styles.brandCodeImg}>
-            <h4 className={styles.brand}>{product.brand}</h4>
-            <p className={styles.code}>{product.code}</p>
-            <p className={styles.unicode}>{product.unicode}</p>
+          <div className={styles.infoContainer}>
             <img className={styles.image} src="/img/catalog/no_item.png" alt="No picture available"/>
+
+            <div className={styles.brandCodeContainer}>
+              <h4 className={styles.brand}>{product.brand}</h4>
+              <CopyAction text={product.code} label="код">
+                <p className={styles.code}>{product.code}</p>
+              </CopyAction>
+              <p className={styles.unicode}>{product.unicode}</p>
+            </div>
+
           </div>
           <p className={styles.name}>{product.name}</p>
         </section>
