@@ -1,0 +1,27 @@
+.copyContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    gap: 5px;
+    /*transition: color 0.3s ease;*/
+}
+
+.copyButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 4px;
+    transition: color 0.3s ease;
+}
+
+.copyButton:hover {
+    color: var(--red);
+}
+
+/*.copyContainer:hover {*/
+/*    color: var(--red);*/
+/*}*/
