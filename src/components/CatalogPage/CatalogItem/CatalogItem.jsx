@@ -48,7 +48,7 @@ const CatalogItem = ({product, exchangeRate}) => {
 
             <div className={styles.brandCodeContainer}>
               <h4 className={styles.brand}>{product.brand}</h4>
-              <CopyAction text={product.code} label="код">
+              <CopyAction text={product.code} label="артикул">
                 <p className={styles.code}>{product.code}</p>
               </CopyAction>
               <p className={styles.unicode}>{product.unicode}</p>
