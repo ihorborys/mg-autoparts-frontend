@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import styles from './CatalogItem.module.css';
 import { Plus, Minus } from 'lucide-react';
-import { getDeliveryTime } from "../../../utils/helpers.js";
+import { getDeliveryTime, getSupplierName } from "../../../utils/helpers.js";
 import CopyAction from "../../CopyAction/CopyAction.jsx";
 
 
 const CatalogItem = ({product, exchangeRate}) => {
   const deliveryTerm = getDeliveryTime(product.supplier_id);
+  const supplierName = getSupplierName(product.supplier_id);
   const priceEuro27 = (product.price_eur / 1.33 * 1.27).toFixed(2);
   const priceUah27 = (product.price_eur / 1.33 * 1.27 * exchangeRate).toFixed(0);
 
@@ -52,6 +53,7 @@ const CatalogItem = ({product, exchangeRate}) => {
                 <p className={styles.code}>{product.code}</p>
               </CopyAction>
               <p className={styles.unicode}>{product.unicode}</p>
+              <p className={styles.supplier}><span>{supplierName}</span></p>
             </div>
 
           </div>

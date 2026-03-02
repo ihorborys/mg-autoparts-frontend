@@ -1,38 +1,20 @@
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCampers } from "../../redux/productsOps.js";
-import { setPage } from "../../redux/productsSlice.js";
 import styles from "./LoadMoreBtn.module.css";
-import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
+import Loader from "../Loader/Loader.jsx";
 
-const LoadMoreBtn = () => {
-  const dispatch = useDispatch();
-  const { currentPage, totalPages, limit } = useSelector(
-    (state) => state.campers,
-  );
-
-  const handleLoadMore = () => {
-    const nextPage = currentPage + 1;
-
-    if (totalPages && nextPage >= totalPages) {
-      toast.info("Sorry, no more results...");
-      return;
-    }
-
-    dispatch(setPage(nextPage));
-    dispatch(fetchCampers({ page: nextPage, limit }));
-  };
-
-  const isLastPage = totalPages && currentPage >= totalPages;
-
+const LoadMoreBtn = ({onClick, isLoading}) => {
   return (
-    <div>
-      {!isLastPage && (
-        <button className={styles.container} onClick={handleLoadMore}>
-          Load More
+    <div className={styles.container}>
+      {isLoading ? (
+        <Loader size={30}/>
+      ) : (
+        <button
+          className={styles.button}
+          onClick={onClick}
+          disabled={isLoading}
+        >
+          Показати ще
         </button>
       )}
-      <ToastContainer position="top-center" autoClose={3000} />
     </div>
   );
 };

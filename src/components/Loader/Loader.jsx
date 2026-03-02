@@ -1,21 +1,32 @@
 import { RingLoader } from "react-spinners";
 import styles from "./Loader.module.css";
 
-const Loader = () => {
-  const redColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--red")
-    .trim();
+// Додаємо пропси size та color
+const Loader = ({size, color}) => {
 
+  // 1. Отримуємо кольори з CSS-змінних (залишаємо як запасний варіант)
   const greyColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--grey")
-    .trim();
+    .trim() || "#ccc"; // Додав дефолтний колір, якщо змінна не знайдена
 
-  const loaderSize = window.innerWidth < 768 ? 30 : 60;
+  // 2. Визначаємо розмір:
+  // Якщо ми передали size в пропсах — беремо його.
+  // Якщо ні — використовуємо твою логіку з шириною вікна.
+  const responsiveSize = window.innerWidth < 768 ? 30 : 60;
+  const finalSize = size || responsiveSize;
+
+  // 3. Визначаємо колір:
+  // Якщо передали колір — беремо його, якщо ні — беремо сірий з CSS.
+  const finalColor = color || greyColor;
 
   return (
     <div className={styles.loaderWrapper}>
-      <RingLoader size={loaderSize} color={greyColor}/>
+      <RingLoader
+        size={finalSize}
+        color={finalColor}
+      />
     </div>
   );
 };
+
 export default Loader;

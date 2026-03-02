@@ -7,3 +7,14 @@ export const getDeliveryTime = (supplierId) => {
   };
   return terms[supplierId] || "18-16";
 };
+
+
+export const getSupplierName = (supplierId) => {
+  const supplier = {
+    1: "AUTOPARTNER",
+    2: "AP_GDANSK",
+    3: "MOTOROL",
+    // Додавай своїх постачальників тут
+  };
+  return supplier[supplierId] || "ПОСТАЧАЛЬНИК";
+};

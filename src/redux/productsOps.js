@@ -1,26 +1,30 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Вказуємо адресу вашого локального бекенду
+// Вказуємо адресу бекенду
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Асинхронний thunk для пошуку товарів
 export const fetchProductsByQuery = createAsyncThunk(
   "products/fetchByQuery",
-  async (query, thunkAPI) => {
+  // Тепер приймаємо ОБ'ЄКТ з параметрами
+  async ({query, limit = 20, offset = 0}, thunkAPI) => {
     try {
-      // Робимо GET запит: /api/search?q=...&limit=20
+      // Робимо GET запит з динамічними параметрами
       const response = await axios.get("/api/search", {
         params: {
-          q: query,
-          limit: 20, // Можна змінити ліміт
+          q: query,      // Твій пошуковий запит
+          limit: limit,  // Скільки товарів взяти
+          offset: offset // Скільки товарів пропустити (0, 20, 40...)
         },
       });
-      // Повертаємо дані (масив товарів), які прийшли з бекенду
+
+      // Повертаємо масив товарів бекенду
       return response.data;
     } catch (error) {
-      // Якщо сталася помилка, повертаємо текст помилки
-      return thunkAPI.rejectWithValue(error.message);
+      // Обробляємо помилку (наприклад, якщо сервер впав)
+      const errorMessage = error.response?.data?.detail || error.message;
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );

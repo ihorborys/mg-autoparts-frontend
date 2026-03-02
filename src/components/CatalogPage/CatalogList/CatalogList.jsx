@@ -1,70 +1,16 @@
-// import { useSelector } from "react-redux";
-// import Loader from "../../Loader/Loader.jsx";
-// import CatalogItem from "../CatalogItem/CatalogItem"; // Імпортуємо наш новий компонент
-//
-//
-// const CatalogList = () => {
-//   const {items, isLoading, error, searchPerformed, lastQuery} = useSelector((state) => state.products);
-//
-//   // Стан завантаження
-//   if (isLoading) {
-//     return (
-//       <div style={{ textAlign: 'center', marginTop: '30px' }}>
-//         <Loader />
-//         <p style={{ marginTop: '10px', color: '#666', fontStyle: 'italic' }}>
-//           Шукаємо: <strong>"{lastQuery}"</strong>...
-//         </p>
-//       </div>
-//     );
-//   }
-//
-//   if (error) return <p style={{color: 'red', textAlign: 'center'}}>Помилка: {error}</p>;
-//
-// // 1. Стан: Користувач ще нічого не шукав
-//   if (!searchPerformed) {
-//     return (
-//       <div style={{ textAlign: 'center', marginTop: '40px', color: '#888' }}>
-//         {/*<h2>Вітаємо в нашому магазині!</h2>*/}
-//       </div>
-//     );
-//   }
-//
-// // Стан: Пошук завершено, але нічого не знайдено
-//   if (searchPerformed && items.length === 0) {
-//     return (
-//       <div style={{ textAlign: 'center', marginTop: '50px' }}>
-//         <h3>На жаль, за запитом
-//           <p style={{ color: 'red'}}>"{lastQuery}"</p>
-//           нічого не знайдено</h3>
-//         <br></br>
-//         <p style={{ fontStyle: 'italic'}}>Спробуйте інший артикул або перевірте розкладку клавіатури.</p>
-//       </div>
-//     );
-//   }
-//
-//   return (
-//     <ul style={{listStyle: "none", padding: 0}}>
-//       {items.map((product) => (
-//         // Ключ (key) ЗАВЖДИ має бути тут, у списку, а не всередині компонента
-//         <CatalogItem
-//           key={`${product.code}-${product.supplier_id}`}
-//           product={product}
-//         />
-//       ))}
-//     </ul>
-//   );
-// };
-//
-// export default CatalogList;
-
-
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Loader from "../../Loader/Loader.jsx";
 import CatalogItem from "../CatalogItem/CatalogItem";
+import { fetchProductsByQuery } from "../../../redux/productsOps.js";
+import LoadMoreBtn from "../../LoadMoreBtn/LoadMoreBtn.jsx";
+import styles from "./CatalogList.module.css";
+
 
 const CatalogList = () => {
-  const {items, isLoading, error, searchPerformed, lastQuery} = useSelector((state) => state.products);
+  const dispatch = useDispatch(); // 2. ПЕРЕВІР ІНІЦІАЛІЗАЦІЮ
+
+  const {items, isLoading, error, searchPerformed, lastQuery, offset, hasMore} = useSelector((state) => state.products);
 
   // 1. Додаємо стан для курсу
   const [exchangeRate, setExchangeRate] = useState(52); // Fallback 52 за замовчуванням
@@ -74,7 +20,6 @@ const CatalogList = () => {
   useEffect(() => {
     const fetchRate = async () => {
       try {
-        // Заміни на свій реальний URL на Render, коли задеплоїш
         const response = await fetch('https://mg-autoparts-backend.onrender.com/api/get-rate');
         const data = await response.json();
         setExchangeRate(data.rate);
@@ -88,12 +33,21 @@ const CatalogList = () => {
     fetchRate();
   }, []);
 
-  // Стан завантаження (чекаємо і товари, і курс)
-  if (isLoading || isRateLoading) {
+  // ФУНКЦІЯ ДЛЯ ЗАВАНТАЖЕННЯ НАСТУПНОЇ ПОРЦІЇ
+  const handleLoadMore = () => {
+    dispatch(fetchProductsByQuery({
+      query: lastQuery,
+      limit: 20,
+      offset: offset + 20 // Збільшуємо відступ
+    }));
+  };
+
+// 1. Головний лоадер показуємо ТІЛЬКИ якщо товарів ще немає взагалі
+  if ((isLoading && items.length === 0) || isRateLoading) {
     return (
-      <div style={{textAlign: 'center', marginTop: '30px'}}>
-        <Loader color="red" size={40}/>
-        <p style={{marginTop: '10px', color: '#666', fontStyle: 'italic'}}>
+      <div className={styles.loadInfoContainer}>
+        <Loader></Loader>
+        <p className={styles.loadInfo}>
           {isLoading ? `Шукаємо: "${lastQuery}"...` : "Оновлюємо курс валют..."}
         </p>
       </div>
@@ -117,15 +71,34 @@ const CatalogList = () => {
   }
 
   return (
-    <ul style={{listStyle: "none", padding: 0}}>
-      {items.map((product) => (
-        <CatalogItem
-          key={`${product.code}-${product.supplier_id}`}
-          product={product}
-          exchangeRate={exchangeRate} // 3. Передаємо курс в кожну картку
+    <div style={{paddingBottom: '50px'}}>
+      <ul style={{listStyle: "none", padding: 0}}>
+        {items.map((product) => {
+          // 1. Створюємо ключ у змінній
+          const itemKey = `${product.code}-${product.supplier_id}-${product.price_eur}`;
+
+          // 2. Виводимо в консоль
+          console.log("Генерую ключ для товару:", itemKey);
+
+          // 3. Повертаємо компонент
+          return (
+            <CatalogItem
+              key={itemKey}
+              product={product}
+              exchangeRate={exchangeRate}
+            />
+          );
+        })}
+      </ul>
+
+      {/* 2. КНОПКА ПАГІНАЦІЇ: з'являється тільки якщо є що вантажити */}
+      {hasMore && items.length > 0 && (
+        <LoadMoreBtn
+          onClick={handleLoadMore}
+          isLoading={isLoading}
         />
-      ))}
-    </ul>
+      )}
+    </div>
   );
 };
 

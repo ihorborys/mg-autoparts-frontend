@@ -19,7 +19,7 @@
     margin: 10px;
 }
 
-{ /* Секція 1: Бренд, Код, Фото, Назва товару */
+{ /* Секція 1: Бренд, Код, Юнікод, Постачальник, Фото, Назва товару */
 }
 
 .info {
@@ -31,9 +31,7 @@
 }
 
 .infoContainer {
-    /*width: 150px;*/
     display: flex;
-    /*flex-direction: column;*/
     justify-content: center;
     align-items: center;
     gap: 20px;
@@ -49,6 +47,7 @@
 .brand {
     font-weight: 700;
     color: var(--grey);
+    max-width: 160px;
 }
 
 .code {
@@ -60,7 +59,7 @@
     font-size: 14px;
 }
 
-.brand, .code {
+.brand, .code, .unicode {
     /* 1. Забороняємо перенос на новий рядок */
     white-space: nowrap;
 
@@ -93,6 +92,11 @@
     /* Решта твоїх стилів */
     border-radius: 8px;
     background-color: #f5f5f5;
+}
+
+.supplier {
+    font-size: 14px;
+    font-weight: 500;
 }
 
 
@@ -257,7 +261,7 @@
         min-height: 80px;
     }
 
-    .brand, .code, .unicode {
+    .brand, .code, .unicode, .supplier {
         font-size: 12px;
     }
 
@@ -316,7 +320,7 @@
         padding: 4px 8px;
     }
 
-    .brand, .code, .unicode {
+    .brand, .code, .unicode, .supplier {
         font-size: 11px;
     }
 
@@ -355,11 +359,32 @@
         text-align: start;
     }
 
+    .infoContainer {
+        gap: 20px;
+    }
+
+    .actions {
+        gap: 10px;
+    }
+
     .image {
         display: block;
         width: 100px;
         height: 100px;
         min-width: 100px;
         min-height: 100px;
+    }
+}
+
+@media (max-width: 259px) {
+    .actions {
+        gap: 5px;
+    }
+
+    .image {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        min-height: 80px;
     }
 }
