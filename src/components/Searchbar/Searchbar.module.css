@@ -10,16 +10,21 @@
 
 .input {
     flex-grow: 1;
-    padding: 12px 24px;
+    padding: 24px 48px;
     font-size: 20px;
     border: 1px solid var(--white);
     border-radius: 4px 0 0 4px;
-    text-align: center;
+    text-align: left;
 }
 
 .input:focus {
     outline: none;
     border-color: var(--black); /* Твій новий колір при фокусі (синій, зелений тощо) */
+    /*text-align: left;*/
+}
+
+.input::placeholder {
+    text-align: center; /* Тільки "сірий" текст по центру */
 }
 
 .button {
@@ -36,12 +41,15 @@
 
 .button:hover {
     background-color: var(--red-hover);
-    /*transform: translateX(2px);*/
 }
 
 @media (max-width: 1000px) {
     ::placeholder {
         font-size: 16px;
+    }
+
+    .input {
+        padding: 12px 24px;
     }
 }
 
