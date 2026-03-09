@@ -14,7 +14,7 @@
     font-size: 20px;
     border: 1px solid var(--white);
     border-radius: 4px 0 0 4px;
-    text-align: left;
+    text-align: center;
 }
 
 .input:focus {
@@ -61,7 +61,7 @@
 
 @media (max-width: 767px) {
     .container {
-        padding: 0px;
+        padding: 0;
         flex-direction: column;
     }
 
