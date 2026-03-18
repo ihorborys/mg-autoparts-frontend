@@ -16,7 +16,7 @@ export const useHaptics = () => {
         // playSound('pop'); // Розкоментуй, коли додаси файл звуку
         break;
       case 'tick':
-        navigator.vibrate(20);
+        navigator.vibrate(50);
         // playSound('click');
         break;
       case 'error':
