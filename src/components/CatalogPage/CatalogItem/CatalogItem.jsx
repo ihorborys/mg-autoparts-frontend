@@ -64,6 +64,12 @@ const CatalogItem = ({product, exchangeRate}) => {
     try {
       const response = await axios.post(`${baseUrl}/api/cart/`, cartData);
 
+      // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
+      if ("vibrate" in navigator) {
+        // 100 мс — це короткий, приємний імпульс (haptic feedback)
+        navigator.vibrate(100);
+      }
+
       // Отримуємо ту саму "кричущу" кількість з RETURNING quantity
       const {new_quantity} = response.data;
 
