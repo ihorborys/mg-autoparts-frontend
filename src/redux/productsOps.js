@@ -11,7 +11,7 @@ export const fetchProductsByQuery = createAsyncThunk(
   async ({query, limit = 20, offset = 0}, thunkAPI) => {
     try {
       // Робимо GET запит з динамічними параметрами
-      const response = await axios.get("/api/search", {
+      const response = await axios.get("/api/catalog/search", {
         params: {
           q: query,      // Твій пошуковий запит
           limit: limit,  // Скільки товарів взяти

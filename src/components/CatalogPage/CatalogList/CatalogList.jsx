@@ -16,15 +16,51 @@ const CatalogList = () => {
   const [exchangeRate, setExchangeRate] = useState(52); // Fallback 52 за замовчуванням
   const [isRateLoading, setIsRateLoading] = useState(true);
 
+  // useEffect(() => {
+  //   const fetchRate = async () => {
+  //     try {
+  //       const response = await fetch('https://mg-autoparts-backend.onrender.com/api/get-rate');
+  //       const data = await response.json();
+  //       setExchangeRate(data.rate);
+  //     } catch (err) {
+  //       console.error("Не вдалося отримати курс, використовуємо запасний:", err);
+  //     } finally {
+  //       setIsRateLoading(false);
+  //     }
+  //   };
+  //
+  //   fetchRate();
+  // }, []);
+
   // 2. Отримуємо курс з твого нового роута на бекенді
   useEffect(() => {
     const fetchRate = async () => {
+      // 1. Визначаємо базову адресу (локально або рендер)
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://mg-autoparts-backend.onrender.com';
+
       try {
-        const response = await fetch('https://mg-autoparts-backend.onrender.com/api/get-rate');
+        // 2. Стукаємо за новою адресою
+        const response = await fetch(`${baseUrl}/api/rates/latest`);
+
+        // 3. Якщо сервер відповів 404 або 500 — ми відразу йдемо в catch
+        if (!response.ok) {
+          throw new Error(`Помилка сервера: ${response.status}`);
+        }
+
         const data = await response.json();
-        setExchangeRate(data.rate);
+
+        // 4. ТІЛЬКИ якщо дані є і вони коректні — оновлюємо стан
+        if (data && data.rate) {
+          console.log("Курс успішно оновлено:", data.rate);
+          setExchangeRate(data.rate);
+        } else {
+          throw new Error("У відповіді немає поля 'rate'");
+        }
+
       } catch (err) {
-        console.error("Не вдалося отримати курс, використовуємо запасний:", err);
+        // 5. Ось тут спрацює твій запасний план!
+        // Ми НЕ міняємо exchangeRate, тому він залишається рівним 52 (default)
+        console.warn("Використовуємо запасний курс (52). Причина:", err.message);
       } finally {
         setIsRateLoading(false);
       }
