@@ -6,11 +6,12 @@ import CopyAction from '../../CopyAction/CopyAction.jsx';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import Loader from '../../Loader/Loader.jsx';
+import { useHaptics } from '../../../hooks/useHaptics';
 
 
 const CatalogItem = ({product, exchangeRate}) => {
   const {user} = useAuth();
+  const {trigger} = useHaptics(); // Підключаємо "пульт керування"
 
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
@@ -28,9 +29,11 @@ const CatalogItem = ({product, exchangeRate}) => {
   // Функції для зміни кількості
   const increment = () => {
     if (quantity < product.stock) setQuantity(prev => prev + 1);
+    trigger('tick'); // Вібруємо при кожному натисканні +
   };
   const decrement = () => {
     if (quantity > 1) setQuantity(prev => prev - 1);
+    trigger('tick'); // Вібруємо при кожному натисканні +
   };
 
 
@@ -65,10 +68,7 @@ const CatalogItem = ({product, exchangeRate}) => {
       const response = await axios.post(`${baseUrl}/api/cart/`, cartData);
 
       // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
-      if ("vibrate" in navigator) {
-        // 100 мс — це короткий, приємний імпульс (haptic feedback)
-        navigator.vibrate(100);
-      }
+      trigger('success'); // Вібруємо, коли товар успішно в базі!
 
       // Отримуємо ту саму "кричущу" кількість з RETURNING quantity
       const {new_quantity} = response.data;
@@ -86,6 +86,7 @@ const CatalogItem = ({product, exchangeRate}) => {
         }
       );
     } catch (error) {
+      trigger('error'); // Вібруємо, якщо щось зламалося
       console.error("Помилка кошика:", error);
       toast.error("Не вдалося додати товар. Перевірте з'єднання.");
     } finally {
