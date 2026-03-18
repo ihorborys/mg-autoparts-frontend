@@ -2,17 +2,26 @@ import { useState } from 'react';
 import styles from './CatalogItem.module.css';
 import { Plus, Minus } from 'lucide-react';
 import { getDeliveryTime, getSupplierName } from "../../../utils/helpers.js";
-import CopyAction from "../../CopyAction/CopyAction.jsx";
+import CopyAction from '../../CopyAction/CopyAction.jsx';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext.jsx';
+import Loader from '../../Loader/Loader.jsx';
 
 
 const CatalogItem = ({product, exchangeRate}) => {
+  const {user} = useAuth();
+
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
+
+  // Розрахунки цін
   const priceEuro27 = (product.price_eur / 1.33 * 1.27).toFixed(2);
   const priceUah27 = (product.price_eur / 1.33 * 1.27 * exchangeRate).toFixed(0);
 
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false); // Стан завантаження для кнопки
 
   console.log(product);
 
@@ -24,10 +33,58 @@ const CatalogItem = ({product, exchangeRate}) => {
     if (quantity > 1) setQuantity(prev => prev - 1);
   };
 
-  const handleAddToCart = () => {
-    // Тут ми будемо викликати функцію з Context
-    console.log(`Додано в кошик: ${product.name}, кількість: ${quantity}`);
-    alert(`Додано ${quantity} шт. товару ${product.code}`);
+
+// --- ГОЛОВНА ФУНКЦІЯ ДОДАВАННЯ ---
+  const handleAddToCart = async () => {
+    // 2. ДОДАНО: Перевірка авторизації
+    if (!user) {
+      toast.error("Будь ласка, увійдіть в акаунт, щоб додати товар у кошик", {
+        icon: '🔐',
+        duration: 5000
+      });
+      return;
+    }
+
+    setIsAdding(true);
+
+    // Визначаємо URL бекенду
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://mg-autoparts-backend.onrender.com';
+
+    // Формуємо об'єкт товару згідно з моделлю CartItemIn на бекенді
+    const cartData = {
+      user_id: user.id, // Поки що статика, потім візьмемо з Auth
+      supplier_id: product.supplier_id,
+      code: product.code,
+      brand: product.brand,
+      name: product.name,
+      quantity: quantity,
+      price_eur: parseFloat(priceEuro27) // Відправляємо ціну з твоєю націнкою
+    };
+
+    try {
+      const response = await axios.post(`${baseUrl}/api/cart/`, cartData);
+
+      // Отримуємо ту саму "кричущу" кількість з RETURNING quantity
+      const {new_quantity} = response.data;
+
+      // Замість alert використовуємо професійний toast
+      toast.success(
+        <div>
+          <b>{product.brand} {product.code}</b> додано!<br/>
+          Тепер у кошику: <b>{new_quantity} шт.</b>
+        </div>,
+        {
+          duration: 4000,
+          icon: '🛒',
+          style: {border: '1px solid #4caf50', padding: '16px'}
+        }
+      );
+    } catch (error) {
+      console.error("Помилка кошика:", error);
+      toast.error("Не вдалося додати товар. Перевірте з'єднання.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
 
@@ -107,13 +164,21 @@ const CatalogItem = ({product, exchangeRate}) => {
 
             </div>
 
+            {/* Оновлена кнопка */}
             <button
               className={styles.addToCartBtn}
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={product.stock === 0 || isAdding} // Блокуємо при завантаженні
             >
-              {product.stock === 0 ? 'Немає' : 'У кошик'}
+              {isAdding ? (
+                'Додаю...'
+              ) : product.stock === 0 ? (
+                'Немає'
+              ) : (
+                'У кошик'
+              )}
             </button>
+
           </div>
 
         </section>

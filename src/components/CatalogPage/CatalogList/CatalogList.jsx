@@ -16,22 +16,6 @@ const CatalogList = () => {
   const [exchangeRate, setExchangeRate] = useState(52); // Fallback 52 за замовчуванням
   const [isRateLoading, setIsRateLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const fetchRate = async () => {
-  //     try {
-  //       const response = await fetch('https://mg-autoparts-backend.onrender.com/api/get-rate');
-  //       const data = await response.json();
-  //       setExchangeRate(data.rate);
-  //     } catch (err) {
-  //       console.error("Не вдалося отримати курс, використовуємо запасний:", err);
-  //     } finally {
-  //       setIsRateLoading(false);
-  //     }
-  //   };
-  //
-  //   fetchRate();
-  // }, []);
-
   // 2. Отримуємо курс з твого нового роута на бекенді
   useEffect(() => {
     const fetchRate = async () => {

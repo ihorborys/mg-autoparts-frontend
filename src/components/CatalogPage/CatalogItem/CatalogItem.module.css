@@ -213,6 +213,33 @@
     cursor: not-allowed;
 }
 
+/*.addToCartBtn {*/
+/*    !* 1. Фіксуємо мінімальну ширину, щоб кнопка не міняла розмір *!*/
+/*    min-width: 105px;*/
+/*    !*height: 40px; !* Задай висоту, яка тобі підходить *!*!*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    position: relative;*/
+/*    transition: all 0.2s ease;*/
+/*}*/
+
+/*!* 2. Стилізуємо обгортку лоудера всередині кнопки *!*/
+/*.btnLoaderWrapper {*/
+/*    transform: scale(0.4); !* Зменшуємо твій стандартний лоудер, щоб він вліз у кнопку *!*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*}*/
+
+/*!* Опціонально: якщо кнопка стає сірою при disabled *!*/
+/*.addToCartBtn:disabled {*/
+/*    cursor: not-allowed;*/
+/*    opacity: 0.8;*/
+/*}*/
+
 
 @media (max-width: 1000px) {
     .container {
