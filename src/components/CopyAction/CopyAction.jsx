@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import styles from './CopyAction.module.css';
+import { useHaptics } from '../../hooks/useHaptics.js';
 
 
 const CopyAction = ({text, label, children}) => {
   const [copied, setCopied] = useState(false);
+  const {trigger} = useHaptics(); // Підключаємо "пульт керування"
 
   const handleCopy = async (e) => {
     e.stopPropagation();
     try {
       await navigator.clipboard.writeText(text);
+      trigger('copy'); // Вібруємо, коли натиснули пошук!
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (err) {
