@@ -33,7 +33,7 @@ const CatalogItem = ({product, exchangeRate}) => {
   };
   const decrement = () => {
     if (quantity > 1) setQuantity(prev => prev - 1);
-    trigger('tick'); // Вібруємо при кожному натисканні +
+    trigger('tick'); // Вібруємо при кожному натисканні -
   };
 
 
