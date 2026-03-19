@@ -3,12 +3,14 @@ import { useDispatch } from "react-redux";
 import { fetchProductsByQuery } from "../../redux/productsOps";
 import styles from "./Searchbar.module.css";
 import toast from 'react-hot-toast';
+import { useHaptics } from '../../hooks/useHaptics.js';
 
 
 const Searchbar = () => {
   const [query, setQuery] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Початкова перевірка
   const dispatch = useDispatch();
+  const {trigger} = useHaptics(); // Підключаємо "пульт керування"
 
   // Відстежуємо зміну розміру вікна
   useEffect(() => {
@@ -28,6 +30,7 @@ const Searchbar = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+
     const trimmedQuery = query.trim();
 
     if (trimmedQuery === "") {
@@ -39,6 +42,8 @@ const Searchbar = () => {
       toast.error("Введіть мінімум 2 символи");
       return;
     }
+
+    trigger('vibrateOnly'); // Вібруємо, коли натиснули пошук!
 
     // При сабміті форми ми завжди шукаємо першу порцію (offset: 0)
     // Ми передаємо об'єкт з параметрами
