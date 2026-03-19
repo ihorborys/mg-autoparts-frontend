@@ -41,7 +41,7 @@ export const useHaptics = () => {
           // Подвійна вібрація для "тріумфу"
           navigator.vibrate([40, 30, 40]);
           // Високий "позитивний" тон
-          playTone(1500, 0.2, 0.1);
+          playTone(1500, 0.2, 0.05);
           break;
 
         case 'error':
