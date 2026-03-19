@@ -34,36 +34,36 @@ export const useHaptics = () => {
 
         case 'tick':
           navigator.vibrate(30);
-          playTone(800, 0.05, 0.001); // Короткий низький клік
+          // playTone(800, 0.05, 0.001); // Короткий низький клік
           break;
 
         case 'success':
           // Подвійна вібрація для "тріумфу"
           navigator.vibrate([40, 30, 40]);
           // Високий "позитивний" тон
-          playTone(1500, 0.2, 0.005);
+          // playTone(1500, 0.2, 0.005);
           break;
 
         case 'error':
           navigator.vibrate([50, 100, 50]);
-          playTone(200, 0.3, 0.005); // Низький "гул" помилки
+          // playTone(200, 0.3, 0.005); // Низький "гул" помилки
           break;
 
         case 'copy':
           navigator.vibrate(40);
-          playTone(1200, 0.08, 0.005); // Тонкий цифровий відгук
+          // playTone(1200, 0.08, 0.005); // Тонкий цифровий відгук
           break;
 
         case 'remove':
           navigator.vibrate(40);
-          // Низхідний тон — ефект видалення
-          playTone(600, 0.2, 0.005);
+          // // Низхідний тон — ефект видалення
+          // playTone(600, 0.2, 0.005);
           break;
 
         case 'logout':
           navigator.vibrate([50, 50, 50]);
-          // Довгий спад — ефект вимкнення пристрою
-          playTone(800, 0.2, 0.005);
+          // // Довгий спад — ефект вимкнення пристрою
+          // playTone(800, 0.2, 0.005);
           break;
       }
     }
