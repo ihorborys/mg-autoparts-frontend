@@ -55,13 +55,13 @@ export const useHaptics = () => {
           break;
 
         case 'remove':
-          navigator.vibrate([40, 50, 20]);
+          navigator.vibrate([50, 50, 30]);
           // // Низхідний тон — ефект видалення
           // playTone(600, 0.2, 0.005);
           break;
 
         case 'logout':
-          navigator.vibrate([15, 100, 15, 100, 15]);
+          navigator.vibrate([50, 100, 50, 100, 50]);
           // // Довгий спад — ефект вимкнення пристрою
           // playTone(800, 0.2, 0.005);
           break;
