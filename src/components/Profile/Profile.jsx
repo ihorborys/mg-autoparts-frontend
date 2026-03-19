@@ -1,15 +1,18 @@
 import styles from "./Profile.module.css";
 import { supabase } from "../../supabaseClient";
 import toast from "react-hot-toast";
+import { useHaptics } from "../../hooks/useHaptics.js"; // 1. Імпортуємо наш хук
 
-const Profile = ({ session }) => {
+const Profile = ({session}) => {
+  const {trigger} = useHaptics(); // 2. Підключаємо "пульт"
   const user = session?.user;
   if (!user) return null; // Якщо юзера немає, нічого не показуємо
 
   const avatarLetter = user.email[0].toUpperCase();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
+    trigger('logout');
+    const {error} = await supabase.auth.signOut();
     if (error) toast.error("Помилка виходу");
     else toast.success("До зустрічі!");
   };
