@@ -31,10 +31,10 @@ export const useHaptics = () => {
         case 'vibrateOnly':
           navigator.vibrate(30); // Короткий "стук" без звуку
           break;
-          
+
         case 'tick':
           navigator.vibrate(30);
-          playTone(800, 0.05, 0.05); // Короткий низький клік
+          playTone(800, 0.05, 0.01); // Короткий низький клік
           break;
 
         case 'success':
