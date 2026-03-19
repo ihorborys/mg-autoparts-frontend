@@ -15,6 +15,9 @@
     border: 1px solid var(--white);
     border-radius: 4px 0 0 4px;
     text-align: center;
+    /* Коли інпут отримає фокус, браузер прокрутить сторінку так,
+       щоб під інпутом було ще 100px запасу (де лежить твоя кнопка) */
+    scroll-margin-bottom: 50px;
 }
 
 .input:focus {
