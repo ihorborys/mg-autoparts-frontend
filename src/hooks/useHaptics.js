@@ -33,7 +33,7 @@ export const useHaptics = () => {
           break;
 
         case 'tick':
-          navigator.vibrate(40);
+          navigator.vibrate(30);
           // playTone(800, 0.05, 0.001); // Короткий низький клік
           break;
 
@@ -50,7 +50,7 @@ export const useHaptics = () => {
           break;
 
         case 'copy':
-          navigator.vibrate(40);
+          navigator.vibrate(30);
           // playTone(1200, 0.08, 0.005); // Тонкий цифровий відгук
           break;
 
