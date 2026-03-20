@@ -14,6 +14,17 @@ const initialState = {
 const productsSlice = createSlice({
   name: "products",
   initialState,
+  // 1. Додаємо звичайні редьюсери для синхронних дій
+  reducers: {
+    clearProducts: (state) => {
+      state.items = [];
+      state.searchPerformed = false;
+      state.lastQuery = "";
+      state.offset = 0;
+      state.hasMore = true;
+      state.error = null;
+    },
+  },
   // Тут ми обробляємо результати асинхронного запиту fetchProductsByQuery
   extraReducers: (builder) => {
     builder
@@ -62,6 +73,9 @@ const productsSlice = createSlice({
       });
   },
 });
+
+// 2. Експортуємо екшен очищення
+export const {clearProducts} = productsSlice.actions;
 
 // Експортуємо редьюсер
 export const productsReducer = productsSlice.reducer;
