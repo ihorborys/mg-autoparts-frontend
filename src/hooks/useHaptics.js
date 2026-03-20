@@ -61,7 +61,7 @@ export const useHaptics = () => {
           break;
 
         case 'logout':
-          navigator.vibrate([100, 200, 200]);
+          navigator.vibrate([60, 100, 60]);
           // // Довгий спад — ефект вимкнення пристрою
           // playTone(800, 0.2, 0.005);
           break;
