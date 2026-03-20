@@ -59,12 +59,14 @@ const Searchbar = () => {
     const trimmedQuery = query.trim();
 
     if (trimmedQuery === "") {
+      dispatch(clearProducts());
       trigger('error'); // Додай це сюди для тактильного відгуку
       toast.error("Введіть дані для пошуку");
       return;
     }
 
     if (trimmedQuery.length === 1) {
+      dispatch(clearProducts());
       trigger('error'); // Додай це сюди для тактильного відгуку
       toast.error("Введіть мінімум 2 символи");
       return;

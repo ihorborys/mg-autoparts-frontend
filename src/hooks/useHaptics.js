@@ -45,7 +45,7 @@ export const useHaptics = () => {
           break;
 
         case 'error':
-          navigator.vibrate([50, 100, 50]);
+          navigator.vibrate([40, 80, 40]);
           // playTone(200, 0.3, 0.005); // Низький "гул" помилки
           break;
 
