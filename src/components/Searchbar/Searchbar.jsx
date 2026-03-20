@@ -55,7 +55,6 @@ const Searchbar = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-
     const trimmedQuery = query.trim();
 
     if (trimmedQuery === "") {

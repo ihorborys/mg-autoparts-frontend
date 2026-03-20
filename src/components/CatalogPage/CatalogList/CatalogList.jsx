@@ -5,6 +5,7 @@ import CatalogItem from "../CatalogItem/CatalogItem";
 import { fetchProductsByQuery } from "../../../redux/productsOps.js";
 import LoadMoreBtn from "../../LoadMoreBtn/LoadMoreBtn.jsx";
 import styles from "./CatalogList.module.css";
+import { useHaptics } from "../../../hooks/useHaptics.js";
 
 
 const CatalogList = () => {
@@ -15,6 +16,8 @@ const CatalogList = () => {
   // 1. Додаємо стан для курсу
   const [exchangeRate, setExchangeRate] = useState(52); // Fallback 52 за замовчуванням
   const [isRateLoading, setIsRateLoading] = useState(true);
+
+  const {trigger} = useHaptics(); // Підключаємо "пульт керування"
 
   // 2. Отримуємо курс з твого нового роута на бекенді
   useEffect(() => {
@@ -55,6 +58,7 @@ const CatalogList = () => {
 
   // ФУНКЦІЯ ДЛЯ ЗАВАНТАЖЕННЯ НАСТУПНОЇ ПОРЦІЇ
   const handleLoadMore = () => {
+    trigger('vibrateOnly'); // Вібруємо, коли натиснули пошук!
     dispatch(fetchProductsByQuery({
       query: lastQuery,
       limit: 20,
