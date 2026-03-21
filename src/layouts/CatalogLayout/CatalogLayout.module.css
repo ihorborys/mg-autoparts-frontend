@@ -1,7 +1,0 @@
-/*.layoutWrapper {*/
-/*    display: grid;*/
-/*    !* Магія тут: три рядки. Auto, 1fr, Auto *!*/
-/*    !*grid-template-rows: auto 1fr auto;*!*/
-/*    !* Мінімальна висота контейнера - весь екран *!*/
-/*    min-height: 100vh;*/
-/*}*/
