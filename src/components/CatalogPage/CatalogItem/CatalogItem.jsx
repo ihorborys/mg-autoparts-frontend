@@ -1,17 +1,22 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux'; // Додаємо Redux хуки
 import styles from './CatalogItem.module.css';
 import { Plus, Minus } from 'lucide-react';
 import { getDeliveryTime, getSupplierName } from "../../../utils/helpers.js";
 import CopyAction from '../../CopyAction/CopyAction.jsx';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
+import { addToCart } from '../../../redux/cart/cartOps';
 
 
-const CatalogItem = ({product, exchangeRate}) => {
+const CatalogItem = ({product}) => {
   const {user} = useAuth();
-  const {trigger} = useHaptics(); // Підключаємо "пульт керування"
+  const {trigger} = useHaptics();
+  const dispatch = useDispatch();
+
+  // 1. БЕРЕМО КУРС ПРЯМО З REDUX
+  const exchangeRate = useSelector((state) => state.currency.rate);
 
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
@@ -37,9 +42,8 @@ const CatalogItem = ({product, exchangeRate}) => {
   };
 
 
-// --- ГОЛОВНА ФУНКЦІЯ ДОДАВАННЯ ---
+// --- ОНОВЛЕНА ФУНКЦІЯ ДОДАВАННЯ ЧЕРЕЗ REDUX ---
   const handleAddToCart = async () => {
-    // 2. ДОДАНО: Перевірка авторизації
     if (!user) {
       toast.error("Будь ласка, увійдіть в акаунт, щоб додати товар у кошик", {
         icon: '🔐',
@@ -49,9 +53,6 @@ const CatalogItem = ({product, exchangeRate}) => {
     }
 
     setIsAdding(true);
-
-    // Визначаємо URL бекенду
-    const baseUrl = import.meta.env.VITE_API_URL || 'https://mg-autoparts-backend.onrender.com';
 
     // Формуємо об'єкт товару згідно з моделлю CartItemIn на бекенді
     const cartData = {
@@ -65,19 +66,16 @@ const CatalogItem = ({product, exchangeRate}) => {
     };
 
     try {
-      const response = await axios.post(`${baseUrl}/api/cart/`, cartData);
+// 2. ВИКЛИКАЄМО ОПЕРАЦІЮ REDUX
+      // .unwrap() дозволяє нам обробити успіх/помилку прямо тут для тостів
+      const result = await dispatch(addToCart(cartData)).unwrap();
 
       // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
       trigger('success'); // Вібруємо, коли товар успішно в базі!
-
-      // Отримуємо ту саму "кричущу" кількість з RETURNING quantity
-      const {new_quantity} = response.data;
-
-      // Замість alert використовуємо професійний toast
       toast.success(
         <div>
           <b>{product.brand} {product.code}</b> додано!<br/>
-          Тепер у кошику: <b>{new_quantity} шт.</b>
+          Тепер у кошику: <b>{result.quantity} шт.</b>
         </div>,
         {
           duration: 4000,
