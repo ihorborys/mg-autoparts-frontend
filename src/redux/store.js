@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 // Імпортуємо наш НОВИЙ редьюсер для продуктів
-import { productsReducer } from "./productsSlice";
+import { productsReducer } from "./products/productsSlice.js";
 
 
 const rootReducer = {

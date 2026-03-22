@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Loader from "../../Loader/Loader.jsx";
 import CatalogItem from "../CatalogItem/CatalogItem";
-import { fetchProductsByQuery } from "../../../redux/productsOps.js";
+import { fetchProductsByQuery } from "../../../redux/products/productsOps.js";
 import LoadMoreBtn from "../../LoadMoreBtn/LoadMoreBtn.jsx";
 import styles from "./CatalogList.module.css";
 import { useHaptics } from "../../../hooks/useHaptics.js";

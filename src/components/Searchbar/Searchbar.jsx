@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom"; // 1. Імпортуємо хук для URL
-import { fetchProductsByQuery } from "../../redux/productsOps";
+import { fetchProductsByQuery } from "../../redux/products/productsOps.js";
 import styles from "./Searchbar.module.css";
 import toast from 'react-hot-toast';
 import { useHaptics } from '../../hooks/useHaptics.js';
-import { clearProducts } from "../../redux/productsSlice.js";
+import { clearProducts } from "../../redux/products/productsSlice.js";
 
 
 const Searchbar = () => {

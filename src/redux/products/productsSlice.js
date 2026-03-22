@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchProductsByQuery } from "./productsOps";
+import { fetchProductsByQuery } from "./productsOps.js";
 
 const initialState = {
   items: [],       // Масив знайдених товарів

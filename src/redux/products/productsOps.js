@@ -1,8 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../api/api.js";
 
-// Вказуємо адресу бекенду
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Асинхронний thunk для пошуку товарів
 export const fetchProductsByQuery = createAsyncThunk(
@@ -11,7 +9,7 @@ export const fetchProductsByQuery = createAsyncThunk(
   async ({query, limit = 20, offset = 0}, thunkAPI) => {
     try {
       // Робимо GET запит з динамічними параметрами
-      const response = await axios.get("/api/catalog/search", {
+      const response = await api.get("/api/catalog/search", {
         params: {
           q: query,      // Твій пошуковий запит
           limit: limit,  // Скільки товарів взяти
