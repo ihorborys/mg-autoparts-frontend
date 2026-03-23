@@ -47,7 +47,7 @@
 }
 
 @media screen and (max-width: 420px) {
-    /*.address {*/
-    /*    font-size: 10px;*/
-    /*}*/
+    .address {
+        font-size: 11px;
+    }
 }
