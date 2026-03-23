@@ -16,16 +16,14 @@
     gap: 30px;
 }
 
-@media (max-width: 320px) {
-    .headerComponents {
-        flex-direction: column;
+@media (max-width: 680px) {
+    .userActions {
+        gap: 10px;
     }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 400px) {
     .headerComponents {
         flex-direction: column;
-        /*justify-content: flex-start;*/
-        /*align-items: flex-start;*/
     }
 }
