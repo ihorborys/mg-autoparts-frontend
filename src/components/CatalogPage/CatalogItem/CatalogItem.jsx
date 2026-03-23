@@ -78,7 +78,8 @@ const CatalogItem = ({product}) => {
         {
           duration: 4000,
           icon: '🛒',
-          style: {border: '1px solid #4caf50', padding: '16px'}
+          style: {border: '1px solid #4caf50', padding: '16px'},
+          position: 'bottom-center',
         }
       );
     } catch (error) {
