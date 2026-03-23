@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const HomePage = lazy(() => import("./pages/HomePage/HomePage.jsx"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage/CatalogPage.jsx"));
+const CartPage = lazy(() => import("./pages/CartPage/CartPage.jsx"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage.jsx"));
 
 const HomeLayout = lazy(() => import("./layouts/HomeLayout/HomeLayout.jsx"));
@@ -78,10 +79,13 @@ function App() {
             <Route index element={<HomePage/>}></Route>
           </Route>
 
-          {/* Сторінка каталогу — ЗАХИЩЕНА */}
-          <Route path={"/catalog"} element={<CatalogLayout session={session}/>}>
-            {/* Якщо сесія є — показуємо каталог, якщо ні — форму входу */}
-            <Route index element={session ? <CatalogPage/> : <Auth/>}></Route>
+          {/* ГРУПА МАГАЗИНУ (спільний Хедер для всього) */}
+          <Route element={<CatalogLayout session={session}/>}>
+            {/* /catalog */}
+            <Route path="/catalog" element={session ? <CatalogPage/> : <Auth/>}/>
+
+            {/* /cart — Тепер це окремий красивий шлях! */}
+            <Route path="/cart" element={session ? <CartPage/> : <Auth/>}/>
           </Route>
 
           <Route path="*" element={<NotFoundPage/>}/>
