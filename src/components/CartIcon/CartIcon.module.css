@@ -34,15 +34,22 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--white); /* Білий контур, щоб бабл не зливався з іконкою */
+}
+
+.pop {
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Маленька анімація появи цифри */
 @keyframes popIn {
     0% {
-        transform: scale(0);
+        transform: scale(0.5); /* Починаємо з меншого розміру */
+        opacity: 0; /* Додаємо появу з прозорості */
+    }
+    50% {
+        transform: scale(1.3); /* Сильніший "підскок" */
+        opacity: 1;
     }
     100% {
-        transform: scale(1);
+        transform: scale(1); /* Повернення до норми */
     }
 }
