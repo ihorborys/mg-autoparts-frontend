@@ -37,7 +37,7 @@ const CartPage = () => {
           {/* Список товарів */}
           <ul className={styles.list}>
             {items.map((item) => (
-              <CartItem key={`${item.code}-${item.supplierName}`} item={item}/>
+              <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
             ))}
           </ul>
 
@@ -45,7 +45,11 @@ const CartPage = () => {
           <div className={styles.summary}>
             <h3>Разом:</h3>
             <div className={styles.prices}>
-              <span className={styles.eur}>{totalPriceEur.toFixed(2)} €</span>
+              <span className={styles.eur}>{totalPriceEur.toLocaleString('uk-UA', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} €
+              </span>
               <span className={styles.uah}>{totalPriceUah.toLocaleString('uk-UA')} ₴</span>
             </div>
             <button className={styles.orderBtn}>Оформити замовлення</button>

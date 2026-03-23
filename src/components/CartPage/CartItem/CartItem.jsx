@@ -40,7 +40,11 @@ const CartItem = ({item}) => {
         </div>
 
         <div className={styles.itemTotal}>
-          <p>{(item.price_eur * item.quantity).toFixed(2)} €</p>
+          <p>{(item.price_eur * item.quantity).toLocaleString('uk-UA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })} €
+          </p>
           <p
             className={styles.uahSub}>
             {Math.round(item.price_eur * item.quantity * rate).toLocaleString('uk-UA')} ₴
