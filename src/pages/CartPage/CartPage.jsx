@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import CartItem from '../../components/CartPage/CartItem/CartItem.jsx';
 import styles from './CartPage.module.css';
+import Button from "../../components/Button/Button.jsx";
 
 const CartPage = () => {
   // Беремо товари та суму з Redux
@@ -10,7 +11,7 @@ const CartPage = () => {
   // Беремо курс із нашого нового "банку"
   const rate = useSelector((state) => state.currency.rate);
 
-  const totalPriceUah = (totalPriceEur * rate).toFixed(0);
+  const totalPriceUah = Math.round(totalPriceEur * rate);
 
   if (items.length === 0) {
     return (
@@ -18,8 +19,10 @@ const CartPage = () => {
       <Container>
         <div className={styles.emptyContainer}>
           <h2>У кошику порожньо 🛒</h2>
-          <p>Додайте щось із каталогу, щоб почати замовлення.</p>
-          <Link to="/catalog" className={styles.backBtn}>До каталогу</Link>
+          <p>Додайте щось із каталогу, щоб створити замовлення.</p>
+          <Link to="/catalog" className={styles.backBtn}>
+            <Button>До каталогу</Button>
+          </Link>
         </div>
       </Container>
     );
@@ -28,13 +31,13 @@ const CartPage = () => {
   return (
     <Container>
       <div className={styles.container}>
-        <h1 className={styles.title}>Мій кошик</h1>
+        <h1 className={styles.title}>Моє замовлення</h1>
 
         <div className={styles.content}>
           {/* Список товарів */}
           <ul className={styles.list}>
             {items.map((item) => (
-              <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
+              <CartItem key={`${item.code}-${item.supplierName}`} item={item}/>
             ))}
           </ul>
 
@@ -43,7 +46,7 @@ const CartPage = () => {
             <h3>Разом:</h3>
             <div className={styles.prices}>
               <span className={styles.eur}>{totalPriceEur.toFixed(2)} €</span>
-              <span className={styles.uah}>{totalPriceUah} ₴</span>
+              <span className={styles.uah}>{totalPriceUah.toLocaleString('uk-UA')} ₴</span>
             </div>
             <button className={styles.orderBtn}>Оформити замовлення</button>
           </div>

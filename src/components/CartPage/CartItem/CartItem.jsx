@@ -3,12 +3,13 @@ import { Trash2, Plus, Minus } from 'lucide-react';
 import { updateCartQuantity, removeFromCart } from '../../../redux/cart/cartOps.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import styles from './CartItem.module.css';
+import { getSupplierName } from "../../../utils/helpers.js";
 
 const CartItem = ({item}) => {
   const dispatch = useDispatch();
   const {user} = useAuth();
-  console.log("Поточний юзер:", user?.id); // Перевір, чи тут не null
   const rate = useSelector((state) => state.currency.rate);
+  const supplierName = getSupplierName(item.supplier_id);
 
   // Функція зміни кількості
   const changeQty = (newQty) => {
@@ -21,12 +22,14 @@ const CartItem = ({item}) => {
     }));
   };
 
+
   return (
     <li className={styles.item}>
       <div className={styles.info}>
         <p className={styles.brand}>{item.brand}</p>
         <p className={styles.code}>{item.code}</p>
         <p className={styles.name}>{item.name}</p>
+        <p className={styles.supplier}>{supplierName}</p>
       </div>
 
       <div className={styles.controls}>
@@ -38,7 +41,10 @@ const CartItem = ({item}) => {
 
         <div className={styles.itemTotal}>
           <p>{(item.price_eur * item.quantity).toFixed(2)} €</p>
-          <p className={styles.uahSub}>{(item.price_eur * item.quantity * rate).toFixed(0)} ₴</p>
+          <p
+            className={styles.uahSub}>
+            {Math.round(item.price_eur * item.quantity * rate).toLocaleString('uk-UA')} ₴
+          </p>
         </div>
 
         <button

@@ -1,0 +1,78 @@
+.emptyContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.container {
+    padding: 40px 0;
+    min-height: 60vh;
+}
+
+.title {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: var(--white);
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 300px; /* Список товарів і колонка підсумку */
+    gap: 30px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary {
+    background: var(--black-light);
+    padding: 20px;
+    border-radius: 8px;
+    height: fit-content;
+    border: 1px solid #333;
+}
+
+.prices {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.eur {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--white);
+}
+
+.uah {
+    font-size: 20px;
+    color: var(--grey);
+}
+
+.orderBtn {
+    width: 100%;
+    padding: 15px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.5s ease;
+}
+
+.orderBtn:hover {
+    background: var(--red-hover);
+}
