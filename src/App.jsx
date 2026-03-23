@@ -1,8 +1,11 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import { lazy, Suspense, useEffect, useState } from "react"; // Додали useEffect та useState
-import { supabase } from "./supabaseClient"; // Імпортуємо твій клієнт
-import { Auth } from "./components/Auth/Auth.jsx"; // Імпортуємо компонент авторизації
+import { lazy, Suspense, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchCart } from "./redux/cart/cartOps";
+import { clearCartLocal } from "./redux/cart/cartSlice";
+import { supabase } from "./supabaseClient";
+import { Auth } from "./components/Auth/Auth.jsx";
 import Loader from "./components/Loader/Loader.jsx";
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -16,6 +19,16 @@ const CatalogLayout = lazy(() => import("./layouts/CatalogLayout/CatalogLayout.j
 
 function App() {
   const [session, setSession] = useState(null);
+  const dispatch = useDispatch(); // <--- ДОДАНО
+
+  // --- ЛОГІКА ЗАВАНТАЖЕННЯ КОШИКА ПРИ ОНОВЛЕННІ СТОРІНКИ ---
+  useEffect(() => {
+    // Якщо сесія є і в ній є id користувача
+    if (session?.user?.id) {
+      console.log("Сесія активна, завантажую кошик для:", session.user.id);
+      dispatch(fetchCart(session.user.id));
+    }
+  }, [session, dispatch]); // Спрацює щоразу, коли session змінюється (вхід/вихід)
 
   useEffect(() => {
     // Прапорець, щоб не показувати тост двічі в одному циклі
@@ -32,6 +45,11 @@ function App() {
     // 2. Слухаємо зміни стану
     const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+
+      // ЯКЩО КОРИСТУВАЧ ВИЙШОВ
+      if (event === 'SIGNED_OUT') {
+        dispatch(clearCartLocal()); // <--- ОЧИЩУЄМО REDUX МИТТЄВО
+      }
 
 // Перевіряємо SIGNED_IN або INITIAL_SESSION (перший вхід)
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail && !isToastShown) {

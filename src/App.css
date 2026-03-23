@@ -1,6 +1,6 @@
-.container {
+.page-wrapper {
     display: grid;
-    /* Магія тут: три рядки. Auto, 1fr, Auto */
+    /* Магія тут: 3 рядки. auto, 1fr, auto */
     grid-template-rows: auto 1fr auto;
     /* Мінімальна висота контейнера - весь екран */
     min-height: 100vh;

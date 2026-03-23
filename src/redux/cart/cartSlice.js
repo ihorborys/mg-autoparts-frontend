@@ -17,6 +17,13 @@ const initialState = {
 const cartSlice = createSlice({
   name: "cart",
   initialState,
+  reducers: {
+    // Ця дія просто очищує стор у браузері (без запиту до бази)
+    clearCartLocal: (state) => {
+      state.items = [];
+      state.totalPriceEur = 0;
+    }
+  },
   extraReducers: (builder) => {
     builder
       // --- FETCH CART (Отримання всього кошика) ---
@@ -84,4 +91,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const {clearCartLocal} = cartSlice.actions;
 export const cartReducer = cartSlice.reducer;

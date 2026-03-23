@@ -5,9 +5,11 @@ import Header from "../../components/Header/Header.jsx";
 
 const HomeLayout = ({session}) => {
   return (
-    <div>
-      <Header session={session}/>
-      <Navigation/>
+    <div className="page-wrapper">
+      <div>
+        <Header session={session}/>
+        <Navigation/>
+      </div>
       <Outlet/>
       <Footer/>
     </div>

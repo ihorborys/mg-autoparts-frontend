@@ -9,8 +9,23 @@
     gap: 15px;
 }
 
+.userActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
 @media (max-width: 320px) {
     .headerComponents {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 680px) {
+    .headerComponents {
+        flex-direction: column;
+        /*justify-content: flex-start;*/
+        /*align-items: flex-start;*/
     }
 }

@@ -1,0 +1,48 @@
+.cartBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: color 0.3s ease;
+    text-decoration: none;
+    color: var(--white); /* Колір іконки */
+}
+
+.cartBtn:hover {
+    color: var(--white-hover); /* Колір іконки */
+}
+
+.iconWrapper {
+    position: relative; /* Це база для позиціонування бабла */
+    display: flex;
+}
+
+.badge {
+    position: absolute;
+    top: -16px;
+    right: -12px;
+    background-color: var(--red); /* Твій акцентний колір (червоний) */
+    color: var(--white);
+    font-size: 12px;
+    /*font-weight: bold;*/
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--white); /* Білий контур, щоб бабл не зливався з іконкою */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Маленька анімація появи цифри */
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

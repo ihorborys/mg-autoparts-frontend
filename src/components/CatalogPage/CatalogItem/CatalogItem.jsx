@@ -29,8 +29,6 @@ const CatalogItem = ({product}) => {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false); // Стан завантаження для кнопки
 
-  console.log(product);
-
   // Функції для зміни кількості
   const increment = () => {
     if (quantity < product.stock) setQuantity(prev => prev + 1);
@@ -56,7 +54,7 @@ const CatalogItem = ({product}) => {
 
     // Формуємо об'єкт товару згідно з моделлю CartItemIn на бекенді
     const cartData = {
-      user_id: user.id, // Поки що статика, потім візьмемо з Auth
+      user_id: user.id,
       supplier_id: product.supplier_id,
       code: product.code,
       brand: product.brand,

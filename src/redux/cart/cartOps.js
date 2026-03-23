@@ -7,9 +7,9 @@ import api from "../../api/api.js";
 // 1. Отримати всі товари в кошику юзера
 export const fetchCart = createAsyncThunk(
   "cart/fetchAll",
-  async (userId, thunkAPI) => {
+  async (user_id, thunkAPI) => {
     try {
-      const response = await api.get(`/api/cart/${userId}`);
+      const response = await api.get(`/api/cart/${user_id}`);
       return response.data; // Повертає { items, total_price_eur, ... }
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
@@ -34,12 +34,12 @@ export const addToCart = createAsyncThunk(
 // 3. Оновити кількість (точне значення для кнопок +/- в самому кошику)
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateQuantity",
-  async ({userId, supplierId, code, quantity}, thunkAPI) => {
+  async ({user_id, supplier_id, code, quantity}, thunkAPI) => {
     try {
       const response = await api.patch("/api/cart/update", null, {
-        params: {user_id: userId, supplier_id: supplierId, code, quantity}
+        params: {user_id, supplier_id, code, quantity}
       });
-      return {supplierId, code, quantity};
+      return {user_id, supplier_id, code, quantity};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
     }
@@ -49,10 +49,10 @@ export const updateCartQuantity = createAsyncThunk(
 // 4. Видалити один товар з кошика
 export const removeFromCart = createAsyncThunk(
   "cart/remove",
-  async ({userId, supplierId, code}, thunkAPI) => {
+  async ({user_id, supplier_id, code}, thunkAPI) => {
     try {
-      await api.delete(`/api/cart/${userId}/${supplierId}/${code}`);
-      return {supplierId, code};
+      await api.delete(`/api/cart/${user_id}/${supplier_id}/${code}`);
+      return {supplier_id, code};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
     }
@@ -62,10 +62,10 @@ export const removeFromCart = createAsyncThunk(
 // 5. Повністю очистити кошик юзера
 export const clearEntireCart = createAsyncThunk(
   "cart/clearAll",
-  async (userId, thunkAPI) => {
+  async (user_id, thunkAPI) => {
     try {
-      await api.delete(`/api/cart/${userId}`);
-      return userId;
+      await api.delete(`/api/cart/${user_id}`);
+      return user_id;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
     }
