@@ -63,7 +63,7 @@ const CatalogList = () => {
       <ul style={{listStyle: "none", padding: 0}}>
         {items.map((product) => (
           <CatalogItem
-            key={`${product.code}-${product.supplier_id}`}
+            key={`${product.code}-${product.supplier_id}-${product.brand}`}
             product={product}
             exchangeRate={rate} // Передаємо курс із Redux
           />
