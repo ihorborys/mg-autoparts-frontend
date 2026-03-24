@@ -53,6 +53,7 @@ const cartSlice = createSlice({
         if (existingItem) {
           // Якщо був — оновлюємо кількість тим, що повернув бекенд
           existingItem.quantity = quantity;
+          existingItem.stock = action.payload.stock; // Оновимо і залишок теж
         } else {
           // Якщо новий — додаємо в масив
           state.items.push(action.payload);
@@ -63,15 +64,28 @@ const cartSlice = createSlice({
       })
 
       // --- UPDATE QUANTITY (Кнопки +/- в кошику) ---
-      .addCase(updateCartQuantity.fulfilled, (state, action) => {
-        const {code, supplier_id, quantity} = action.payload;
+      // Цей блок ми додали в extraReducers:
+      .addCase(updateCartQuantity.pending, (state, action) => {
+        // 1. Беремо дані прямо з виклику функції (те, що юзер клацнув)
+        const {code, supplier_id, quantity} = action.meta.arg;
+
         const item = state.items.find(
           (i) => i.code === code && i.supplier_id === supplier_id
         );
+
         if (item) {
+          // 2. Оновлюємо кількість МИТТЄВО в стейті
           item.quantity = quantity;
         }
-        state.totalPriceEur = state.items.reduce((total, item) => total + (item.price_eur * item.quantity), 0);
+
+        // 3. Оновлюємо загальну суму ТЕЖ МИТТЄВО
+        state.totalPriceEur = state.items.reduce(
+          (total, i) => total + (i.price_eur * i.quantity), 0
+        );
+      })
+      .addCase(updateCartQuantity.fulfilled, (state, action) => {
+        // Тут порожньо, бо справу вже зроблено в pending.
+        // Сервер просто підтвердив, що він записав дані.
       })
 
       // --- REMOVE FROM CART (Видалення одного рядка) ---

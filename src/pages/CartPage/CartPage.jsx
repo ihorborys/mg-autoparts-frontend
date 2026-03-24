@@ -18,8 +18,8 @@ const CartPage = () => {
       // 2. Огортаємо порожній стан
       <Container>
         <div className={styles.emptyContainer}>
-          <h2>У кошику порожньо 🛒</h2>
-          <p>Додайте щось із каталогу, щоб створити замовлення.</p>
+          <h2 className={styles.emptyTitle}>У кошику порожньо 🛒</h2>
+          <p className={styles.emptySubtitle}>Додайте щось із каталогу, щоб створити замовлення.</p>
           <Link to="/catalog" className={styles.backBtn}>
             <Button>До каталогу</Button>
           </Link>

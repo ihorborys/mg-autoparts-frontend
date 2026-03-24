@@ -11,9 +11,21 @@ const CartItem = ({item}) => {
   const rate = useSelector((state) => state.currency.rate);
   const supplierName = getSupplierName(item.supplier_id);
 
-  // Функція зміни кількості
+
+// Якщо сток прийшов як undefined або null, дозволяємо хоча б поточну кількість,
+// щоб юзер не "застряг" з кнопками, що не працюють.
+  const maxStock = (item.stock !== undefined && item.stock !== null) ? item.stock : item.quantity;
+
   const changeQty = (newQty) => {
+    // 1. Не даємо впасти нижче 1
     if (newQty < 1) return;
+
+    // 2. Не даємо перевищити залишок на складі
+    if (newQty > maxStock) {
+      // Тут можна додати toast.error("Більше немає в наявності")
+      return;
+    }
+
     dispatch(updateCartQuantity({
       user_id: user.id,
       supplier_id: item.supplier_id,
@@ -22,7 +34,6 @@ const CartItem = ({item}) => {
     }));
   };
 
-
   return (
     <li className={styles.item}>
       <div className={styles.info}>
@@ -30,13 +41,24 @@ const CartItem = ({item}) => {
         <p className={styles.code}>{item.code}</p>
         <p className={styles.name}>{item.name}</p>
         <p className={styles.supplier}>{supplierName}</p>
+        <p className={styles.stockHint}>В наявності: {maxStock} шт.</p>
       </div>
 
       <div className={styles.controls}>
         <div className={styles.qtySelectors}>
-          <button onClick={() => changeQty(item.quantity - 1)}><Minus size={14}/></button>
+          <button onClick={() => changeQty(item.quantity - 1)}>
+            <Minus size={14}/>
+          </button>
+
           <span>{item.quantity}</span>
-          <button onClick={() => changeQty(item.quantity + 1)}><Plus size={14}/></button>
+
+          <button
+            onClick={() => changeQty(item.quantity + 1)}
+            disabled={item.quantity >= maxStock} // Блокуємо кнопку, якщо ліміт досягнуто
+            className={item.quantity >= maxStock ? styles.disabledBtn : ''}
+          >
+            <Plus size={14}/>
+          </button>
         </div>
 
         <div className={styles.itemTotal}>

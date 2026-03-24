@@ -24,22 +24,29 @@ export const addToCart = createAsyncThunk(
     try {
       const response = await api.post("/api/cart/", itemData);
       // Повертаємо дані товару + нову кількість з сервера
-      return {...itemData, quantity: response.data.new_quantity};
+      return {
+        ...itemData,
+        quantity: response.data.new_quantity,
+        stock: response.data.stock // <--- Ось цей "золотий" рядок
+      };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
     }
   }
 );
 
-// 3. Оновити кількість (точне значення для кнопок +/- в самому кошику)
+// Шукай 3. Оновити кількість
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateQuantity",
   async ({user_id, supplier_id, code, quantity}, thunkAPI) => {
     try {
-      const response = await api.patch("/api/cart/update", null, {
+      // Відправляємо запит у фоні, але не чекаємо його для оновлення цифри
+      await api.patch("/api/cart/update", null, {
         params: {user_id, supplier_id, code, quantity}
       });
-      return {user_id, supplier_id, code, quantity};
+
+      // Повертаємо те, що юзер клікнув (миттєва реакція)
+      return {supplier_id, code, quantity};
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
     }
