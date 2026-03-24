@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux'; // Додаємо Redux хуки
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styles from './CatalogItem.module.css';
 import { Plus, Minus } from 'lucide-react';
 import { getDeliveryTime, getSupplierName } from "../../../utils/helpers.js";
@@ -9,50 +9,66 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
 import { addToCart } from '../../../redux/cart/cartOps';
 
-
 const CatalogItem = ({product}) => {
   const {user} = useAuth();
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
 
-  // 1. БЕРЕМО КУРС ПРЯМО З REDUX
   const exchangeRate = useSelector((state) => state.currency.rate);
+
+  // 1. ОТРИМУЄМО ДАНІ З КОШИКА ДЛЯ ПЕРЕВІРКИ ЛІМІТІВ
+  const cartItems = useSelector((state) => state.cart.items);
+  const itemInCart = cartItems.find(
+    (item) =>
+      item.code === product.code &&
+      item.supplier_id === product.supplier_id &&
+      item.brand === product.brand
+  );
+
+  const alreadyInCart = itemInCart ? itemInCart.quantity : 0;
+  const maxCanAdd = product.stock - alreadyInCart;
 
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
 
-  // Розрахунки цін
   const priceEuro27 = (product.price_eur / 1.33 * 1.27).toFixed(2);
   const priceUah27 = (product.price_eur / 1.33 * 1.27 * exchangeRate).toFixed(0);
 
-  // 1. Стан для вибору кількості (мінімум 1)
-  const [quantity, setQuantity] = useState(1);
-  const [isAdding, setIsAdding] = useState(false); // Стан завантаження для кнопки
+  // Стан для вибору кількості (якщо maxCanAdd 0, то і вибір 0)
+  const [quantity, setQuantity] = useState(maxCanAdd > 0 ? 1 : 0);
+  const [isAdding, setIsAdding] = useState(false);
 
-  // Функції для зміни кількості
+  // Скидаємо кількість до 1, якщо місце в кошику звільнилося, або до 0, якщо заповнилося
+  useEffect(() => {
+    if (maxCanAdd > 0 && quantity === 0) setQuantity(1);
+    if (maxCanAdd <= 0 && quantity > 0) setQuantity(0);
+    if (quantity > maxCanAdd && maxCanAdd > 0) setQuantity(maxCanAdd);
+  }, [maxCanAdd]);
+
   const increment = () => {
-    if (quantity < product.stock) setQuantity(prev => prev + 1);
-    trigger('tick'); // Вібруємо при кожному натисканні +
+    if (quantity < maxCanAdd) {
+      setQuantity(prev => prev + 1);
+      trigger('tick');
+    } else {
+      toast.error(`Більше немає на складі (${product.stock} шт. макс)`, {id: 'limit'});
+    }
   };
+
   const decrement = () => {
-    if (quantity > 1) setQuantity(prev => prev - 1);
-    trigger('tick'); // Вібруємо при кожному натисканні -
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
+      trigger('tick');
+    }
   };
 
-
-// --- ОНОВЛЕНА ФУНКЦІЯ ДОДАВАННЯ ЧЕРЕЗ REDUX ---
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error("Будь ласка, увійдіть в акаунт, щоб додати товар у кошик", {
-        icon: '🔐',
-        duration: 5000
-      });
+      toast.error("Будь ласка, увійдіть в акаунт", {icon: '🔐'});
       return;
     }
 
     setIsAdding(true);
 
-    // Формуємо об'єкт товару згідно з моделлю CartItemIn на бекенді
     const cartData = {
       user_id: user.id,
       supplier_id: product.supplier_id,
@@ -60,37 +76,35 @@ const CatalogItem = ({product}) => {
       brand: product.brand,
       name: product.name,
       quantity: quantity,
-      price_eur: parseFloat(priceEuro27) // Відправляємо ціну з твоєю націнкою
+      price_eur: parseFloat(priceEuro27)
     };
 
     try {
-// 2. ВИКЛИКАЄМО ОПЕРАЦІЮ REDUX
-      // .unwrap() дозволяє нам обробити успіх/помилку прямо тут для тостів
       const result = await dispatch(addToCart(cartData)).unwrap();
 
-      // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
-      trigger('success'); // Вібруємо, коли товар успішно в базі!
-      toast.success(
-        <div>
-          <b>{product.brand} {product.code}</b> додано!<br/>
-          Тепер у кошику: <b>{result.quantity} шт.</b>
-        </div>,
-        {
-          duration: 4000,
-          icon: '🛒',
-          style: {border: '1px solid #4caf50', padding: '16px'},
-          position: 'bottom-center',
-        }
-      );
+      const updatedQty = result.quantity;
+
+      trigger('success');
+
+      // ПЕРЕВІРКА: чи реально додалося щось (порівнюємо з тим, що було в Redux)
+      if (updatedQty === alreadyInCart) {
+        toast.error(`Вже додано максимум (${updatedQty} шт.)`, {icon: '⚠️'});
+      } else {
+        toast.success(
+          <div>
+            <b>{product.brand} {product.code}</b> оновлено!<br/>
+            У кошику: <b>{updatedQty} шт.</b>
+          </div>,
+          {icon: '🛒', position: 'bottom-center'}
+        );
+      }
     } catch (error) {
-      trigger('error'); // Вібруємо, якщо щось зламалося
-      console.error("Помилка кошика:", error);
-      toast.error("Не вдалося додати товар. Перевірте з'єднання.");
+      trigger('error');
+      toast.error("Помилка при додаванні");
     } finally {
       setIsAdding(false);
     }
   };
-
 
   const stockColorClass = product.stock === 0
     ? styles.outOfStock
@@ -98,16 +112,12 @@ const CatalogItem = ({product}) => {
       ? styles.lowStock
       : styles.goodStock;
 
-
   return (
     <li className={styles.wrapper}>
       <div className={styles.container}>
-
-        {/* Секція 1: Бренд, Код, Unicode, Фото, Назва товару */}
         <section className={styles.info}>
           <div className={styles.infoContainer}>
-            <img className={styles.image} src="/img/catalog/no_item.png" alt="No picture available"/>
-
+            <img className={styles.image} src="/img/catalog/no_item.png" alt="No item"/>
             <div className={styles.brandCodeContainer}>
               <h4 className={styles.brand}>{product.brand}</h4>
               <CopyAction text={product.code} label="артикул">
@@ -116,12 +126,10 @@ const CatalogItem = ({product}) => {
               <p className={styles.unicode}>{product.unicode}</p>
               <p className={styles.supplier}><span>{supplierName}</span></p>
             </div>
-
           </div>
           <p className={styles.name}>{product.name}</p>
         </section>
 
-        {/* Секція 2: Склад, Ціна, Кнопки вибору та Кошик */}
         <section className={styles.actions}>
           <div className={styles.stockPrice}>
             <p className={`${styles.stock} ${stockColorClass}`}>
@@ -131,20 +139,15 @@ const CatalogItem = ({product}) => {
           </div>
 
           <div className={styles.stockPrice}>
-            <p className={styles.price}>
-              {priceEuro27} €
-            </p>
-            <p className={styles.price}>
-              {priceUah27} ₴
-            </p>
+            <p className={styles.price}>{priceEuro27} €</p>
+            <p className={styles.price}>{priceUah27} ₴</p>
           </div>
 
           <div className={styles.controlsBasket}>
             <div className={styles.quantityControls}>
-
               <button
                 onClick={decrement}
-                disabled={product.stock === 0 || quantity <= 1}
+                disabled={quantity <= 1 || maxCanAdd <= 0}
                 className={styles.qtyBtn}
               >
                 <Minus size={12} strokeWidth={2}/>
@@ -152,7 +155,6 @@ const CatalogItem = ({product}) => {
 
               <input
                 type="text"
-                inputMode="numeric"
                 value={quantity}
                 readOnly
                 className={styles.qtyInput}
@@ -160,33 +162,31 @@ const CatalogItem = ({product}) => {
 
               <button
                 onClick={increment}
-                disabled={product.stock === 0 || quantity >= product.stock}
+                disabled={quantity >= maxCanAdd || maxCanAdd <= 0}
                 className={styles.qtyBtn}
               >
                 <Plus size={12} strokeWidth={2}/>
               </button>
-
             </div>
 
-            {/* Оновлена кнопка */}
             <button
               className={styles.addToCartBtn}
               onClick={handleAddToCart}
-              disabled={product.stock === 0 || isAdding} // Блокуємо при завантаженні
+              // Кнопка стає сірою, якщо: товару 0 в базі АБО вже набрали весь сток у кошик
+              disabled={product.stock === 0 || isAdding || maxCanAdd <= 0}
             >
               {isAdding ? (
                 'Додаю...'
               ) : product.stock === 0 ? (
                 'Немає'
+              ) : maxCanAdd <= 0 ? (
+                'У кошику'
               ) : (
                 'У кошик'
               )}
             </button>
-
           </div>
-
         </section>
-
       </div>
     </li>
   );
