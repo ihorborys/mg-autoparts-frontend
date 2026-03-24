@@ -14,7 +14,7 @@
 .title {
     font-size: 28px;
     margin-bottom: 30px;
-    color: var(--white);
+    color: var(--white-hover);
     text-align: center;
 }
 
@@ -22,7 +22,6 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    /*grid-template-columns: 1fr 300px; !* Список товарів і колонка підсумку *!*/
     gap: 30px;
 }
 
