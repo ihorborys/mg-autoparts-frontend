@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     // Якщо сесія є і в ній є id користувача
     if (session?.user?.id) {
-      console.log("Сесія активна, завантажую кошик для:", session.user.id);
+      // console.log("Сесія активна, завантажую кошик для:", session.user.id);
       dispatch(fetchCart(session.user.id));
     }
   }, [session, dispatch]); // Спрацює щоразу, коли session змінюється (вхід/вихід)
