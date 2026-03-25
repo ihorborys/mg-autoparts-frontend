@@ -20,8 +20,9 @@
 
 .content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: flex-start;
+    width: 100%;
     gap: 30px;
 }
 
@@ -29,6 +30,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    flex: 1;
 }
 
 .summary {
@@ -37,6 +39,12 @@
     border-radius: 8px;
     height: fit-content;
     border: 1px solid #333;
+    min-width: 200px;
+
+    /* --- ПРИЛИПАННЯ ПРИ ДОВГОМУ СПИСКУ --- */
+    position: sticky;
+    top: 20px; /* Відступ від верху екрана. Якщо в тебе є закріплене меню зверху (Header), зроби тут більше, наприклад 80px або 100px */
+    align-self: flex-start; /* НАЙГОЛОВНІШЕ: забороняє панелі розтягуватися на всю висоту сторінки, даючи їй "колію" для руху */
 }
 
 .prices {
@@ -82,8 +90,13 @@
 @media (max-width: 768px) {
     .content {
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        align-items: stretch;
+    }
+
+    .summary {
+        /*position: relative;*/
+        /*top: 20px; !* Відступ від верху екрана. Якщо в тебе є закріплене меню зверху (Header), зроби тут більше, наприклад 80px або 100px *!*/
+        align-self: normal; /* НАЙГОЛОВНІШЕ: забороняє панелі розтягуватися на всю висоту сторінки, даючи їй "колію" для руху */
     }
 }
 

@@ -37,7 +37,7 @@ const CartPage = () => {
           {/* Список товарів */}
           <ul className={styles.list}>
             {items.map((item) => (
-              <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
+              <CartItem key={`${item.code}-${item.supplier_id}-${item.brand}`} item={item}/>
             ))}
           </ul>
 
