@@ -15,8 +15,23 @@ const CatalogItem = ({product}) => {
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
 
+  // console.log(product);
+
   // 1. БЕРЕМО КУРС ПРЯМО З REDUX
   const exchangeRate = useSelector((state) => state.currency.rate);
+
+  
+  // Отримуємо список товарів з Redux стору кошика
+  const cartItems = useSelector((state) => state.cart.items);
+  // Знаходимо саме цей товар у кошику
+  const itemInCart = cartItems.find(item =>
+    item.code === product.code && item.brand === product.brand
+  );
+  // Скільки вже додано (якщо немає — 0)
+  const alreadyInCartQty = itemInCart ? itemInCart.quantity : 0;
+// Скільки ще МОЖНА додати (залишок - те що в кошику)
+  const availableToAdd = product.stock - alreadyInCartQty;
+
 
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
@@ -30,10 +45,21 @@ const CatalogItem = ({product}) => {
   const [isAdding, setIsAdding] = useState(false); // Стан завантаження для кнопки
 
   // Функції для зміни кількості
+  // const increment = () => {
+  //   if (quantity < product.stock) setQuantity(prev => prev + 1);
+  //   trigger('tick'); // Вібруємо при кожному натисканні +
+  // };
+
   const increment = () => {
-    if (quantity < product.stock) setQuantity(prev => prev + 1);
-    trigger('tick'); // Вібруємо при кожному натисканні +
+    // Тепер ліміт — це не весь склад, а те, що залишилося вільним
+    if (quantity < availableToAdd) {
+      setQuantity(prev => prev + 1);
+      trigger('tick');
+    } else {
+      toast.error(`Можна додати максимум (${product.stock} шт.) у кошик`, {id: 'limit-reach'});
+    }
   };
+
   const decrement = () => {
     if (quantity > 1) setQuantity(prev => prev - 1);
     trigger('tick'); // Вібруємо при кожному натисканні -
@@ -168,19 +194,27 @@ const CatalogItem = ({product}) => {
 
             </div>
 
-            {/* Оновлена кнопка */}
+            {/*/!* Оновлена кнопка *!/*/}
+            {/*<button*/}
+            {/*  className={styles.addToCartBtn}*/}
+            {/*  onClick={handleAddToCart}*/}
+            {/*  disabled={product.stock === 0 || isAdding} // Блокуємо при завантаженні*/}
+            {/*>*/}
+            {/*  {isAdding ? (*/}
+            {/*    'Додаю...'*/}
+            {/*  ) : product.stock === 0 ? (*/}
+            {/*    'Немає'*/}
+            {/*  ) : (*/}
+            {/*    'У кошик'*/}
+            {/*  )}*/}
+            {/*</button>*/}
+
             <button
               className={styles.addToCartBtn}
               onClick={handleAddToCart}
-              disabled={product.stock === 0 || isAdding} // Блокуємо при завантаженні
+              disabled={product.stock === 0 || isAdding || availableToAdd <= 0}
             >
-              {isAdding ? (
-                'Додаю...'
-              ) : product.stock === 0 ? (
-                'Немає'
-              ) : (
-                'У кошик'
-              )}
+              {isAdding ? 'Додаю...' : availableToAdd <= 0 ? 'У кошику' : 'У кошик'}
             </button>
 
           </div>
