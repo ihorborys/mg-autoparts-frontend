@@ -47,26 +47,50 @@
     gap: 20px;
 }
 
+.qtyStockInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
 .qtySelectors {
     display: flex;
     align-items: center;
     background: #333;
     border-radius: 4px;
-    padding: 4px;
+    padding: 5px;
 }
 
-.qtySelectors button {
+.qtyBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     color: white;
     cursor: pointer;
-    padding: 5px;
+    padding: 10px;
+    transition: all 0.3s ease;
 }
 
-.qtySelectors span {
+/* МАГІЯ ТУТ: коли кнопка disabled */
+.qtyBtn:disabled {
+    opacity: 0.2; /* Робимо напівпрозорою */
+    cursor: not-allowed; /* Міняємо курсор на "заборонено" */
+    filter: grayscale(1); /* Можна додати сірості */
+    /*background: #ebebeb; !* Робимо фон тьмянішим *!*/
+}
+
+.qtyValue {
     padding: 0 10px;
     min-width: 30px;
     text-align: center;
+}
+
+.stockInfo {
+    color: var(--grey);
 }
 
 .itemTotal {

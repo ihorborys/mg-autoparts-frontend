@@ -20,7 +20,7 @@ const CatalogItem = ({product}) => {
   // 1. БЕРЕМО КУРС ПРЯМО З REDUX
   const exchangeRate = useSelector((state) => state.currency.rate);
 
-  
+
   // Отримуємо список товарів з Redux стору кошика
   const cartItems = useSelector((state) => state.cart.items);
   // Знаходимо саме цей товар у кошику
