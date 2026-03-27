@@ -43,7 +43,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 20px;
 }
 
@@ -57,6 +57,7 @@
 
 .qtySelectors {
     display: flex;
+    justify-content: center;
     align-items: center;
     background: #333;
     border-radius: 4px;
@@ -91,6 +92,7 @@
 
 .stockInfo {
     color: var(--grey);
+    font-size: 14px;
 }
 
 .itemTotal {
@@ -151,12 +153,16 @@
         padding: 2px;
     }
 
-    .qtySelectors button {
-
+    .qtyBtn {
+        padding: 10px;
     }
 
-    .qtySelectors span {
+    .qtyValue {
         min-width: 10px;
+    }
+
+    .stockInfo {
+        font-size: 10px;
     }
 
     .itemTotal {
@@ -169,6 +175,8 @@
 
     .remove {
     }
+
+
 }
 
 @media (max-width: 440px) {
