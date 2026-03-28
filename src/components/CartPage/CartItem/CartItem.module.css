@@ -125,6 +125,16 @@
     }
 }
 
+@media (max-width: 880px) {
+    .qtyValue {
+        min-width: 10px;
+    }
+
+    .stockInfo {
+        font-size: 12px;
+    }
+}
+
 
 @media (max-width: 550px) {
     .item {
@@ -158,7 +168,8 @@
     }
 
     .qtyValue {
-        min-width: 10px;
+        font-size: 12px;
+        min-width: 5px;
     }
 
     .stockInfo {
@@ -191,6 +202,10 @@
 
     .controls {
         gap: 5px;
+    }
+
+    .qtyValue {
+        padding: 0 5px;
     }
 }
 
