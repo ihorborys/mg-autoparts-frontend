@@ -7,7 +7,7 @@ import CopyAction from '../../CopyAction/CopyAction.jsx';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
-import { addToCart } from '../../../redux/cart/cartOps';
+import { addToCart, fetchCart } from '../../../redux/cart/cartOps';
 
 
 const CatalogItem = ({product}) => {
@@ -93,6 +93,12 @@ const CatalogItem = ({product}) => {
 // 2. ВИКЛИКАЄМО ОПЕРАЦІЮ REDUX
       // .unwrap() дозволяє нам обробити успіх/помилку прямо тут для тостів
       const result = await dispatch(addToCart(cartData)).unwrap();
+
+      // --- ОСЬ ЦЕЙ ВАЖЛИВИЙ РЯДОК (ВАРІАНТ Б) ---
+      // Після успішного додавання ми заново тягнемо весь кошик.
+      // Наш новий SQL-запит на бекенді відразу підтягне актуальний stock
+      // через оптимізований JOIN з індексом.
+      dispatch(fetchCart());
 
       // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
       trigger('success'); // Вібруємо, коли товар успішно в базі!
