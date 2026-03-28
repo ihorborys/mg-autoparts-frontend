@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import styles from './CartItem.module.css';
 import { getSupplierName } from "../../../utils/helpers.js";
 import toast from "react-hot-toast";
+import { useHaptics } from "../../../hooks/useHaptics.js";
 
 const CartItem = ({item}) => {
   const dispatch = useDispatch();
@@ -13,6 +14,7 @@ const CartItem = ({item}) => {
   const supplierName = getSupplierName(item.supplier_id);
 // Запобіжник: якщо стоку немає в об'єкті, вважаємо його нульовим
   const maxStock = item.stock ?? 0;
+  const {trigger} = useHaptics();
 
   // const {items} = useSelector((state) => state.products);
 
@@ -40,6 +42,8 @@ const CartItem = ({item}) => {
       code: item.code,
       quantity: newQty
     }));
+
+    trigger('tick');
   };
 
 
@@ -117,7 +121,9 @@ const CartItem = ({item}) => {
 
         <button
           className={styles.remove}
-          onClick={() => dispatch(removeFromCart({user_id: user.id, supplier_id: item.supplier_id, code: item.code}))}
+          onClick={() =>
+            dispatch(removeFromCart({user_id: user.id, supplier_id: item.supplier_id, code: item.code}))
+          }
         >
           <Trash2 size={18}/>
         </button>
