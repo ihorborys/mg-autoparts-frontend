@@ -15,7 +15,6 @@ const CatalogItem = ({product}) => {
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
 
-  // console.log(product);
 
   // 1. БЕРЕМО КУРС ПРЯМО З REDUX
   const exchangeRate = useSelector((state) => state.currency.rate);
@@ -98,7 +97,7 @@ const CatalogItem = ({product}) => {
       // Після успішного додавання ми заново тягнемо весь кошик.
       // Наш новий SQL-запит на бекенді відразу підтягне актуальний stock
       // через оптимізований JOIN з індексом.
-      dispatch(fetchCart());
+      dispatch(fetchCart(user.id));
 
       // --- ДОДАЄМО ВІБРАЦІЮ ТУТ ---
       trigger('success'); // Вібруємо, коли товар успішно в базі!
@@ -199,21 +198,6 @@ const CatalogItem = ({product}) => {
               </button>
 
             </div>
-
-            {/*/!* Оновлена кнопка *!/*/}
-            {/*<button*/}
-            {/*  className={styles.addToCartBtn}*/}
-            {/*  onClick={handleAddToCart}*/}
-            {/*  disabled={product.stock === 0 || isAdding} // Блокуємо при завантаженні*/}
-            {/*>*/}
-            {/*  {isAdding ? (*/}
-            {/*    'Додаю...'*/}
-            {/*  ) : product.stock === 0 ? (*/}
-            {/*    'Немає'*/}
-            {/*  ) : (*/}
-            {/*    'У кошик'*/}
-            {/*  )}*/}
-            {/*</button>*/}
 
             <button
               className={styles.addToCartBtn}
