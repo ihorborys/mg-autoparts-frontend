@@ -46,6 +46,18 @@ const CartItem = ({item}) => {
     trigger('tick');
   };
 
+  // Окремий метод для видалення з тригером
+  const handleRemove = () => {
+    dispatch(removeFromCart({
+      user_id: user.id,
+      supplier_id: item.supplier_id,
+      code: item.code
+    }));
+
+    // Використовуємо 'medium' або 'impactMedium' для відчутного фідбеку
+    trigger('remove');
+  };
+
 
   return (
     <li className={styles.item}>
@@ -59,27 +71,6 @@ const CartItem = ({item}) => {
       <div className={styles.controls}>
         <div className={styles.qtyStockInfo}>
           <div className={styles.qtySelectors}>
-
-            {/*<button onClick={() => changeQty(item.quantity - 1)}><Minus size={14}/></button>*/}
-            {/*<span>{item.quantity}</span>*/}
-            {/*<button onClick={() => changeQty(item.quantity + 1)}><Plus size={14}/></button>*/}
-
-            {/*<button*/}
-            {/*  onClick={() => changeQty(item.quantity - 1)}*/}
-            {/*  disabled={item.quantity <= 1}*/}
-            {/*>*/}
-            {/*  <Minus size={14}/>*/}
-            {/*</button>*/}
-
-            {/*<span className={styles.qtyValue}>{item.quantity}</span>*/}
-
-            {/*<button*/}
-            {/*  onClick={() => changeQty(item.quantity + 1)}*/}
-            {/*  // Блокуємо кнопку, якщо вже досягли ліміту складу*/}
-            {/*  disabled={item.quantity >= item.stock}*/}
-            {/*>*/}
-            {/*  <Plus size={14}/>*/}
-            {/*</button>*/}
 
             {/* Кнопка МІНУС: блокуємо, якщо кількість вже 1 */}
             <button
@@ -121,9 +112,7 @@ const CartItem = ({item}) => {
 
         <button
           className={styles.remove}
-          onClick={() =>
-            dispatch(removeFromCart({user_id: user.id, supplier_id: item.supplier_id, code: item.code}))
-          }
+          onClick={handleRemove}
         >
           <Trash2 size={18}/>
         </button>
