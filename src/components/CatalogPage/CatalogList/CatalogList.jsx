@@ -35,12 +35,12 @@ const CatalogList = () => {
   };
 
   // 2. Логіка відображення лоадера
-  if (isLoading && items.length === 0) {
+  if ((isLoading && items.length === 0) || isRateLoading) {
     return (
       <div className={styles.loadInfoContainer}>
         <Loader/>
         <p className={styles.loadInfo}>
-          {`Шукаємо: "${lastQuery}"...`}
+          {isRateLoading ? "Оновлюємо курс валют..." : `Шукаємо: "${lastQuery}"...`}
         </p>
       </div>
     );
