@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-input/mask": "^2.0.4",
     "@reduxjs/toolkit": "^2.9.0",
     "@supabase/supabase-js": "^2.99.2",
     "axios": "^1.12.2",
