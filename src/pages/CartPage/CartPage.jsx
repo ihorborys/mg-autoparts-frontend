@@ -351,7 +351,7 @@ const CartPage = () => {
       // Ми беремо items з Redux і готуємо їх для Supabase
       const itemsToInsert = items.map(item => ({
         order_id: order.id,
-        product_id: item.product_id || null, // Якщо у тебе в Redux це product_id
+        product_id: item.product_id, // Якщо у тебе в Redux це product_id
         supplier_id: item.supplier_id,
         code: item.code,
         brand: item.brand,

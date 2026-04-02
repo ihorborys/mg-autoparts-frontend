@@ -68,6 +68,8 @@ const CatalogItem = ({product}) => {
 
 // --- ОНОВЛЕНА ФУНКЦІЯ ДОДАВАННЯ ЧЕРЕЗ REDUX ---
   const handleAddToCart = async () => {
+
+    console.log("DEBUG Product object:", product);
     if (!user) {
       toast.error("Будь ласка, увійдіть в акаунт, щоб додати товар у кошик", {
         icon: '🔐',
@@ -81,6 +83,7 @@ const CatalogItem = ({product}) => {
     // Формуємо об'єкт товару згідно з моделлю CartItemIn на бекенді
     const cartData = {
       user_id: user.id,
+      product_id: product.id,
       supplier_id: product.supplier_id,
       code: product.code,
       brand: product.brand,
