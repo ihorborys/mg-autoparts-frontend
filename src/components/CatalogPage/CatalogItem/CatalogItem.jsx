@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
 import { addToCart, fetchCart } from '../../../redux/cart/cartOps';
+import catalogLayout from "../../../layouts/CatalogLayout/CatalogLayout.jsx";
 
 
 const CatalogItem = ({product}) => {

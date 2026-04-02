@@ -289,7 +289,7 @@
 
 
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { InputMask } from '@react-input/mask';
 import Container from "../../layouts/Container/Container.jsx";
@@ -299,12 +299,15 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useHaptics } from "../../hooks/useHaptics.js";
 import toast from "react-hot-toast";
 import styles from './CartPage.module.css';
+import { clearEntireCart } from '../../redux/cart/cartOps';
+import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
 
 const CartPage = () => {
   const {user} = useAuth();
   const {items, totalPriceEur} = useSelector((state) => state.cart);
   const rate = useSelector((state) => state.currency.rate);
   const {trigger} = useHaptics();
+  const dispatch = useDispatch();
 
   const [step, setStep] = useState('summary');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -318,21 +321,93 @@ const CartPage = () => {
   const isFormValid = isPhoneValid && address.trim().length > 5;
 
   const handleFinalOrder = async () => {
+    console.log("Мій кошик з Redux:", items); // <--- ДОДАЙ ЦЕ
+    if (!user) {
+      toast.error("Будь ласка, увійдіть в акаунт");
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
-      console.log("Відправка замовлення:", {phone: cleanPhone, address, items});
+      // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ (orders)
+      const {data: order, error: orderError} = await supabase
+        .from('orders')
+        .insert([{
+          user_id: user.id,
+          total_price_eur: totalPriceEur,
+          total_price_uah: totalPriceUah,
+          ship_phone: cleanPhone,
+          ship_address: address, // Твоя змінна зі стейту
+          status: 'new',
+          payment_method: 'cash' // Додаємо, щоб не було NULL
+        }])
+        .select()
+        .single();
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (orderError) throw orderError;
 
-      setStep('success'); // ОСЬ ТУТ ПЕРЕМИКАЄМО НА УСПІХ
+      // 2. СТВОРЮЄМО РЯДКИ ЗАМОВЛЕННЯ (order_items)
+      // Ми беремо items з Redux і готуємо їх для Supabase
+      const itemsToInsert = items.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id || null, // Якщо у тебе в Redux це product_id
+        supplier_id: item.supplier_id,
+        code: item.code,
+        brand: item.brand,
+        price_eur: item.price_eur,
+        quantity: item.quantity
+      }));
+
+      const {error: itemsError} = await supabase
+        .from('order_items')
+        .insert(itemsToInsert);
+
+      if (itemsError) throw itemsError;
+
+      // 3. ОНОВЛЮЄМО ПРОФІЛЬ (profiles)
+      // Зберігаємо телефон та адресу як "дефолтні" для наступного разу
+      await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          phone: cleanPhone,
+          address_line: address,
+          updated_at: new Date()
+        });
+
+      // 4. ОЧИЩАЄМО КОШИК НА СЕРВЕРІ ТА В REDUX
+      await dispatch(clearEntireCart(user.id)).unwrap();
+
+      // 5. УСПІХ
+      setStep('success');
       trigger('success');
-      toast.success("Замовлення оформлено!");
+      toast.success("Замовлення прийнято!");
+
     } catch (error) {
-      toast.error("Помилка оформлення");
+      console.error("Помилка оформлення:", error);
+      toast.error(`Сталася помилка: ${error.message || 'Невідома помилка'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // const handleFinalOrder = async () => {
+  //   setIsSubmitting(true);
+  //   try {
+  //     console.log("Відправка замовлення:", {phone: cleanPhone, address, items});
+  //
+  //     await new Promise(resolve => setTimeout(resolve, 1500));
+  //
+  //     setStep('success'); // ОСЬ ТУТ ПЕРЕМИКАЄМО НА УСПІХ
+  //     trigger('success');
+  //     toast.success("Замовлення оформлено!");
+  //   } catch (error) {
+  //     toast.error("Помилка оформлення");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
   if (items.length === 0 && step !== 'success') {
@@ -341,6 +416,7 @@ const CartPage = () => {
         <div className={styles.container}>
           <div className={styles.emptyContainer}>
             <h2 className={styles.title}>Кошик порожній 🛒</h2>
+            <p className={styles.subTitle}>Додайте щось із каталогу, щоб створити замовлення.</p>
             <Link to="/catalog"><Button>До каталогу</Button></Link>
           </div>
         </div>
