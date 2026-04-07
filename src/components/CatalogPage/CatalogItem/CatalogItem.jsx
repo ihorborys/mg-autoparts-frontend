@@ -179,7 +179,7 @@ const CatalogItem = ({product}) => {
 
               <button
                 onClick={decrement}
-                disabled={product.stock === 0 || quantity <= 1}
+                disabled={product.stock === 0 || quantity <= 1 || availableToAdd <= 0}
                 className={styles.qtyBtn}
               >
                 <Minus size={12} strokeWidth={2}/>
@@ -188,14 +188,16 @@ const CatalogItem = ({product}) => {
               <input
                 type="text"
                 inputMode="numeric"
-                value={quantity}
+                value={availableToAdd <= 0 ? alreadyInCartQty : quantity}
                 readOnly
                 className={styles.qtyInput}
+                // Додамо трохи прозорості, якщо поле неактивне
+                style={availableToAdd <= 0 ? {opacity: 0.5} : {}}
               />
 
               <button
                 onClick={increment}
-                disabled={product.stock === 0 || quantity >= product.stock}
+                disabled={product.stock === 0 || quantity >= availableToAdd || availableToAdd <= 0}
                 className={styles.qtyBtn}
               >
                 <Plus size={12} strokeWidth={2}/>
