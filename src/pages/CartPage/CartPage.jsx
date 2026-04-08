@@ -1,293 +1,3 @@
-// import Container from "../../layouts/Container/Container.jsx";
-// import { useSelector } from 'react-redux';
-// import { Link } from 'react-router-dom';
-// import CartItem from '../../components/CartPage/CartItem/CartItem.jsx';
-// import styles from './CartPage.module.css';
-// import Button from "../../components/Button/Button.jsx";
-//
-// const CartPage = () => {
-//   // Беремо товари та суму з Redux
-//   const {items, totalPriceEur} = useSelector((state) => state.cart);
-//   // Беремо курс із нашого нового "банку"
-//   const rate = useSelector((state) => state.currency.rate);
-//
-//   const totalPriceUah = Math.round(totalPriceEur * rate);
-//
-//   if (items.length === 0) {
-//     return (
-//       // 2. Огортаємо порожній стан
-//       <Container>
-//         <div className={styles.container}>
-//           <div className={styles.emptyContainer}>
-//             <h2 className={styles.title}>Кошик порожній 🛒</h2>
-//             <p className={styles.subTitle}>Додайте щось із каталогу, щоб створити замовлення.</p>
-//             <Link to="/catalog" className={styles.backBtn}>
-//               <Button>До каталогу</Button>
-//             </Link>
-//           </div>
-//         </div>
-//       </Container>
-//     );
-//   }
-//
-//   return (
-//     <Container>
-//       <div className={styles.container}>
-//         <h1 className={styles.title}>Моє замовлення</h1>
-//
-//         <div className={styles.content}>
-//           {/* Список товарів */}
-//           <ul className={styles.list}>
-//             {items.map((item) => (
-//               <CartItem key={`${item.code}-${item.supplier_id}-${item.brand}`} item={item}/>
-//             ))}
-//           </ul>
-//
-//           {/* Панель підсумку (можна зробити Sticky) */}
-//           <div className={styles.summary}>
-//             <h3>Разом:</h3>
-//             <div className={styles.prices}>
-//               <span className={styles.eur}>{totalPriceEur.toLocaleString('uk-UA', {
-//                 minimumFractionDigits: 2,
-//                 maximumFractionDigits: 2
-//               })} €
-//               </span>
-//               <span className={styles.uah}>{totalPriceUah.toLocaleString('uk-UA')} ₴</span>
-//             </div>
-//             <button className={styles.orderBtn}>Оформити замовлення</button>
-//           </div>
-//         </div>
-//       </div>
-//     </Container>
-//   );
-// };
-//
-// export default CartPage;
-
-// import { useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import { Link } from 'react-router-dom';
-// import InputMask from 'react-input-mask'; // 1. Імпортуємо маску
-// import Container from "../../layouts/Container/Container.jsx";
-// import CartItem from '../../components/CartPage/CartItem/CartItem.jsx';
-// import Button from "../../components/Button/Button.jsx";
-// import { useAuth } from '../../context/AuthContext.jsx';
-// import { useHaptics } from "../../hooks/useHaptics.js";
-// import toast from "react-hot-toast";
-// import styles from './CartPage.module.css';
-//
-// const CartPage = () => {
-//   const {user} = useAuth();
-//   // Беремо товари та суму з Redux
-//   const {items, totalPriceEur} = useSelector((state) => state.cart);
-//   // Беремо курс із нашого нового "банку"
-//   const rate = useSelector((state) => state.currency.rate);
-//   const {trigger} = useHaptics();
-//
-//   const [step, setStep] = useState('summary');
-//   const [phone, setPhone] = useState(user?.phone || ''); // Маска сама додасть префікс
-//   const [address, setAddress] = useState(user?.address || '');
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//
-//   const totalPriceUah = Math.round(totalPriceEur * rate);
-//
-//   if (items.length === 0) {
-//     return (
-//       // 2. Огортаємо порожній стан
-//       <Container>
-//         <div className={styles.container}>
-//           <div className={styles.emptyContainer}>
-//             <h2 className={styles.title}>Кошик порожній 🛒</h2>
-//             <p className={styles.subTitle}>Додайте щось із каталогу, щоб створити замовлення.</p>
-//             <Link to="/catalog" className={styles.backBtn}>
-//               <Button>До каталогу</Button>
-//             </Link>
-//           </div>
-//         </div>
-//       </Container>
-//     );
-//   }
-//
-//   return (
-//     <Container>
-//       <div className={styles.container}>
-//         <h1 className={styles.title}>Моє замовлення</h1>
-//
-//         <div className={styles.content}>
-//           {/* Список товарів */}
-//           <ul className={styles.list}>
-//             {items.map((item) => (
-//               <CartItem key={`${item.code}-${item.supplier_id}-${item.brand}`} item={item}/>
-//             ))}
-//           </ul>
-//
-//           {/* Панель підсумку (можна зробити Sticky) */}
-//           <div className={styles.summary}>
-//             <h3>Разом:</h3>
-//             <div className={styles.prices}>
-//               <span className={styles.eur}>{totalPriceEur.toLocaleString('uk-UA', {
-//                 minimumFractionDigits: 2,
-//                 maximumFractionDigits: 2
-//               })} €
-//               </span>
-//               <span className={styles.uah}>{totalPriceUah.toLocaleString('uk-UA')} ₴</span>
-//             </div>
-//             <button className={styles.orderBtn}>Оформити замовлення</button>
-//           </div>
-//         </div>
-//       </div>
-//     </Container>
-//   );
-// };
-//
-// export default CartPage;
-
-
-// import { useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import { Link } from 'react-router-dom';
-// import InputMask from 'react-input-mask'; // 1. Імпортуємо маску
-// import Container from "../../layouts/Container/Container.jsx";
-// import CartItem from '../../components/CartPage/CartItem/CartItem.jsx';
-// import Button from "../../components/Button/Button.jsx";
-// import { useAuth } from '../../context/AuthContext.jsx';
-// import { useHaptics } from "../../hooks/useHaptics.js";
-// import toast from "react-hot-toast";
-// import styles from './CartPage.module.css';
-//
-// const CartPage = () => {
-//   const {user} = useAuth();
-//   const {items, totalPriceEur} = useSelector((state) => state.cart);
-//   const rate = useSelector((state) => state.currency.rate);
-//   const {trigger} = useHaptics();
-//
-//   const [step, setStep] = useState('summary');
-//   const [phone, setPhone] = useState(user?.phone || ''); // Маска сама додасть префікс
-//   const [address, setAddress] = useState(user?.address || '');
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//
-//   const totalPriceUah = Math.round(totalPriceEur * rate);
-//
-//   // 2. ВАЛІДАЦІЯ: тепер ми перевіряємо "чистий" номер (тільки цифри)
-//   // Нам потрібно 12 цифр для формату 380XXXXXXXXX
-//   const cleanPhone = phone.replace(/\D/g, ''); // Видаляємо все, крім цифр
-//   const isPhoneValid = cleanPhone.length === 12;
-//   const isFormValid = isPhoneValid && address.trim().length > 5;
-//
-//   const handleFinalOrder = async () => {
-//     setIsSubmitting(true);
-//     try {
-//       // Відправляємо на сервер "чистий" номер без дужок
-//       console.log("Order Data:", {phone: cleanPhone, address});
-//
-//       await new Promise(resolve => setTimeout(resolve, 1500));
-//       setStep('success');
-//       trigger('success');
-//     } catch (error) {
-//       toast.error("Помилка оформлення");
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-//
-//   if (items.length === 0 && step !== 'success') {
-//     return (
-//       <Container>
-//         <div className={styles.container}>
-//           <div className={styles.emptyContainer}>
-//             <h2 className={styles.title}>Кошик порожній 🛒</h2>
-//             <Link to="/catalog"><Button>До каталогу</Button></Link>
-//           </div>
-//         </div>
-//       </Container>
-//     );
-//   }
-//
-//   return (
-//     <Container>
-//       <div className={styles.container}>
-//         <h1 className={styles.title}>
-//           {step === 'success' ? 'Замовлення прийнято' : 'Моє замовлення'}
-//         </h1>
-//
-//         <div className={styles.content}>
-//           <ul className={styles.list}>
-//             {items.map((item) => (
-//               <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
-//             ))}
-//           </ul>
-//
-//           <div className={styles.summary}>
-//             {step === 'summary' && (
-//               <div className={styles.animateFade}>
-//                 <h3>Разом:</h3>
-//                 <div className={styles.prices}>
-//                   <span className={styles.eur}>{totalPriceEur.toLocaleString()} €</span>
-//                   <span className={styles.uah}>{totalPriceUah.toLocaleString()} ₴</span>
-//                 </div>
-//                 <button className={styles.orderBtn} onClick={() => setStep('checkout')}>
-//                   Оформити замовлення
-//                 </button>
-//               </div>
-//             )}
-//
-//             {step === 'checkout' && (
-//               <div className={styles.animateFade}>
-//                 <h3 className={styles.checkoutTitle}>Контакти</h3>
-//
-//                 <div className={styles.field}>
-//                   <label>Телефон *</label>
-//                   {/* 3. ВИКОРИСТАННЯ МАСКИ */}
-//                   <InputMask
-//                     mask="+38 (099) 999-99-99"
-//                     value={phone}
-//                     onChange={(e) => setPhone(e.target.value)}
-//                   >
-//                     {(inputProps) => (
-//                       <input
-//                         {...inputProps}
-//                         type="tel"
-//                         className={`${styles.input} ${!isPhoneValid && cleanPhone.length > 3 ? styles.error : ''}`}
-//                         placeholder="+38 (0__) ___-__-__"
-//                       />
-//                     )}
-//                   </InputMask>
-//                 </div>
-//
-//                 <div className={styles.field}>
-//                   <label>Адреса доставки *</label>
-//                   <textarea
-//                     value={address}
-//                     onChange={(e) => setAddress(e.target.value)}
-//                     className={styles.textarea}
-//                     placeholder="Місто, № відділення або адреса"
-//                   />
-//                 </div>
-//
-//                 <button
-//                   className={styles.confirmBtn}
-//                   onClick={handleFinalOrder}
-//                   disabled={!isFormValid || isSubmitting}
-//                 >
-//                   {isSubmitting ? 'Відправка...' : 'Підтвердити'}
-//                 </button>
-//                 <button className={styles.backLink} onClick={() => setStep('summary')}>
-//                   Назад
-//                 </button>
-//               </div>
-//             )}
-//
-//             {/* ... блок успіху success аналогічний минулому ... */}
-//           </div>
-//         </div>
-//       </div>
-//     </Container>
-//   );
-// };
-//
-// export default CartPage;
-
-
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -310,15 +20,29 @@ const CartPage = () => {
   const dispatch = useDispatch();
 
   const [step, setStep] = useState('summary');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [address, setAddress] = useState(user?.address || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Оголошуємо всі поля, для відправки в базу
+  const [firstName, setFirstName] = useState(user?.first_name || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [city, setCity] = useState(''); // Місто окремо
+  const [deliveryMethod, setDeliveryMethod] = useState('np_branch'); // np_branch, np_courier, self
+  const [branch, setBranch] = useState(''); // Відділення
+  const [paymentMethod, setPaymentMethod] = useState('cod'); // cod (оплата при отриманні), prepay
+  const [notes, setNotes] = useState(''); // Стейт для приміток
 
   const totalPriceUah = Math.round(totalPriceEur * rate);
 
   const cleanPhone = phone.replace(/\D/g, '');
   const isPhoneValid = cleanPhone.length === 12;
-  const isFormValid = isPhoneValid && address.trim().length > 5;
+
+  // Валідація: тепер все крім приміток — обов'язкове
+  const isFormValid = isPhoneValid &&
+    firstName.trim().length >= 2 &&
+    lastName.trim().length >= 2 &&
+    city.trim().length >= 2 &&
+    branch.trim().length > 0;
 
   const handleFinalOrder = async () => {
     console.log("Мій кошик з Redux:", items); // <--- ДОДАЙ ЦЕ
@@ -328,19 +52,22 @@ const CartPage = () => {
     }
 
     setIsSubmitting(true);
-
     try {
-      // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ (orders)
       const {data: order, error: orderError} = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
           total_price_eur: totalPriceEur,
           total_price_uah: totalPriceUah,
-          ship_phone: cleanPhone,
-          ship_address: address, // Твоя змінна зі стейту
           status: 'new',
-          payment_method: 'cash' // Додаємо, щоб не було NULL
+          payment_method: paymentMethod, // 'cod' або 'card'
+          ship_first_name: firstName,
+          ship_last_name: lastName,
+          ship_phone: cleanPhone,
+          ship_city: city,
+          ship_method: deliveryMethod, // Завжди НП
+          ship_branch: branch, // Номер відділення
+          ship_notes: notes, // Всі побажання тут
         }])
         .select()
         .single();
@@ -371,8 +98,12 @@ const CartPage = () => {
         .from('profiles')
         .upsert({
           id: user.id,
+          first_name: firstName, // Оновлюємо ім'я
+          last_name: lastName,   // Оновлюємо прізвище
           phone: cleanPhone,
-          address_line: address,
+          city: city,
+          branch: branch,
+          delivery_method: 'np_branch', // або deliveryMethod, якщо він у тебе в стейті
           updated_at: new Date()
         });
 
@@ -391,23 +122,6 @@ const CartPage = () => {
       setIsSubmitting(false);
     }
   };
-
-  // const handleFinalOrder = async () => {
-  //   setIsSubmitting(true);
-  //   try {
-  //     console.log("Відправка замовлення:", {phone: cleanPhone, address, items});
-  //
-  //     await new Promise(resolve => setTimeout(resolve, 1500));
-  //
-  //     setStep('success'); // ОСЬ ТУТ ПЕРЕМИКАЄМО НА УСПІХ
-  //     trigger('success');
-  //     toast.success("Замовлення оформлено!");
-  //   } catch (error) {
-  //     toast.error("Помилка оформлення");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
   if (items.length === 0 && step !== 'success') {
@@ -462,13 +176,36 @@ const CartPage = () => {
             {/* КРОК 2: ФОРМА ОФОРМЛЕННЯ */}
             {step === 'checkout' && (
               <div className={styles.animateFade}>
-                <h3 className={styles.checkoutTitle}>Контакти</h3>
+                <h3 className={styles.checkoutTitle}>Оформлення замовлення</h3>
 
+                {/* 1. ПІБ */}
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>Прізвище *</label>
+                    <input
+                      className={styles.input}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Кондратюк"
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label>Ім'я *</label>
+                    <input
+                      className={styles.input}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Юрій"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Телефон з маскою */}
                 <div className={styles.field}>
                   <label>Телефон *</label>
                   <InputMask
                     mask="+38 (0__) ___-__-__"
-                    replacement={{_: /\d/}} // Кажемо, що символ "_" замінюється на цифру
+                    replacement={{_: /\d/}}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className={`${styles.input} ${!isPhoneValid && cleanPhone.length > 3 ? styles.error : ''}`}
@@ -476,13 +213,78 @@ const CartPage = () => {
                   />
                 </div>
 
+                {/* 3. Місто */}
                 <div className={styles.field}>
-                  <label>Адреса доставки *</label>
+                  <label>Нова Пошта (Місто)*</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Полтава"
+                  />
+                </div>
+
+                {/* 4. Відділення*/}
+                <div className={styles.field}>
+                  <label>Номер відділення *</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                    placeholder="3"
+                  />
+                </div>
+
+                {/* 5. Спосіб оплати */}
+                <div className={styles.field}>
+                  <label htmlFor="paymentMethod">Спосіб оплати *</label>
+                  <select
+                    id="paymentMethod"
+                    className={styles.select}
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <option value="cod">Оплата при отриманні</option>
+                    <option value="card">Оплата на карту</option>
+                  </select>
+                </div>
+
+                {/*<div className={styles.field}>*/}
+                {/*  <label>Спосіб оплати *</label>*/}
+                {/*  <div className={styles.radioGroup}>*/}
+                {/*    <label className={`${styles.radioLabel} ${paymentMethod === 'cod' ? styles.activeRadio : ''}`}>*/}
+                {/*      <input*/}
+                {/*        type="radio"*/}
+                {/*        name="payment"*/}
+                {/*        value="cod"*/}
+                {/*        checked={paymentMethod === 'cod'}*/}
+                {/*        onChange={(e) => setPaymentMethod(e.target.value)}*/}
+                {/*      />*/}
+                {/*      <span>Оплата при отриманні</span>*/}
+                {/*    </label>*/}
+                {/*    <label className={`${styles.radioLabel} ${paymentMethod === 'card' ? styles.activeRadio : ''}`}>*/}
+                {/*      <input*/}
+                {/*        type="radio"*/}
+                {/*        name="payment"*/}
+                {/*        value="card"*/}
+                {/*        checked={paymentMethod === 'card'}*/}
+                {/*        onChange={(e) => setPaymentMethod(e.target.value)}*/}
+                {/*      />*/}
+                {/*      <span>Оплата на карту</span>*/}
+                {/*    </label>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
+
+                {/* 6. Примітки */}
+                <div className={styles.field}>
+                  <label>Примітки</label>
                   <textarea
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
                     className={styles.textarea}
-                    placeholder="Місто, служба доставки, № відділення або адреса доставки"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Додаткова інформація..."
                   />
                 </div>
 
