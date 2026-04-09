@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { InputMask } from '@react-input/mask';
@@ -12,6 +12,26 @@ import styles from './CartPage.module.css';
 import { clearEntireCart } from '../../redux/cart/cartOps';
 import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
 import { DELIVERY_CONFIG } from '../../utils/helpers.js';
+
+const formatPhoneToMask = (phone) => {
+  if (!phone) return '';
+
+  // Прибираємо все зайве, залишаємо тільки цифри
+  const digits = phone.replace(/\D/g, '');
+
+  // Якщо це український номер (380...), розбиваємо його по шматочках
+  if (digits.length === 12 && digits.startsWith('380')) {
+    const code = digits.slice(2, 5);    // 097
+    const part1 = digits.slice(5, 8);   // 661
+    const part2 = digits.slice(8, 10);  // 60
+    const part3 = digits.slice(10, 12); // 24
+
+    return `+38 (${code}) ${part1}-${part2}-${part3}`;
+  }
+
+  // Якщо формат інший, просто додаємо плюс на початку (про всяк випадок)
+  return digits.startsWith('+') ? digits : `+${digits}`;
+};
 
 
 const CartPage = () => {
@@ -34,6 +54,28 @@ const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod (оплата при отриманні), prepay
   const [notes, setNotes] = useState(''); // Стейт для приміток
 
+  // Додатково: якщо дані підтягуються з бази після завантаження сторінки
+  useEffect(() => {
+    if (user) {
+      if (user.first_name) setFirstName(user.first_name);
+      if (user.last_name) setLastName(user.last_name);
+      if (user.phone) setPhone(user.phone);
+      if (user.city) setCity(user.city);
+      if (user.branch) setBranch(user.branch);
+      if (user.delivery_method) {
+        setDeliveryMethod(user.delivery_method);
+      }
+
+      // Форматуємо телефон під маску, якщо він є в базі
+      if (user.phone) {
+        const formatted = formatPhoneToMask(user.phone);
+        setPhone(formatted);
+      }
+    }
+  }, [user]);
+
+  console.log("Дані користувача з контексту:", user);
+
   const totalPriceUah = Math.round(totalPriceEur * rate);
 
   const cleanPhone = phone.replace(/\D/g, '');
@@ -42,11 +84,13 @@ const CartPage = () => {
   // РОЗУМНА ВАЛІДАЦІЯ
   const currentDelivery = DELIVERY_CONFIG[deliveryMethod];
   const isBranchValid = !currentDelivery.required || branch.trim().length > 0;
+  const isCityRequired = deliveryMethod !== 'self';
+  const isCityValid = !isCityRequired || city.trim().length >= 2;
 
   const isFormValid = isPhoneValid &&
     firstName.trim().length >= 2 &&
     lastName.trim().length >= 2 &&
-    city.trim().length >= 2 &&
+    isCityValid &&
     isBranchValid;
 
   const handleFinalOrder = async () => {
@@ -71,7 +115,7 @@ const CartPage = () => {
           ship_first_name: firstName,
           ship_last_name: lastName,
           ship_phone: cleanPhone,
-          ship_city: city,
+          ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
           ship_method: deliveryMethod,
           // Розподіляємо дані:
           ship_branch: currentCfg.type === 'branch' ? branch : null,
@@ -114,7 +158,7 @@ const CartPage = () => {
           phone: cleanPhone,
           city: city,
           branch: branch,
-          delivery_method: 'np_branch', // або deliveryMethod, якщо він у тебе в стейті
+          delivery_method: deliveryMethod,
           updated_at: new Date()
         });
 
@@ -242,31 +286,36 @@ const CartPage = () => {
                 </div>
 
                 {/* 4. Місто */}
-                <div className={styles.field}>
-                  <label>Населений пункт*</label>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Наприклад: м.Полтава"
-                  />
-                </div>
+                {/* Відображаємо місто тільки якщо це НЕ самовивіз */}
+                {deliveryMethod !== 'self' && (
+                  <div className={styles.field}>
+                    <label>Місто *</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="Наприклад: Самбір"
+                    />
+                  </div>
+                )}
 
 
-                {/* 5. Динамічне поле (Відділення / Адреса / Коментар) */}
-                <div className={styles.field}>
-                  <label>
-                    {currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}
-                  </label>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    placeholder={currentDelivery.placeholder}
-                  />
-                </div>
+                {/* Динамічне поле (Відділення / Адреса) — ховаємо для самовивозу */}
+                {deliveryMethod !== 'self' && (
+                  <div className={styles.field}>
+                    <label>
+                      {currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}
+                    </label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                      placeholder={currentDelivery.placeholder}
+                    />
+                  </div>
+                )}
 
                 {/*/!* 3. Місто *!/*/}
                 {/*<div className={styles.field}>*/}
