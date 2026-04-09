@@ -18,3 +18,48 @@ export const getSupplierName = (supplierId) => {
   };
   return supplier[supplierId] || "ПОСТАЧАЛЬНИК";
 };
+
+export const DELIVERY_CONFIG = {
+  np_branch: {
+    label: "Нова Пошта (Відділення)",
+    fieldLabel: "Номер відділення",
+    placeholder: "Наприклад: №1",
+    type: "branch",
+    required: true,
+  },
+  np_courier: {
+    label: "Нова Пошта (Кур'єр)",
+    fieldLabel: "Адреса доставки",
+    placeholder: "Вулиця, будинок, квартира",
+    type: "address",
+    required: true,
+  },
+  ukr_poshta: {
+    label: "Укрпошта (Відділення)",
+    fieldLabel: "Індекс або № відділення",
+    placeholder: "Наприклад: 81400",
+    type: "branch",
+    required: true,
+  },
+  meest: {
+    label: "Meest Express (Відділення)",
+    fieldLabel: "Номер точки видачі",
+    placeholder: "Наприклад: №1234",
+    type: "branch",
+    required: true,
+  },
+  meest_courier: {
+    label: "Meest Express (Кур'єр)",
+    fieldLabel: "Адреса доставки",
+    placeholder: "Вулиця, будинок, квартира",
+    type: "address",
+    required: true,
+  },
+  self: {
+    label: "Самовивіз (м. Самбір)",
+    fieldLabel: "Коментар до отримання",
+    placeholder: "Наприклад: Заберу сьогодні о 17:00",
+    type: "note",
+    required: false,
+  },
+};

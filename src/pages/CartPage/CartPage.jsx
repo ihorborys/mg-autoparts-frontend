@@ -11,6 +11,8 @@ import toast from "react-hot-toast";
 import styles from './CartPage.module.css';
 import { clearEntireCart } from '../../redux/cart/cartOps';
 import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
+import { DELIVERY_CONFIG } from '../../utils/helpers.js';
+
 
 const CartPage = () => {
   const {user} = useAuth();
@@ -37,12 +39,15 @@ const CartPage = () => {
   const cleanPhone = phone.replace(/\D/g, '');
   const isPhoneValid = cleanPhone.length === 12;
 
-  // Валідація: тепер все крім приміток — обов'язкове
+  // РОЗУМНА ВАЛІДАЦІЯ
+  const currentDelivery = DELIVERY_CONFIG[deliveryMethod];
+  const isBranchValid = !currentDelivery.required || branch.trim().length > 0;
+
   const isFormValid = isPhoneValid &&
     firstName.trim().length >= 2 &&
     lastName.trim().length >= 2 &&
     city.trim().length >= 2 &&
-    branch.trim().length > 0;
+    isBranchValid;
 
   const handleFinalOrder = async () => {
     console.log("Мій кошик з Redux:", items); // <--- ДОДАЙ ЦЕ
@@ -52,6 +57,8 @@ const CartPage = () => {
     }
 
     setIsSubmitting(true);
+    const currentCfg = DELIVERY_CONFIG[deliveryMethod];
+
     try {
       const {data: order, error: orderError} = await supabase
         .from('orders')
@@ -60,17 +67,21 @@ const CartPage = () => {
           total_price_eur: totalPriceEur,
           total_price_uah: totalPriceUah,
           status: 'new',
-          payment_method: paymentMethod, // 'cod' або 'card'
+          payment_method: paymentMethod,
           ship_first_name: firstName,
           ship_last_name: lastName,
           ship_phone: cleanPhone,
           ship_city: city,
-          ship_method: deliveryMethod, // Завжди НП
-          ship_branch: branch, // Номер відділення
-          ship_notes: notes, // Всі побажання тут
+          ship_method: deliveryMethod,
+          // Розподіляємо дані:
+          ship_branch: currentCfg.type === 'branch' ? branch : null,
+          ship_address: currentCfg.type === 'address' ? branch : null,
+          // Якщо це самовивіз, додаємо текст до приміток
+          ship_notes: currentCfg.type === 'note'
+            ? `${notes} (Самовивіз: ${branch})`.trim()
+            : notes
         }])
-        .select()
-        .single();
+        .select().single();
 
       if (orderError) throw orderError;
 
@@ -213,31 +224,75 @@ const CartPage = () => {
                   />
                 </div>
 
-                {/* 3. Місто */}
+                {/* 3. Вибір способу доставки */}
                 <div className={styles.field}>
-                  <label>Нова Пошта (Місто)*</label>
+                  <label>Спосіб доставки *</label>
+                  <select
+                    className={styles.select}
+                    value={deliveryMethod}
+                    onChange={(e) => {
+                      setDeliveryMethod(e.target.value);
+                      setBranch(''); // Очищаємо поле при зміні методу
+                    }}
+                  >
+                    {Object.entries(DELIVERY_CONFIG).map(([key, cfg]) => (
+                      <option key={key} value={key}>{cfg.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 4. Місто */}
+                <div className={styles.field}>
+                  <label>Населений пункт*</label>
                   <input
                     type="text"
                     className={styles.input}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="Полтава"
+                    placeholder="Наприклад: м.Полтава"
                   />
                 </div>
 
-                {/* 4. Відділення*/}
+
+                {/* 5. Динамічне поле (Відділення / Адреса / Коментар) */}
                 <div className={styles.field}>
-                  <label>Номер відділення *</label>
+                  <label>
+                    {currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}
+                  </label>
                   <input
                     type="text"
                     className={styles.input}
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    placeholder="3"
+                    placeholder={currentDelivery.placeholder}
                   />
                 </div>
 
-                {/* 5. Спосіб оплати */}
+                {/*/!* 3. Місто *!/*/}
+                {/*<div className={styles.field}>*/}
+                {/*  <label>Нова Пошта (Місто)*</label>*/}
+                {/*  <input*/}
+                {/*    type="text"*/}
+                {/*    className={styles.input}*/}
+                {/*    value={city}*/}
+                {/*    onChange={(e) => setCity(e.target.value)}*/}
+                {/*    placeholder="Полтава"*/}
+                {/*  />*/}
+                {/*</div>*/}
+
+                {/*/!* 4. Відділення*!/*/}
+                {/*<div className={styles.field}>*/}
+                {/*  <label>Номер відділення *</label>*/}
+                {/*  <input*/}
+                {/*    type="text"*/}
+                {/*    className={styles.input}*/}
+                {/*    value={branch}*/}
+                {/*    onChange={(e) => setBranch(e.target.value)}*/}
+                {/*    placeholder="3"*/}
+                {/*  />*/}
+                {/*</div>*/}
+
+                {/* 6. Спосіб оплати */}
                 <div className={styles.field}>
                   <label htmlFor="paymentMethod">Спосіб оплати *</label>
                   <select
@@ -277,7 +332,7 @@ const CartPage = () => {
                 {/*  </div>*/}
                 {/*</div>*/}
 
-                {/* 6. Примітки */}
+                {/* 7. Примітки */}
                 <div className={styles.field}>
                   <label>Примітки</label>
                   <textarea
