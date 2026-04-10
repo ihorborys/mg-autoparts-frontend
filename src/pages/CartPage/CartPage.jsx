@@ -12,6 +12,7 @@ import styles from './CartPage.module.css';
 import { clearEntireCart } from '../../redux/cart/cartOps';
 import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
 import { DELIVERY_CONFIG } from '../../utils/helpers.js';
+import emailjs from '@emailjs/browser';
 
 const formatPhoneToMask = (phone) => {
   if (!phone) return '';
@@ -93,6 +94,69 @@ const CartPage = () => {
     isCityValid &&
     isBranchValid;
 
+  const sendOrderEmail = async (orderId, currentItems) => {
+    // Формуємо рядки таблиці
+    const tableRows = currentItems.map(item => {
+      const itemPriceUah = Math.round(item.price_eur * rate);
+
+      return `
+    <tr>
+      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; width: 65%;">
+        <div style="font-size: 14px; color: #888; margin-top: 4px;">${item.code}</div>
+        <div style="font-weight: bold;">${item.brand}</div>
+        <div style="font-size: 12px; color: #333;">${item.name}</div>
+      </td>
+      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; text-align: center; width: 15%; white-space: nowrap;">
+        ${item.quantity} шт.
+      </td>
+      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; text-align: right; width: 20%; white-space: nowrap; font-weight: bold;">
+        ${itemPriceUah} грн
+      </td>
+    </tr>
+  `;
+    }).join('');
+
+    // Збираємо повну таблицю
+    const itemsHtmlTable = `
+    <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+      <thead>
+        <tr style="background-color: #f8f9fa;">
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Товар</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">К-сть</th>
+          <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Ціна</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+  `;
+
+    // 2. Готуємо змінні, які ми прописали в шаблоні {{ }}
+    const templateParams = {
+      user_name: `${firstName} ${lastName}`,
+      user_email: user?.email || 'test@test.com', // пошта клієнта
+      user_phone: phone,
+      order_id: orderId,
+      items_list: itemsHtmlTable,
+      total_price: `${totalPriceUah} грн`,
+      delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
+      notes: notes || 'Немає'
+    };
+
+    try {
+      await emailjs.send(
+        'maxgear_test_mail', // Твій Service ID
+        'template_bc6n5f9',   // ЗАМІНИ НА СВІЙ
+        templateParams,
+        'iIt13DUfNkwXlCzyl'     // ЗАМІНИ НА СВІЙ
+      );
+      console.log('Лист успішно відправлено!');
+    } catch (error) {
+      console.error('Помилка відправки листа:', error);
+    }
+  };
+
   const handleFinalOrder = async () => {
     console.log("Мій кошик з Redux:", items); // <--- ДОДАЙ ЦЕ
     if (!user) {
@@ -104,6 +168,7 @@ const CartPage = () => {
     const currentCfg = DELIVERY_CONFIG[deliveryMethod];
 
     try {
+      // 1. Створюємо замовлення в базі
       const {data: order, error: orderError} = await supabase
         .from('orders')
         .insert([{
@@ -128,6 +193,9 @@ const CartPage = () => {
         .select().single();
 
       if (orderError) throw orderError;
+
+      // Відправляємо листа
+      await sendOrderEmail(order.id, items);
 
       // 2. СТВОРЮЄМО РЯДКИ ЗАМОВЛЕННЯ (order_items)
       // Ми беремо items з Redux і готуємо їх для Supabase
@@ -300,7 +368,6 @@ const CartPage = () => {
                   </div>
                 )}
 
-
                 {/* Динамічне поле (Відділення / Адреса) — ховаємо для самовивозу */}
                 {deliveryMethod !== 'self' && (
                   <div className={styles.field}>
@@ -317,30 +384,6 @@ const CartPage = () => {
                   </div>
                 )}
 
-                {/*/!* 3. Місто *!/*/}
-                {/*<div className={styles.field}>*/}
-                {/*  <label>Нова Пошта (Місто)*</label>*/}
-                {/*  <input*/}
-                {/*    type="text"*/}
-                {/*    className={styles.input}*/}
-                {/*    value={city}*/}
-                {/*    onChange={(e) => setCity(e.target.value)}*/}
-                {/*    placeholder="Полтава"*/}
-                {/*  />*/}
-                {/*</div>*/}
-
-                {/*/!* 4. Відділення*!/*/}
-                {/*<div className={styles.field}>*/}
-                {/*  <label>Номер відділення *</label>*/}
-                {/*  <input*/}
-                {/*    type="text"*/}
-                {/*    className={styles.input}*/}
-                {/*    value={branch}*/}
-                {/*    onChange={(e) => setBranch(e.target.value)}*/}
-                {/*    placeholder="3"*/}
-                {/*  />*/}
-                {/*</div>*/}
-
                 {/* 6. Спосіб оплати */}
                 <div className={styles.field}>
                   <label htmlFor="paymentMethod">Спосіб оплати *</label>
@@ -354,32 +397,6 @@ const CartPage = () => {
                     <option value="card">Оплата на карту</option>
                   </select>
                 </div>
-
-                {/*<div className={styles.field}>*/}
-                {/*  <label>Спосіб оплати *</label>*/}
-                {/*  <div className={styles.radioGroup}>*/}
-                {/*    <label className={`${styles.radioLabel} ${paymentMethod === 'cod' ? styles.activeRadio : ''}`}>*/}
-                {/*      <input*/}
-                {/*        type="radio"*/}
-                {/*        name="payment"*/}
-                {/*        value="cod"*/}
-                {/*        checked={paymentMethod === 'cod'}*/}
-                {/*        onChange={(e) => setPaymentMethod(e.target.value)}*/}
-                {/*      />*/}
-                {/*      <span>Оплата при отриманні</span>*/}
-                {/*    </label>*/}
-                {/*    <label className={`${styles.radioLabel} ${paymentMethod === 'card' ? styles.activeRadio : ''}`}>*/}
-                {/*      <input*/}
-                {/*        type="radio"*/}
-                {/*        name="payment"*/}
-                {/*        value="card"*/}
-                {/*        checked={paymentMethod === 'card'}*/}
-                {/*        onChange={(e) => setPaymentMethod(e.target.value)}*/}
-                {/*      />*/}
-                {/*      <span>Оплата на карту</span>*/}
-                {/*    </label>*/}
-                {/*  </div>*/}
-                {/*</div>*/}
 
                 {/* 7. Примітки */}
                 <div className={styles.field}>
