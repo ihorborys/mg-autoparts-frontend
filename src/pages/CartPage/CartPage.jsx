@@ -59,6 +59,9 @@ const CartPage = () => {
 
   // Додатково: якщо дані підтягуються з бази після завантаження сторінки
   useEffect(() => {
+    // // ЯКЩО МИ ВЖЕ ВІДПРАВЛЯЄМО - ВИХОДИМО, НЕ ЧІПАЄМО СТЕЙТИ!
+    if (isSubmitting) return;
+
     if (user) {
       if (user.first_name) setFirstName(user.first_name);
       if (user.last_name) setLastName(user.last_name);
@@ -77,7 +80,31 @@ const CartPage = () => {
     }
   }, [user]);
 
-  console.log("Дані користувача з контексту:", user);
+  // // 🔥 "ТИХИЙ ПРОГРІВ" СЕСІЇ (той самий костиль)
+  // useEffect(() => {
+  //   // Як тільки юзер перейшов до форми (step === 'checkout')
+  //   // і ми ще не почали процес відправки
+  //   if (step === 'checkout' && !isSubmitting) {
+  //     console.log("🕯️ Прогрів сесії: готуємо ґрунт для замовлення...");
+  //
+  //     // Робимо максимально легкий запит до Supabase.
+  //     // Це змушує бібліотеку заздалегідь перевірити токен і зняти всі блокування (locks)
+  //     // з пам'яті браузера, поки юзер ще заповнює поля форми.
+  //     supabase.auth.getSession()
+  //       .then(({data}) => {
+  //         if (data?.session) {
+  //           console.log("✅ Сесія розігріта. Шлях вільний.");
+  //         } else {
+  //           console.log("⚠️ Сесія відсутня, але контакт із базою встановлено.");
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         console.warn("⚠️ Прогрів не вдався, але це не критично:", err.message);
+  //       });
+  //   }
+  // }, [step, isSubmitting]); // Спрацює один раз при переході на крок оформлення
+
+  // console.log("Дані користувача з контексту:", user);
 
   const totalPriceUah = Math.round(totalPriceEur * rate);
 
@@ -111,7 +138,7 @@ const CartPage = () => {
             <div style="font-size: 12px; font-weight: bold; color: #000000; font-family: Verdana, sans-serif; text-transform: uppercase; margin-bottom: 2px;">
               ${item.brand}
             </div>
-            <div style="font-size: 10px; color: #888888; font-family: Verdana, sans-serif; line-height: 1.4; margin-bottom: 2px;">
+            <div style="font-size: 10px; color: #888888; font-family: Verdana, sans-serif; line-height: 1.4; margin-bottom: 4px;">
               ${item.name}
             </div>
             <div style="font-size: 8px; color: #444444; font-family: Verdana, sans-serif;">
@@ -171,7 +198,7 @@ const CartPage = () => {
   const handleFinalOrder = async () => {
     console.log("--- СТАРТ ВІДПРАВКИ ---");
 
-    if (!user) {
+    if (!user || !user.id) {
       toast.error("Будь ласка, увійдіть в акаунт");
       return;
     }
@@ -179,10 +206,17 @@ const CartPage = () => {
     setIsSubmitting(true);
     const currentCfg = DELIVERY_CONFIG[deliveryMethod];
 
+    const withTimeout = (promise, ms, errorMessage) => {
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(errorMessage)), ms)
+      );
+      return Promise.race([promise, timeout]);
+    };
+
     try {
       // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
       console.log("Крок 1: Запис основного замовлення...");
-      const {data: order, error: orderError} = await supabase
+      const insertOrderRequest = supabase
         .from('orders')
         .insert([{
           user_id: user.id,
@@ -201,16 +235,19 @@ const CartPage = () => {
             ? `${notes} (Самовивіз: ${branch})`.trim()
             : notes
         }])
-        .select().single();
+        .select('id, order_number')
+        .single();
+
+      const {data: order, error: orderError} = await withTimeout(
+        insertOrderRequest,
+        5000,
+        "Сервер не відповів вчасно (Крок 1). Спробуйте ще раз або перезавантажте сторінку."
+      );
 
       if (orderError) throw orderError;
       console.log("✅ Замовлення створено, ID:", order.id);
 
-      // Форматуємо номер (робимо 6 знаків)
-      const formattedOrderNumber = String(order.order_number).padStart(6, '0');
-      console.log("Сформовано номер замовлення:", formattedOrderNumber);
-
-      // 2. ЗАПИСУЄМО ТОВАРИ (Це критично, робимо відразу)
+      // 2. ЗАПИСУЄМО ТОВАРИ
       console.log("Крок 2: Запис товарів замовлення...");
       const itemsToInsert = items.map(item => ({
         order_id: order.id,
@@ -222,26 +259,33 @@ const CartPage = () => {
         quantity: item.quantity
       }));
 
-      const {error: itemsError} = await supabase
-        .from('order_items')
-        .insert(itemsToInsert);
+      const {error: itemsError} = await withTimeout(
+        supabase.from('order_items').insert(itemsToInsert),
+        5000,
+        "Не вдалося зберегти список товарів (Крок 2)."
+      );
 
       if (itemsError) throw itemsError;
       console.log("✅ Товари збережено");
 
-      setDisplayOrderNumber(formattedOrderNumber);
-
       // --- МОМЕНТ УСПІХУ ---
-      // На цьому етапі дані вже в безпеці. Показуємо успіх клієнту!
+      const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+      setDisplayOrderNumber(formattedOrderNumber);
       setStep('success');
+      setIsSubmitting(false);
       trigger('success');
       toast.success("Замовлення прийнято!");
 
-      // 3. ВСЕ ІНШЕ РОБИМО У ФОНІ
+      // Очищуємо кошик ВІДРАЗУ після успіху
+      dispatch(clearEntireCart(user.id));
+
+      // 3. ФОНОВІ ПРОЦЕСИ (тепер без помилок)
       console.log("Крок 3: Запуск фонових процесів...");
 
-      // Відправка пошти (це async функція, тому .catch тут працює)
-      sendOrderEmail(formattedOrderNumber, items).catch(err => console.error("Email Error:", err));
+      // Відправка пошти
+      sendOrderEmail(formattedOrderNumber, items).catch(err => {
+        console.error("Email Error:", err);
+      });
 
       // Оновлення профілю (використовуємо .then замість .catch)
       supabase.from('profiles').upsert({
@@ -253,21 +297,486 @@ const CartPage = () => {
         branch: branch,
         delivery_method: deliveryMethod,
         updated_at: new Date()
-      }).then(({error}) => {
-        if (error) console.error("Profile Update Error:", error);
+      }).then(({error: profileError}) => {
+        if (profileError) console.error("Profile Update Error:", profileError);
         else console.log("✅ Профіль оновлено");
       });
 
-      // Очищення кошика (без await)
-      dispatch(clearEntireCart(user.id));
-
     } catch (error) {
-      console.error("🚨 Помилка оформлення:", error);
-      toast.error(`Сталася помилка: ${error.message || 'Невідома помилка'}`);
-    } finally {
+      console.error("🚨 ПОМИЛКА ОФОРМЛЕННЯ:", error.message);
+      toast.error(error.message || "Сталася помилка");
       setIsSubmitting(false);
     }
   };
+
+  // const handleFinalOrder = async () => {
+  //   console.log("--- СТАРТ ВІДПРАВКИ ---");
+  //
+  //   // Перевіряємо юзера, який вже є в пам'яті (з useContext)
+  //   if (!user || !user.id) {
+  //     toast.error("Будь ласка, увійдіть в акаунт");
+  //     return;
+  //   }
+  //
+  //   setIsSubmitting(true);
+  //   const currentCfg = DELIVERY_CONFIG[deliveryMethod];
+  //
+  //   // Універсальна функція для тайм-ауту (збільшили до 15с для впевненості)
+  //   const withTimeout = (promise, ms, errorMessage) => {
+  //     const timeout = new Promise((_, reject) =>
+  //       setTimeout(() => reject(new Error(errorMessage)), ms)
+  //     );
+  //     return Promise.race([promise, timeout]);
+  //   };
+  //
+  //   try {
+  //     // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
+  //     // Ми НЕ викликаємо getSession окремо, щоб не провокувати "замок" (Lock)
+  //     console.log("Крок 1: Запис основного замовлення...");
+  //
+  //     const insertOrderRequest = supabase
+  //       .from('orders')
+  //       .insert([{
+  //         user_id: user.id,
+  //         total_price_eur: totalPriceEur,
+  //         total_price_uah: totalPriceUah,
+  //         status: 'new',
+  //         payment_method: paymentMethod,
+  //         ship_first_name: firstName,
+  //         ship_last_name: lastName,
+  //         ship_phone: cleanPhone,
+  //         ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
+  //         ship_method: deliveryMethod,
+  //         ship_branch: currentCfg.type === 'branch' ? branch : null,
+  //         ship_address: currentCfg.type === 'address' ? branch : null,
+  //         ship_notes: currentCfg.type === 'note'
+  //           ? `${notes} (Самовивіз: ${branch})`.trim()
+  //           : notes
+  //       }])
+  //       .select('id, order_number')
+  //       .single();
+  //
+  //     // Якщо тут зависне (через внутрішню авторизацію Supabase), тайм-аут це "проб'є"
+  //     const {data: order, error: orderError} = await withTimeout(
+  //       insertOrderRequest,
+  //       15000,
+  //       "Сервер не відповів вчасно (Крок 1). Спробуйте натиснути ще раз."
+  //     );
+  //
+  //     if (orderError) throw orderError;
+  //     console.log("✅ Замовлення створено, ID:", order.id);
+  //
+  //     const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+  //     console.log("Сформовано номер замовлення:", formattedOrderNumber);
+  //
+  //     // 2. ЗАПИСУЄМО ТОВАРИ
+  //     console.log("Крок 2: Запис товарів замовлення...");
+  //     const itemsToInsert = items.map(item => ({
+  //       order_id: order.id,
+  //       product_id: item.product_id,
+  //       supplier_id: item.supplier_id,
+  //       code: item.code,
+  //       brand: item.brand,
+  //       price_eur: item.price_eur,
+  //       quantity: item.quantity
+  //     }));
+  //
+  //     const {error: itemsError} = await withTimeout(
+  //       supabase.from('order_items').insert(itemsToInsert),
+  //       12000,
+  //       "Не вдалося зберегти список товарів (Крок 2)."
+  //     );
+  //
+  //     if (itemsError) throw itemsError;
+  //     console.log("✅ Товари збережено");
+  //
+  //     // --- МОМЕНТ УСПІХУ ---
+  //     setDisplayOrderNumber(formattedOrderNumber);
+  //     setStep('success');
+  //     setIsSubmitting(false); // Успіх - знімаємо блокування кнопки
+  //     trigger('success');
+  //     toast.success("Замовлення прийнято!");
+  //
+  //     // 3. ФОНОВІ ПРОЦЕСИ (БЕЗ await - вони не блокують UI)
+  //     console.log("Крок 3: Запуск фонових процесів...");
+  //
+  //     sendOrderEmail(formattedOrderNumber, items).catch(err => {
+  //       console.error("Email Error (не критично):", err);
+  //     });
+  //
+  //     // Оновлення профілю у фоні
+  //     supabase.from('profiles').upsert({
+  //       id: user.id,
+  //       first_name: firstName,
+  //       last_name: lastName,
+  //       phone: cleanPhone,
+  //       city: city,
+  //       branch: branch,
+  //       delivery_method: deliveryMethod,
+  //       updated_at: new Date()
+  //     }).catch(err => console.error("Profile Update Error:", err));
+  //
+  //     dispatch(clearEntireCart(user.id));
+  //
+  //   } catch (error) {
+  //     console.error("🚨 ПОМИЛКА ОФОРМЛЕННЯ:", error.message);
+  //     toast.error(error.message || "Сталася помилка");
+  //
+  //     // ВАЖЛИВО: Повертаємо можливість натиснути кнопку ще раз
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  // const handleFinalOrder = async () => {
+  //   console.log("--- СТАРТ ВІДПРАВКИ ---");
+  //
+  //   if (!user) {
+  //     toast.error("Будь ласка, увійдіть в акаунт");
+  //     return;
+  //   }
+  //
+  //   setIsSubmitting(true);
+  //   const currentCfg = DELIVERY_CONFIG[deliveryMethod];
+  //
+  //   // Універсальна функція для тайм-ауту
+  //   const withTimeout = (promise, ms, errorMessage) => {
+  //     const timeout = new Promise((_, reject) =>
+  //       setTimeout(() => reject(new Error(errorMessage)), ms)
+  //     );
+  //     return Promise.race([promise, timeout]);
+  //   };
+  //
+  //   try {
+  //     // 0. ПЕРЕВІРКА СЕСІЇ (з жорстким тайм-аутом 5 секунд)
+  //     console.log("📍 Перевірка активності сесії...");
+  //
+  //     // Тут ми додаємо тайм-аут, бо саме тут у тебе зависло останній раз
+  //     const sessionResponse = await withTimeout(
+  //       supabase.auth.getSession(),
+  //       5000,
+  //       "Supabase не відповів на запит сесії (Timeout). Спробуйте ще раз або оновіть сторінку."
+  //     );
+  //
+  //     const {data: {session}} = sessionResponse;
+  //
+  //     if (!session) {
+  //       throw new Error("Сесія застаріла або відсутня. Будь ласка, перезайдіть в акаунт.");
+  //     }
+  //     console.log("✅ Сесія активна, працюємо далі...");
+  //
+  //     // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ (тайм-аут 10 секунд)
+  //     console.log("Крок 1: Запис основного замовлення...");
+  //
+  //     const insertOrderRequest = supabase
+  //       .from('orders')
+  //       .insert([{
+  //         user_id: user.id,
+  //         total_price_eur: totalPriceEur,
+  //         total_price_uah: totalPriceUah,
+  //         status: 'new',
+  //         payment_method: paymentMethod,
+  //         ship_first_name: firstName,
+  //         ship_last_name: lastName,
+  //         ship_phone: cleanPhone,
+  //         ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
+  //         ship_method: deliveryMethod,
+  //         ship_branch: currentCfg.type === 'branch' ? branch : null,
+  //         ship_address: currentCfg.type === 'address' ? branch : null,
+  //         ship_notes: currentCfg.type === 'note'
+  //           ? `${notes} (Самовивіз: ${branch})`.trim()
+  //           : notes
+  //       }])
+  //       .select('id, order_number')
+  //       .single();
+  //
+  //     const {data: order, error: orderError} = await withTimeout(
+  //       insertOrderRequest,
+  //       10000,
+  //       "Сервер бази даних не відповів вчасно (Крок 1). Спробуйте ще раз."
+  //     );
+  //
+  //     if (orderError) throw orderError;
+  //     console.log("✅ Замовлення створено, ID:", order.id);
+  //
+  //     const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+  //     console.log("Сформовано номер замовлення:", formattedOrderNumber);
+  //
+  //     // 2. ЗАПИСУЄМО ТОВАРИ (тайм-аут 10 секунд)
+  //     console.log("Крок 2: Запис товарів замовлення...");
+  //     const itemsToInsert = items.map(item => ({
+  //       order_id: order.id,
+  //       product_id: item.product_id,
+  //       supplier_id: item.supplier_id,
+  //       code: item.code,
+  //       brand: item.brand,
+  //       price_eur: item.price_eur,
+  //       quantity: item.quantity
+  //     }));
+  //
+  //     const {error: itemsError} = await withTimeout(
+  //       supabase.from('order_items').insert(itemsToInsert),
+  //       10000,
+  //       "Сервер не зміг зберегти перелік товарів (Крок 2)."
+  //     );
+  //
+  //     if (itemsError) throw itemsError;
+  //     console.log("✅ Товари збережено");
+  //
+  //     // --- МОМЕНТ УСПІХУ ---
+  //     setDisplayOrderNumber(formattedOrderNumber);
+  //     setStep('success');
+  //     setIsSubmitting(false); // Одразу знімаємо лоадер, бо успіх вже на екрані
+  //     trigger('success');
+  //     toast.success("Замовлення прийнято!");
+  //
+  //     // 3. ФОНОВІ ПРОЦЕСИ (БЕЗ await - не блокують UI)
+  //     console.log("Крок 3: Запуск фонових процесів...");
+  //
+  //     sendOrderEmail(formattedOrderNumber, items).catch(err => {
+  //       console.error("Email Error (не критично):", err);
+  //     });
+  //
+  //     supabase.from('profiles').upsert({
+  //       id: user.id,
+  //       first_name: firstName,
+  //       last_name: lastName,
+  //       phone: cleanPhone,
+  //       city: city,
+  //       branch: branch,
+  //       delivery_method: deliveryMethod,
+  //       updated_at: new Date()
+  //     }).then(({error}) => {
+  //       if (error) console.error("Profile Update Error:", error);
+  //       else console.log("✅ Профіль оновлено");
+  //     });
+  //
+  //     dispatch(clearEntireCart(user.id));
+  //
+  //   } catch (error) {
+  //     console.error("🚨 КРИТИЧНА ПОМИЛКА:", error.message);
+  //     toast.error(error.message || "Невідома помилка під час оформлення");
+  //     setIsSubmitting(false); // Важливо: повертаємо кнопку в робочий стан
+  //   }
+  // };
+
+  // const handleFinalOrder = async () => {
+  //   console.log("--- СТАРТ ВІДПРАВКИ ---");
+  //
+  //   if (!user) {
+  //     toast.error("Будь ласка, увійдіть в акаунт");
+  //     return;
+  //   }
+  //
+  //   setIsSubmitting(true);
+  //   const currentCfg = DELIVERY_CONFIG[deliveryMethod];
+  //
+  //   // Допоміжна функція для тайм-ауту
+  //   const withTimeout = (promise, ms = 10000) => {
+  //     const timeout = new Promise((_, reject) =>
+  //       setTimeout(() => reject(new Error("Перевищено час очікування відповіді від сервера (10с)")), ms)
+  //     );
+  //     return Promise.race([promise, timeout]);
+  //   };
+  //
+  //   try {
+  //     // 0. ПЕРЕВІРКА СЕСІЇ (Пробуджуємо Supabase перед записом)
+  //     console.log("📍 Перевірка активності сесії...");
+  //     const {data: {session}} = await supabase.auth.getSession();
+  //     if (!session) {
+  //       throw new Error("Сесія застаріла. Будь ласка, оновіть сторінку або перезайдіть.");
+  //     }
+  //
+  //     // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
+  //     console.log("Крок 1: Запис основного замовлення...");
+  //
+  //     const insertOrder = supabase
+  //       .from('orders')
+  //       .insert([{
+  //         user_id: user.id,
+  //         total_price_eur: totalPriceEur,
+  //         total_price_uah: totalPriceUah,
+  //         status: 'new',
+  //         payment_method: paymentMethod,
+  //         ship_first_name: firstName,
+  //         ship_last_name: lastName,
+  //         ship_phone: cleanPhone,
+  //         ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
+  //         ship_method: deliveryMethod,
+  //         ship_branch: currentCfg.type === 'branch' ? branch : null,
+  //         ship_address: currentCfg.type === 'address' ? branch : null,
+  //         ship_notes: currentCfg.type === 'note'
+  //           ? `${notes} (Самовивіз: ${branch})`.trim()
+  //           : notes
+  //       }])
+  //       .select('id, order_number')
+  //       .single();
+  //
+  //     // Запускаємо запит з тайм-аутом
+  //     const {data: order, error: orderError} = await withTimeout(insertOrder);
+  //
+  //     if (orderError) throw orderError;
+  //     console.log("✅ Замовлення створено, ID:", order.id);
+  //
+  //     const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+  //     console.log("Сформовано номер замовлення:", formattedOrderNumber);
+  //
+  //     // 2. ЗАПИСУЄМО ТОВАРИ
+  //     console.log("Крок 2: Запис товарів замовлення...");
+  //     const itemsToInsert = items.map(item => ({
+  //       order_id: order.id,
+  //       product_id: item.product_id,
+  //       supplier_id: item.supplier_id,
+  //       code: item.code,
+  //       brand: item.brand,
+  //       price_eur: item.price_eur,
+  //       quantity: item.quantity
+  //     }));
+  //
+  //     const {error: itemsError} = await withTimeout(
+  //       supabase.from('order_items').insert(itemsToInsert)
+  //     );
+  //
+  //     if (itemsError) throw itemsError;
+  //     console.log("✅ Товари збережено");
+  //
+  //     // --- МОМЕНТ УСПІХУ ---
+  //     setDisplayOrderNumber(formattedOrderNumber);
+  //     setStep('success');
+  //     trigger('success');
+  //     toast.success("Замовлення прийнято!");
+  //
+  //     // 3. ФОНОВІ ПРОЦЕСИ (БЕЗ await)
+  //     console.log("Крок 3: Запуск фонових процесів...");
+  //
+  //     sendOrderEmail(formattedOrderNumber, items).catch(err => console.error("Email Error:", err));
+  //
+  //     supabase.from('profiles').upsert({
+  //       id: user.id,
+  //       first_name: firstName,
+  //       last_name: lastName,
+  //       phone: cleanPhone,
+  //       city: city,
+  //       branch: branch,
+  //       delivery_method: deliveryMethod,
+  //       updated_at: new Date()
+  //     }).then(({error}) => {
+  //       if (error) console.error("Profile Update Error:", error);
+  //       else console.log("✅ Профіль оновлено");
+  //     });
+  //
+  //     dispatch(clearEntireCart(user.id));
+  //
+  //   } catch (error) {
+  //     console.error("🚨 Помилка оформлення:", error);
+  //     toast.error(error.message || "Невідома помилка");
+  //     // Якщо помилка сталася до перемикання кроку, кнопка має знову стати активною
+  //     setIsSubmitting(false);
+  //   } finally {
+  //     // Ми викликаємо setIsSubmitting(false) ТІЛЬКИ якщо крок не success
+  //     // Щоб оверлей або лоадер зникли, якщо сталася помилка
+  //   }
+  // };
+
+  // const handleFinalOrder = async () => {
+  //   console.log("--- СТАРТ ВІДПРАВКИ ---");
+  //
+  //   if (!user) {
+  //     toast.error("Будь ласка, увійдіть в акаунт");
+  //     return;
+  //   }
+  //
+  //   setIsSubmitting(true);
+  //   const currentCfg = DELIVERY_CONFIG[deliveryMethod];
+  //
+  //   try {
+  //     // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
+  //     console.log("Крок 1: Запис основного замовлення...");
+  //     const {data: order, error: orderError} = await supabase
+  //       .from('orders')
+  //       .insert([{
+  //         user_id: user.id,
+  //         total_price_eur: totalPriceEur,
+  //         total_price_uah: totalPriceUah,
+  //         status: 'new',
+  //         payment_method: paymentMethod,
+  //         ship_first_name: firstName,
+  //         ship_last_name: lastName,
+  //         ship_phone: cleanPhone,
+  //         ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
+  //         ship_method: deliveryMethod,
+  //         ship_branch: currentCfg.type === 'branch' ? branch : null,
+  //         ship_address: currentCfg.type === 'address' ? branch : null,
+  //         ship_notes: currentCfg.type === 'note'
+  //           ? `${notes} (Самовивіз: ${branch})`.trim()
+  //           : notes
+  //       }])
+  //       .select().single();
+  //
+  //     if (orderError) throw orderError;
+  //     console.log("✅ Замовлення створено, ID:", order.id);
+  //
+  //     // Форматуємо номер (робимо 6 знаків)
+  //     const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+  //     console.log("Сформовано номер замовлення:", formattedOrderNumber);
+  //
+  //     // 2. ЗАПИСУЄМО ТОВАРИ (Це критично, робимо відразу)
+  //     console.log("Крок 2: Запис товарів замовлення...");
+  //     const itemsToInsert = items.map(item => ({
+  //       order_id: order.id,
+  //       product_id: item.product_id,
+  //       supplier_id: item.supplier_id,
+  //       code: item.code,
+  //       brand: item.brand,
+  //       price_eur: item.price_eur,
+  //       quantity: item.quantity
+  //     }));
+  //
+  //     const {error: itemsError} = await supabase
+  //       .from('order_items')
+  //       .insert(itemsToInsert);
+  //
+  //     if (itemsError) throw itemsError;
+  //     console.log("✅ Товари збережено");
+  //
+  //     setDisplayOrderNumber(formattedOrderNumber);
+  //
+  //     // --- МОМЕНТ УСПІХУ ---
+  //     // На цьому етапі дані вже в безпеці. Показуємо успіх клієнту!
+  //     setStep('success');
+  //     trigger('success');
+  //     toast.success("Замовлення прийнято!");
+  //
+  //     // 3. ВСЕ ІНШЕ РОБИМО У ФОНІ
+  //     console.log("Крок 3: Запуск фонових процесів...");
+  //
+  //     // Відправка пошти (це async функція, тому .catch тут працює)
+  //     sendOrderEmail(formattedOrderNumber, items).catch(err => console.error("Email Error:", err));
+  //
+  //     // Оновлення профілю (використовуємо .then замість .catch)
+  //     supabase.from('profiles').upsert({
+  //       id: user.id,
+  //       first_name: firstName,
+  //       last_name: lastName,
+  //       phone: cleanPhone,
+  //       city: city,
+  //       branch: branch,
+  //       delivery_method: deliveryMethod,
+  //       updated_at: new Date()
+  //     }).then(({error}) => {
+  //       if (error) console.error("Profile Update Error:", error);
+  //       else console.log("✅ Профіль оновлено");
+  //     });
+  //
+  //     // Очищення кошика (без await)
+  //     dispatch(clearEntireCart(user.id));
+  //
+  //   } catch (error) {
+  //     console.error("🚨 Помилка оформлення:", error);
+  //     toast.error(`Сталася помилка: ${error.message || 'Невідома помилка'}`);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
   if (items.length === 0 && step !== 'success' && !isSubmitting) {
