@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import styles from './CartPage.module.css';
 import { clearEntireCart } from '../../redux/cart/cartOps';
 import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
-import { DELIVERY_CONFIG } from '../../utils/helpers.js';
+import { DELIVERY_CONFIG, getSupplierName } from '../../utils/helpers.js';
 import emailjs from '@emailjs/browser';
 
 const formatPhoneToMask = (phone) => {
@@ -42,6 +42,7 @@ const CartPage = () => {
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
 
+
   const [step, setStep] = useState('summary');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,6 +55,7 @@ const CartPage = () => {
   const [branch, setBranch] = useState(''); // Відділення
   const [paymentMethod, setPaymentMethod] = useState('cod'); // cod (оплата при отриманні), prepay
   const [notes, setNotes] = useState(''); // Стейт для приміток
+  const [displayOrderNumber, setDisplayOrderNumber] = useState('');
 
   // Додатково: якщо дані підтягуються з бази після завантаження сторінки
   useEffect(() => {
@@ -98,39 +100,48 @@ const CartPage = () => {
     // Формуємо рядки таблиці
     const tableRows = currentItems.map(item => {
       const itemPriceUah = Math.round(item.price_eur * rate);
+      const supplierName = getSupplierName(item.supplier_id);
 
       return `
-    <tr>
-      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; width: 65%;">
-        <div style="font-size: 14px; color: #888; margin-top: 4px;">${item.code}</div>
-        <div style="font-weight: bold;">${item.brand}</div>
-        <div style="font-size: 12px; color: #333;">${item.name}</div>
-      </td>
-      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; text-align: center; width: 15%; white-space: nowrap;">
-        ${item.quantity} шт.
-      </td>
-      <td style="padding: 10px; border: 1px solid #eee; vertical-align: top; text-align: right; width: 20%; white-space: nowrap; font-weight: bold;">
-        ${itemPriceUah} грн
-      </td>
-    </tr>
-  `;
+        <tr style="border-bottom: 1px solid #eeeeee;">
+          <td style="padding: 12px 8px; vertical-align: top;">
+            <div style="font-size: 12px; color: #444444; font-family: Verdana, sans-serif; margin-bottom: 2px;">
+              ${item.code}
+            </div>
+            <div style="font-size: 12px; font-weight: bold; color: #000000; font-family: Verdana, sans-serif; text-transform: uppercase; margin-bottom: 2px;">
+              ${item.brand}
+            </div>
+            <div style="font-size: 10px; color: #888888; font-family: Verdana, sans-serif; line-height: 1.4; margin-bottom: 2px;">
+              ${item.name}
+            </div>
+            <div style="font-size: 8px; color: #444444; font-family: Verdana, sans-serif;">
+              ${supplierName}
+            </div>
+          </td>
+          <td style="padding: 12px 8px; vertical-align: top; text-align: center; width: 60px; font-family: Verdana, sans-serif; font-size: 13px; color: #333;">
+            ${item.quantity} шт.
+          </td>
+          <td style="padding: 12px 8px; vertical-align: top; text-align: right; width: 90px; font-family: Verdana, sans-serif; font-size: 14px; font-weight: bold; color: #000; white-space: nowrap;">
+            ${itemPriceUah} грн.
+          </td>
+        </tr>
+      `;
     }).join('');
 
-    // Збираємо повну таблицю
     const itemsHtmlTable = `
-    <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
-      <thead>
-        <tr style="background-color: #f8f9fa;">
-          <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Товар</th>
-          <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">К-сть</th>
-          <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Ціна</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${tableRows}
-      </tbody>
-    </table>
-  `;
+      <table style="width: 100%; border-collapse: collapse; margin: 15px 0; background-color: #ffffff; border: 1px solid #e5e5e5;">
+        <thead>
+          <tr style="background-color: #f9f9f9; border-bottom: 2px solid #333333;">
+            <th style="padding: 12px 8px; text-align: left; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; letter-spacing: 0.5px;">Товар</th>
+            <th style="padding: 12px 8px; text-align: center; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; width: 60px;">К-сть</th>
+            <th style="padding: 12px 8px; text-align: right; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; width: 90px;">Ціна</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    `;
 
     // 2. Готуємо змінні, які ми прописали в шаблоні {{ }}
     const templateParams = {
@@ -139,7 +150,7 @@ const CartPage = () => {
       user_phone: phone,
       order_id: orderId,
       items_list: itemsHtmlTable,
-      total_price: `${totalPriceUah} грн`,
+      total_price: `${totalPriceUah} грн.`,
       delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
       notes: notes || 'Немає'
     };
@@ -158,7 +169,8 @@ const CartPage = () => {
   };
 
   const handleFinalOrder = async () => {
-    console.log("Мій кошик з Redux:", items); // <--- ДОДАЙ ЦЕ
+    console.log("--- СТАРТ ВІДПРАВКИ ---");
+
     if (!user) {
       toast.error("Будь ласка, увійдіть в акаунт");
       return;
@@ -168,7 +180,8 @@ const CartPage = () => {
     const currentCfg = DELIVERY_CONFIG[deliveryMethod];
 
     try {
-      // 1. Створюємо замовлення в базі
+      // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
+      console.log("Крок 1: Запис основного замовлення...");
       const {data: order, error: orderError} = await supabase
         .from('orders')
         .insert([{
@@ -182,10 +195,8 @@ const CartPage = () => {
           ship_phone: cleanPhone,
           ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
           ship_method: deliveryMethod,
-          // Розподіляємо дані:
           ship_branch: currentCfg.type === 'branch' ? branch : null,
           ship_address: currentCfg.type === 'address' ? branch : null,
-          // Якщо це самовивіз, додаємо текст до приміток
           ship_notes: currentCfg.type === 'note'
             ? `${notes} (Самовивіз: ${branch})`.trim()
             : notes
@@ -193,15 +204,17 @@ const CartPage = () => {
         .select().single();
 
       if (orderError) throw orderError;
+      console.log("✅ Замовлення створено, ID:", order.id);
 
-      // Відправляємо листа
-      await sendOrderEmail(order.id, items);
+      // Форматуємо номер (робимо 6 знаків)
+      const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+      console.log("Сформовано номер замовлення:", formattedOrderNumber);
 
-      // 2. СТВОРЮЄМО РЯДКИ ЗАМОВЛЕННЯ (order_items)
-      // Ми беремо items з Redux і готуємо їх для Supabase
+      // 2. ЗАПИСУЄМО ТОВАРИ (Це критично, робимо відразу)
+      console.log("Крок 2: Запис товарів замовлення...");
       const itemsToInsert = items.map(item => ({
         order_id: order.id,
-        product_id: item.product_id, // Якщо у тебе в Redux це product_id
+        product_id: item.product_id,
         supplier_id: item.supplier_id,
         code: item.code,
         brand: item.brand,
@@ -214,32 +227,42 @@ const CartPage = () => {
         .insert(itemsToInsert);
 
       if (itemsError) throw itemsError;
+      console.log("✅ Товари збережено");
 
-      // 3. ОНОВЛЮЄМО ПРОФІЛЬ (profiles)
-      // Зберігаємо телефон та адресу як "дефолтні" для наступного разу
-      await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          first_name: firstName, // Оновлюємо ім'я
-          last_name: lastName,   // Оновлюємо прізвище
-          phone: cleanPhone,
-          city: city,
-          branch: branch,
-          delivery_method: deliveryMethod,
-          updated_at: new Date()
-        });
+      setDisplayOrderNumber(formattedOrderNumber);
 
-      // 4. ОЧИЩАЄМО КОШИК НА СЕРВЕРІ ТА В REDUX
-      await dispatch(clearEntireCart(user.id)).unwrap();
-
-      // 5. УСПІХ
+      // --- МОМЕНТ УСПІХУ ---
+      // На цьому етапі дані вже в безпеці. Показуємо успіх клієнту!
       setStep('success');
       trigger('success');
       toast.success("Замовлення прийнято!");
 
+      // 3. ВСЕ ІНШЕ РОБИМО У ФОНІ
+      console.log("Крок 3: Запуск фонових процесів...");
+
+      // Відправка пошти (це async функція, тому .catch тут працює)
+      sendOrderEmail(formattedOrderNumber, items).catch(err => console.error("Email Error:", err));
+
+      // Оновлення профілю (використовуємо .then замість .catch)
+      supabase.from('profiles').upsert({
+        id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+        phone: cleanPhone,
+        city: city,
+        branch: branch,
+        delivery_method: deliveryMethod,
+        updated_at: new Date()
+      }).then(({error}) => {
+        if (error) console.error("Profile Update Error:", error);
+        else console.log("✅ Профіль оновлено");
+      });
+
+      // Очищення кошика (без await)
+      dispatch(clearEntireCart(user.id));
+
     } catch (error) {
-      console.error("Помилка оформлення:", error);
+      console.error("🚨 Помилка оформлення:", error);
       toast.error(`Сталася помилка: ${error.message || 'Невідома помилка'}`);
     } finally {
       setIsSubmitting(false);
@@ -247,7 +270,7 @@ const CartPage = () => {
   };
 
   // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
-  if (items.length === 0 && step !== 'success') {
+  if (items.length === 0 && step !== 'success' && !isSubmitting) {
     return (
       <Container>
         <div className={styles.container}>
@@ -363,7 +386,7 @@ const CartPage = () => {
                       className={styles.input}
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="Наприклад: Самбір"
+                      placeholder="Наприклад: Полтава"
                     />
                   </div>
                 )}
@@ -427,7 +450,7 @@ const CartPage = () => {
               <div className={styles.animateFade}>
                 <div className={styles.successIcon}>✓</div>
                 <h3 style={{color: '#2ecc71'}}>Готово!</h3>
-                <p>Замовлення успішно створене.</p>
+                <p>Замовлення №{displayOrderNumber} успішно створене.</p>
                 <p>Дякуємо Вам за довіру!</p>
                 <p style={{fontSize: '0.7rem', marginTop: '20px', textAlign: 'center',}}>При потребі ми зв'яжемося з
                   Вами за номером:<br/>
