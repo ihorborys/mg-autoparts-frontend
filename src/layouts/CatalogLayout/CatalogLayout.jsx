@@ -3,12 +3,13 @@ import Navigation from "../../components/Navigation/MainNav/Navigation.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
 
-
-const CatalogLayout = ({session}) => {
+const CatalogLayout = () => {
   return (
     <div className="page-wrapper">
       <div>
-        <Header session={session}/>
+        {/* Тепер Header сам знає, хто залогінений,
+            тому ми не передаємо йому жодних пропсів */}
+        <Header/>
         <Navigation/>
       </div>
       <Outlet/>

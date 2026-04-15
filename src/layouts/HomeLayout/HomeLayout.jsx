@@ -3,11 +3,12 @@ import Navigation from "../../components/Navigation/MainNav/Navigation.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
 
-const HomeLayout = ({session}) => {
+const HomeLayout = () => {
   return (
     <div className="page-wrapper">
       <div>
-        <Header session={session}/>
+        {/* Header тепер автономний і сам знає, як отримати дані користувача */}
+        <Header/>
         <Navigation/>
       </div>
       <Outlet/>
