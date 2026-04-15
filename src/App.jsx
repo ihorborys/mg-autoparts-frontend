@@ -1,14 +1,133 @@
+// import "./App.css";
+// import { Route, Routes } from "react-router-dom";
+// import { lazy, Suspense, useEffect, useState } from "react";
+// import { useDispatch } from "react-redux";
+// import { fetchCart } from "./redux/cart/cartOps";
+// import { clearCartLocal } from "./redux/cart/cartSlice";
+// import { supabase } from "./supabaseClient";
+// import { Auth } from "./components/Auth/Auth.jsx";
+// import Loader from "./components/Loader/Loader.jsx";
+// import toast, { Toaster } from 'react-hot-toast';
+//
+//
+// const HomePage = lazy(() => import("./pages/HomePage/HomePage.jsx"));
+// const CatalogPage = lazy(() => import("./pages/CatalogPage/CatalogPage.jsx"));
+// const CartPage = lazy(() => import("./pages/CartPage/CartPage.jsx"));
+// const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage.jsx"));
+//
+// const HomeLayout = lazy(() => import("./layouts/HomeLayout/HomeLayout.jsx"));
+// const CatalogLayout = lazy(() => import("./layouts/CatalogLayout/CatalogLayout.jsx"));
+//
+// function App() {
+//   const [session, setSession] = useState(null);
+//   const dispatch = useDispatch(); // <--- ДОДАНО
+//
+//   // --- ЛОГІКА ЗАВАНТАЖЕННЯ КОШИКА ПРИ ОНОВЛЕННІ СТОРІНКИ ---
+//   useEffect(() => {
+//     // Якщо сесія є і в ній є id користувача
+//     if (session?.user?.id) {
+//       // console.log("Сесія активна, завантажую кошик для:", session.user.id);
+//       dispatch(fetchCart(session.user.id));
+//     }
+//   }, [session, dispatch]); // Спрацює щоразу, коли session змінюється (вхід/вихід)
+//
+//   useEffect(() => {
+//     // Прапорець, щоб не показувати тост двічі в одному циклі
+//     let isToastShown = false;
+//
+// // 1. ОДРАЗУ зберігаємо стан хешу, поки Supabase його не прибрав
+//     const isConfirmingEmail = window.location.hash.includes('type=signup');
+//
+//     // 1. Отримуємо сесію при завантаженні
+//     supabase.auth.getSession().then(({data: {session}}) => {
+//       setSession(session);
+//     });
+//
+//     // 2. Слухаємо зміни стану
+//     const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
+//       setSession(session);
+//
+//       // ЯКЩО КОРИСТУВАЧ ВИЙШОВ
+//       if (event === 'SIGNED_OUT') {
+//         dispatch(clearCartLocal()); // <--- ОЧИЩУЄМО REDUX МИТТЄВО
+//       }
+//
+// // Перевіряємо SIGNED_IN або INITIAL_SESSION (перший вхід)
+//       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail && !isToastShown) {
+//         isToastShown = true; // Блокуємо повторний запуск сповіщення
+//
+//         toast.success(
+//           <div>
+//             Акаунт активовано!
+//             <br/>
+//             Ласкаво просимо до Maxgear.
+//           </div>,
+//           {
+//             duration: 6000,
+//             icon: '✅'
+//           });
+//
+//         // Очищаємо хеш, щоб тост не вискакував при кожному F5
+//         window.history.replaceState(null, null, window.location.pathname);
+//       }
+//     });
+//
+//     return () => subscription.unsubscribe();
+//
+//   }, []); // Тут тепер все закрито правильно
+//
+//   return (
+//     <div>
+//       <Toaster
+//         position="top-center"
+//         reverseOrder={false}
+//         toastOptions={{
+//           style: {
+//             fontSize: '16px',
+//             borderRadius: '8px',
+//             background: '#333',
+//             color: '#fff',
+//           },
+//         }}
+//       />
+//
+//       <Suspense fallback={<Loader/>}>
+//         <Routes>
+//           {/* Головна сторінка — доступна всім */}
+//           <Route path={"/"} element={<HomeLayout session={session}/>}>
+//             <Route index element={<HomePage/>}></Route>
+//           </Route>
+//
+//           {/* ГРУПА МАГАЗИНУ (спільний Хедер для всього) */}
+//           <Route element={<CatalogLayout session={session}/>}>
+//             {/* /catalog */}
+//             <Route path="/catalog" element={session ? <CatalogPage/> : <Auth/>}/>
+//
+//             {/* /cart — Тепер це окремий красивий шлях! */}
+//             <Route path="/cart" element={session ? <CartPage/> : <Auth/>}/>
+//           </Route>
+//
+//           <Route path="*" element={<NotFoundPage/>}/>
+//         </Routes>
+//       </Suspense>
+//     </div>
+//   );
+// }
+//
+// export default App;
+
+
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { fetchCart } from "./redux/cart/cartOps";
-import { clearCartLocal } from "./redux/cart/cartSlice";
-import { supabase } from "./supabaseClient";
 import { Auth } from "./components/Auth/Auth.jsx";
+import { useAuth } from "./context/AuthContext.jsx"; // Використовуємо наш єдиний контекст
 import Loader from "./components/Loader/Loader.jsx";
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
+// Ледаче завантаження сторінок
 const HomePage = lazy(() => import("./pages/HomePage/HomePage.jsx"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage/CatalogPage.jsx"));
 const CartPage = lazy(() => import("./pages/CartPage/CartPage.jsx"));
@@ -18,68 +137,24 @@ const HomeLayout = lazy(() => import("./layouts/HomeLayout/HomeLayout.jsx"));
 const CatalogLayout = lazy(() => import("./layouts/CatalogLayout/CatalogLayout.jsx"));
 
 function App() {
-  const [session, setSession] = useState(null);
-  const dispatch = useDispatch(); // <--- ДОДАНО
+  const {user, loading} = useAuth(); // Беремо все необхідне з контексту
+  const dispatch = useDispatch();
 
-  // --- ЛОГІКА ЗАВАНТАЖЕННЯ КОШИКА ПРИ ОНОВЛЕННІ СТОРІНКИ ---
+  // --- ЛОГІКА ЗАВАНТАЖЕННЯ КОШИКА ---
   useEffect(() => {
-    // Якщо сесія є і в ній є id користувача
-    if (session?.user?.id) {
-      // console.log("Сесія активна, завантажую кошик для:", session.user.id);
-      dispatch(fetchCart(session.user.id));
+    // Якщо користувач авторизований — підтягуємо його товари
+    if (user?.id) {
+      dispatch(fetchCart(user.id));
     }
-  }, [session, dispatch]); // Спрацює щоразу, коли session змінюється (вхід/вихід)
+  }, [user?.id, dispatch]);
 
-  useEffect(() => {
-    // Прапорець, щоб не показувати тост двічі в одному циклі
-    let isToastShown = false;
-
-// 1. ОДРАЗУ зберігаємо стан хешу, поки Supabase його не прибрав
-    const isConfirmingEmail = window.location.hash.includes('type=signup');
-
-    // 1. Отримуємо сесію при завантаженні
-    supabase.auth.getSession().then(({data: {session}}) => {
-      setSession(session);
-    });
-
-    // 2. Слухаємо зміни стану
-    const {data: {subscription}} = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-
-      // ЯКЩО КОРИСТУВАЧ ВИЙШОВ
-      if (event === 'SIGNED_OUT') {
-        dispatch(clearCartLocal()); // <--- ОЧИЩУЄМО REDUX МИТТЄВО
-      }
-
-// Перевіряємо SIGNED_IN або INITIAL_SESSION (перший вхід)
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && isConfirmingEmail && !isToastShown) {
-        isToastShown = true; // Блокуємо повторний запуск сповіщення
-
-        toast.success(
-          <div>
-            Акаунт активовано!
-            <br/>
-            Ласкаво просимо до Maxgear.
-          </div>,
-          {
-            duration: 6000,
-            icon: '✅'
-          });
-
-        // Очищаємо хеш, щоб тост не вискакував при кожному F5
-        window.history.replaceState(null, null, window.location.pathname);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-
-  }, []); // Тут тепер все закрито правильно
+  // Якщо AuthContext ще перевіряє сесію — показуємо глобальний лоадер
+  if (loading) return <Loader/>;
 
   return (
     <div>
       <Toaster
         position="top-center"
-        reverseOrder={false}
         toastOptions={{
           style: {
             fontSize: '16px',
@@ -92,18 +167,15 @@ function App() {
 
       <Suspense fallback={<Loader/>}>
         <Routes>
-          {/* Головна сторінка — доступна всім */}
-          <Route path={"/"} element={<HomeLayout session={session}/>}>
-            <Route index element={<HomePage/>}></Route>
+          {/* Головна сторінка — передаємо user для перевірки статусу в хедері */}
+          <Route path="/" element={<HomeLayout session={user}/>}>
+            <Route index element={<HomePage/>}/>
           </Route>
 
-          {/* ГРУПА МАГАЗИНУ (спільний Хедер для всього) */}
-          <Route element={<CatalogLayout session={session}/>}>
-            {/* /catalog */}
-            <Route path="/catalog" element={session ? <CatalogPage/> : <Auth/>}/>
-
-            {/* /cart — Тепер це окремий красивий шлях! */}
-            <Route path="/cart" element={session ? <CartPage/> : <Auth/>}/>
+          {/* ГРУПА МАГАЗИНУ (Каталог та Кошик) */}
+          <Route element={<CatalogLayout session={user}/>}>
+            <Route path="/catalog" element={user ? <CatalogPage/> : <Auth/>}/>
+            <Route path="/cart" element={user ? <CartPage/> : <Auth/>}/>
           </Route>
 
           <Route path="*" element={<NotFoundPage/>}/>
