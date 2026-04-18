@@ -130,6 +130,12 @@ const CartPage = () => {
       const {data: {user: authUser}} = await supabase.auth.getUser();
       const clientEmail = authUser?.email;
 
+      // === НОВА ЛОГІКА: Додаємо ціну в грн для кожного товару ===
+      const itemsWithUahPrice = currentItems.map(item => ({
+        ...item,
+        price_uah: Math.round(item.price_eur * rate) // Рахуємо за тим самим курсом, що бачить юзер
+      }));
+
       // 2. Формуємо об'єкт (Payload)
       // Якщо значення порожнє, ми примусово ставимо текст, щоб побачити його в дампі
       const payload = {
@@ -139,7 +145,8 @@ const CartPage = () => {
         user_phone: phone || "phone-not-found",
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
         total_price: totalPrice,
-        items: currentItems,
+        total_price_uah: totalPriceUah,
+        items: itemsWithUahPrice,
       };
 
       console.log("📤 REACT ПЕРЕДАЄ ЦЕЙ ОБ'ЄКТ:", payload);
