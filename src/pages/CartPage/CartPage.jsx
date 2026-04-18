@@ -11,8 +11,7 @@ import toast from "react-hot-toast";
 import styles from './CartPage.module.css';
 import { clearEntireCart } from '../../redux/cart/cartOps';
 import { supabase } from '../../supabaseClient'; // Перевір правильність шляху до клієнта
-import { DELIVERY_CONFIG, getSupplierName } from '../../utils/helpers.js';
-import emailjs from '@emailjs/browser';
+import { DELIVERY_CONFIG } from '../../utils/helpers.js';
 
 const formatPhoneToMask = (phone) => {
   if (!phone) return '';
@@ -104,7 +103,7 @@ const CartPage = () => {
   //       });
   //   }
   // }, [step, isSubmitting]); // Спрацює один раз при переході на крок оформлення
-
+  //
   // console.log("Дані користувача з контексту:", user);
 
   const totalPriceUah = Math.round(totalPriceEur * rate);
@@ -124,100 +123,65 @@ const CartPage = () => {
     isCityValid &&
     isBranchValid;
 
-  const sendOrderEmail = async (orderId, currentItems) => {
-    // Формуємо рядки таблиці
-    const tableRows = currentItems.map(item => {
-      const itemPriceUah = Math.round(item.price_eur * rate);
-      const supplierName = getSupplierName(item.supplier_id);
 
-      return `
-        <tr style="border-bottom: 1px solid #eeeeee;">
-          <td style="padding: 12px 8px; vertical-align: top;">
-            <div style="font-size: 12px; color: #444444; font-family: Verdana, sans-serif; margin-bottom: 2px;">
-              ${item.code}
-            </div>
-            <div style="font-size: 12px; font-weight: bold; color: #000000; font-family: Verdana, sans-serif; text-transform: uppercase; margin-bottom: 2px;">
-              ${item.brand}
-            </div>
-            <div style="font-size: 10px; color: #888888; font-family: Verdana, sans-serif; line-height: 1.4; margin-bottom: 4px;">
-              ${item.name}
-            </div>
-            <div style="font-size: 8px; color: #444444; font-family: Verdana, sans-serif;">
-              ${supplierName}
-            </div>
-          </td>
-          <td style="padding: 12px 8px; vertical-align: top; text-align: center; width: 60px; font-family: Verdana, sans-serif; font-size: 13px; color: #333;">
-            ${item.quantity} шт.
-          </td>
-          <td style="padding: 12px 8px; vertical-align: top; text-align: right; width: 90px; font-family: Verdana, sans-serif; font-size: 14px; font-weight: bold; color: #000; white-space: nowrap;">
-            ${itemPriceUah} грн.
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    const itemsHtmlTable = `
-      <table style="width: 100%; border-collapse: collapse; margin: 15px 0; background-color: #ffffff; border: 1px solid #e5e5e5;">
-        <thead>
-          <tr style="background-color: #f9f9f9; border-bottom: 2px solid #333333;">
-            <th style="padding: 12px 8px; text-align: left; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; letter-spacing: 0.5px;">Товар</th>
-            <th style="padding: 12px 8px; text-align: center; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; width: 60px;">К-сть</th>
-            <th style="padding: 12px 8px; text-align: right; font-family: Verdana, sans-serif; font-size: 12px; text-transform: uppercase; color: #666666; width: 90px;">Ціна</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tableRows}
-        </tbody>
-      </table>
-    `;
-
-    // 2. Готуємо змінні, які ми прописали в шаблоні {{ }}
-    const templateParams = {
-      user_name: `${firstName} ${lastName}`,
-      user_email: user?.email || 'test@test.com', // пошта клієнта
-      user_phone: phone,
-      order_id: orderId,
-      items_list: itemsHtmlTable,
-      total_price: `${totalPriceUah} грн.`,
-      delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
-      notes: notes || 'Немає'
-    };
-
+  const sendOrderEmail = async (orderId, currentItems, totalPrice) => {
     try {
-      await emailjs.send(
-        'maxgear_test_mail', // Твій Service ID
-        'template_bc6n5f9',   // ЗАМІНИ НА СВІЙ
-        templateParams,
-        'iIt13DUfNkwXlCzyl'     // ЗАМІНИ НА СВІЙ
-      );
-      console.log('Лист успішно відправлено!');
+      // 1. Отримуємо пошту ПРЯМО ТУТ
+      const {data: {user: authUser}} = await supabase.auth.getUser();
+      const clientEmail = authUser?.email;
+
+      // 2. Формуємо об'єкт (Payload)
+      // Якщо значення порожнє, ми примусово ставимо текст, щоб побачити його в дампі
+      const payload = {
+        order_id: orderId,
+        user_name: `${firstName} ${lastName}` || "Unknown User",
+        user_email: clientEmail || "email-not-found@test.com",
+        user_phone: phone || "phone-not-found",
+        delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
+        total_price: totalPrice,
+        items: currentItems,
+      };
+
+      console.log("📤 REACT ПЕРЕДАЄ ЦЕЙ ОБ'ЄКТ:", payload);
+
+      const response = await fetch('http://localhost:8000/api/cart/checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Server error");
+      console.log('✅ Бекенд отримав дані');
+
     } catch (error) {
-      console.error('Помилка відправки листа:', error);
+      console.error('🌐 Помилка відправки:', error);
     }
   };
 
   const handleFinalOrder = async () => {
-    console.log("--- СТАРТ ВІДПРАВКИ ---");
+    console.log("--- 🔍 СТАРТ ДІАГНОСТИКИ ЗАМОВЛЕННЯ ---");
 
     if (!user || !user.id) {
+      console.error("❌ Помилка: Юзер відсутній в контексті");
       toast.error("Будь ласка, увійдіть в акаунт");
       return;
     }
 
     setIsSubmitting(true);
-    const currentCfg = DELIVERY_CONFIG[deliveryMethod];
-
-    const withTimeout = (promise, ms, errorMessage) => {
-      const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(errorMessage)), ms)
-      );
-      return Promise.race([promise, timeout]);
-    };
 
     try {
+      // ПЕРЕВІРКА СЕСІЇ (Додаємо цей блок)
+      console.log("1. Перевірка сесії Supabase...");
+      const {data: sessionData, error: sessionError} = await supabase.auth.getSession();
+      console.log("   Результат сесії:", {sessionData, sessionError});
+
+      if (sessionError) throw new Error(`Auth Error: ${sessionError.message}`);
+      if (!sessionData.session) throw new Error("Сесія протухла. Спробуйте вийти і зайти знову.");
+
       // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
-      console.log("Крок 1: Запис основного замовлення...");
-      const insertOrderRequest = supabase
+      console.log("2. Спроба запису в таблицю 'orders'...");
+
+      const {data: order, error: orderError} = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
@@ -230,26 +194,21 @@ const CartPage = () => {
           ship_phone: cleanPhone,
           ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
           ship_method: deliveryMethod,
-          ship_branch: currentCfg.type === 'branch' ? branch : null,
-          ship_address: currentCfg.type === 'address' ? branch : null,
-          ship_notes: currentCfg.type === 'note'
-            ? `${notes} (Самовивіз: ${branch})`.trim()
-            : notes
+          ship_branch: branch,
+          ship_notes: notes
         }])
         .select('id, order_number')
         .single();
 
-      const {data: order, error: orderError} = await withTimeout(
-        insertOrderRequest,
-        5000,
-        "Сервер не відповів вчасно (Крок 1). Спробуйте ще раз або перезавантажте сторінку."
-      );
+      console.log("3. Результат запису 'orders':", {order, orderError});
 
-      if (orderError) throw orderError;
-      console.log("✅ Замовлення створено, ID:", order.id);
+      if (orderError) {
+        console.error("❌ РЕАЛЬНА ПОМИЛКА SUPABASE (Крок 1):", orderError);
+        throw orderError;
+      }
 
       // 2. ЗАПИСУЄМО ТОВАРИ
-      console.log("Крок 2: Запис товарів замовлення...");
+      console.log("4. Підготовка товарів для запису...");
       const itemsToInsert = items.map(item => ({
         order_id: order.id,
         product_id: item.product_id,
@@ -260,14 +219,16 @@ const CartPage = () => {
         quantity: item.quantity
       }));
 
-      const {error: itemsError} = await withTimeout(
-        supabase.from('order_items').insert(itemsToInsert),
-        5000,
-        "Не вдалося зберегти список товарів (Крок 2)."
-      );
+      console.log("5. Спроба запису товарів...");
+      const {error: itemsError} = await supabase
+        .from('order_items')
+        .insert(itemsToInsert);
 
-      if (itemsError) throw itemsError;
-      console.log("✅ Товари збережено");
+      if (itemsError) {
+        console.error("❌ ПОМИЛКА ЗАПИСУ ТОВАРІВ (Крок 2):", itemsError);
+        throw itemsError;
+      }
+      console.log("✅ Товари збережено успішно");
 
       // --- МОМЕНТ УСПІХУ ---
       const formattedOrderNumber = String(order.order_number).padStart(6, '0');
@@ -277,18 +238,12 @@ const CartPage = () => {
       trigger('success');
       toast.success("Замовлення прийняте!");
 
-      // Очищуємо кошик ВІДРАЗУ після успіху
       dispatch(clearEntireCart(user.id));
 
-      // 3. ФОНОВІ ПРОЦЕСИ (тепер без помилок)
-      console.log("Крок 3: Запуск фонових процесів...");
+      // 3. ФОНОВІ ПРОЦЕСИ
+      console.log("6. Запуск фонових процесів (Email & Profile)...");
+      sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
 
-      // Відправка пошти
-      sendOrderEmail(formattedOrderNumber, items).catch(err => {
-        console.error("Email Error:", err);
-      });
-
-      // Оновлення профілю (використовуємо .then замість .catch)
       supabase.from('profiles').upsert({
         id: user.id,
         first_name: firstName,
@@ -304,7 +259,7 @@ const CartPage = () => {
       });
 
     } catch (error) {
-      console.error("🚨 ПОМИЛКА ОФОРМЛЕННЯ:", error.message);
+      console.error("🚨 КРИТИЧНА ПОМИЛКА:", error);
       toast.error(error.message || "Сталася помилка");
       setIsSubmitting(false);
     }
