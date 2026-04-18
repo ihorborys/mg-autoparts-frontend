@@ -144,7 +144,9 @@ const CartPage = () => {
 
       console.log("📤 REACT ПЕРЕДАЄ ЦЕЙ ОБ'ЄКТ:", payload);
 
-      const response = await fetch('http://localhost:8000/api/cart/checkout', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+      const response = await fetch(`${API_URL}/api/cart/checkout`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload),
