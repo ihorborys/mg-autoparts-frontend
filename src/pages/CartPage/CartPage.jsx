@@ -479,7 +479,430 @@
 // export default CartPage;
 
 
-import { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
+// import { useSelector, useDispatch } from 'react-redux';
+// import { Link } from 'react-router-dom';
+// import { InputMask } from '@react-input/mask';
+// import Container from "../../layouts/Container/Container.jsx";
+// import CartItem from '../../components/CartPage/CartItem/CartItem.jsx';
+// import Button from "../../components/Button/Button.jsx";
+// import { useAuth } from '../../context/AuthContext.jsx';
+// import { useHaptics } from "../../hooks/useHaptics.js";
+// import toast from "react-hot-toast";
+// import styles from './CartPage.module.css';
+// import { clearEntireCart } from '../../redux/cart/cartOps';
+// import { supabase } from '../../supabaseClient';
+// import { DELIVERY_CONFIG } from '../../utils/helpers.js';
+//
+// const formatPhoneToMask = (phone) => {
+//   if (!phone) return '';
+//   const digits = phone.replace(/\D/g, '');
+//   if (digits.length === 12 && digits.startsWith('380')) {
+//     const code = digits.slice(2, 5);
+//     const part1 = digits.slice(5, 8);
+//     const part2 = digits.slice(8, 10);
+//     const part3 = digits.slice(10, 12);
+//     return `+38 (${code}) ${part1}-${part2}-${part3}`;
+//   }
+//   return digits.startsWith('+') ? digits : `+${digits}`;
+// };
+//
+// const CartPage = () => {
+//   const {user} = useAuth();
+//   const {items, totalPriceEur} = useSelector((state) => state.cart);
+//   const rate = useSelector((state) => state.currency.rate);
+//   const {trigger} = useHaptics();
+//   const dispatch = useDispatch();
+//
+//   const [step, setStep] = useState('summary');
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [isDataLoaded, setIsDataLoaded] = useState(false);
+//
+//   const [firstName, setFirstName] = useState(user?.first_name || '');
+//   const [lastName, setLastName] = useState(user?.last_name || '');
+//   const [phone, setPhone] = useState(user?.phone || '');
+//   const [city, setCity] = useState(user?.city || '');
+//   const [deliveryMethod, setDeliveryMethod] = useState(user?.delivery_method || 'np_branch');
+//   const [branch, setBranch] = useState(user?.branch || '');
+//   const [paymentMethod, setPaymentMethod] = useState('cod');
+//   const [notes, setNotes] = useState('');
+//   const [displayOrderNumber, setDisplayOrderNumber] = useState('');
+//
+//   useEffect(() => {
+//     if (user && !isDataLoaded && !isSubmitting) {
+//       setFirstName(user.first_name || '');
+//       setLastName(user.last_name || '');
+//       setCity(user.city || '');
+//       setBranch(user.branch || '');
+//       setDeliveryMethod(user.delivery_method || 'np_branch');
+//       if (user.phone) {
+//         setPhone(formatPhoneToMask(user.phone));
+//       }
+//       setIsDataLoaded(true);
+//     }
+//   }, [user, isDataLoaded, isSubmitting]);
+//
+//   const totalPriceUah = Math.round(totalPriceEur * rate);
+//   const cleanPhone = phone.replace(/\D/g, '');
+//   const isPhoneValid = cleanPhone.length === 12;
+//
+//   const currentDelivery = DELIVERY_CONFIG[deliveryMethod];
+//   const isBranchValid = !currentDelivery.required || branch.trim().length > 0;
+//   const isCityRequired = deliveryMethod !== 'self';
+//   const isCityValid = !isCityRequired || city.trim().length >= 2;
+//
+//   const isFormValid = isPhoneValid &&
+//     firstName.trim().length >= 2 &&
+//     lastName.trim().length >= 2 &&
+//     isCityValid &&
+//     isBranchValid;
+//
+//   // --- ВІДПРАВКА EMAIL (ФОНОВА) ---
+//   const sendOrderEmail = (orderId, currentItems, totalPriceUahFinal) => {
+//     const clientEmail = user?.email || "no-email@maxgear.com.ua";
+//     try {
+//       const itemsWithUahPrice = currentItems.map(item => ({
+//         ...item,
+//         price_uah: Math.round(item.price_eur * rate)
+//       }));
+//
+//       const payload = {
+//         order_id: orderId,
+//         user_name: `${firstName} ${lastName}`.trim(),
+//         user_email: clientEmail,
+//         user_phone: phone,
+//         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `НП: ${city}, №${branch}`,
+//         total_price_eur: totalPriceEur,
+//         total_price_uah: totalPriceUahFinal,
+//         items: itemsWithUahPrice,
+//       };
+//
+//       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+//
+//       fetch(`${API_URL}/api/cart/checkout`, {
+//         method: 'POST',
+//         headers: {'Content-Type': 'application/json'},
+//         body: JSON.stringify(payload),
+//       })
+//         .then(r => console.log("📧 Email status:", r.status))
+//         .catch(e => console.error("📧 Email network error:", e));
+//
+//     } catch (err) {
+//       console.error("❌ Email preparation error:", err);
+//     }
+//   };
+//
+//   // --- ГОЛОВНА ФУНКЦІЯ ---
+//   const handleFinalOrder = async () => {
+//     if (!user?.id) {
+//       toast.error("Будь ласка, увійдіть в акаунт");
+//       return;
+//     }
+//
+//     console.log("🚀 [ORDER START]");
+//     setIsSubmitting(true);
+//
+//     try {
+//       // КРОК 0: ПРОБИВАЄМО ЗАМОК АВТОРИЗАЦІЇ (БЕЗПЕЧНИЙ ВАРІАНТ)
+//       console.log("🛰️ Step 0: Refreshing session lock...");
+//
+//       // Створюємо "перегони": або сесія відповість, або вийде час (1 сек)
+//       await Promise.race([
+//         supabase.auth.getSession(),
+//         new Promise((resolve) => setTimeout(resolve, 1000))
+//       ]);
+//
+//       console.log("✅ Step 0: Moving forward (lock cleared or bypassed).");
+//
+//       // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
+//       console.log("📦 Step 1: Inserting order...");
+//
+//       // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
+//       console.log("📦 Step 1: Inserting order...");
+//       const {data: order, error: orderError} = await supabase
+//         .from('orders')
+//         .insert([{
+//           user_id: user.id,
+//           total_price_eur: totalPriceEur,
+//           total_price_uah: totalPriceUah,
+//           status: 'new',
+//           payment_method: paymentMethod,
+//           ship_first_name: firstName,
+//           ship_last_name: lastName,
+//           ship_phone: cleanPhone,
+//           ship_city: deliveryMethod === 'self' ? 'Самбір' : city,
+//           ship_method: deliveryMethod,
+//           ship_branch: branch,
+//           ship_notes: notes
+//         }])
+//         .select('id, order_number')
+//         .single();
+//
+//       if (orderError) throw orderError;
+//       console.log("✅ Step 1: Order created ID:", order.id);
+//
+//       // КРОК 2: ТОВАРИ
+//       console.log("🛒 Step 2: Inserting items...");
+//       const itemsToInsert = items.map(item => ({
+//         order_id: order.id,
+//         product_id: item.product_id,
+//         supplier_id: item.supplier_id,
+//         code: item.code,
+//         brand: item.brand,
+//         price_eur: item.price_eur,
+//         quantity: item.quantity
+//       }));
+//
+//       const {error: itemsError} = await supabase.from('order_items').insert(itemsToInsert);
+//       if (itemsError) throw itemsError;
+//       console.log("✅ Step 2: Items inserted.");
+//
+//       // --- МОМЕНТ УСПІХУ (ВІЗУАЛ) ---
+//       const formattedOrderNumber = String(order.order_number).padStart(6, '0');
+//       setDisplayOrderNumber(formattedOrderNumber);
+//       setStep('success');
+//       trigger('success');
+//       toast.success("Замовлення прийняте!");
+//
+//       // КРОК 3: ОЧИЩЕННЯ КОШИКА
+//       console.log("🧹 Step 3: Clearing cart...");
+//       dispatch(clearEntireCart(user.id));
+//
+//       // КРОК 4: ФОНОВІ ОНОВЛЕННЯ (без await, щоб не чекати)
+//       console.log("⚙️ Step 4: Starting background tasks (Email & Profile)...");
+//       sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
+//
+//       supabase.from('profiles')
+//         .upsert({
+//           id: user.id,
+//           first_name: firstName,
+//           last_name: lastName,
+//           phone: cleanPhone,
+//           city: city,
+//           branch: branch,
+//           delivery_method: deliveryMethod,
+//           updated_at: new Date()
+//         })
+//         .then(() => console.log("👤 Profile updated in background"));
+//
+//     } catch (error) {
+//       console.error("🚨 [ORDER CRITICAL ERROR]:", error);
+//       toast.error(error.message || "Сталася помилка");
+//     } finally {
+//       console.log("🏁 [ORDER FINISHED]");
+//       setIsSubmitting(false); // ЗАВЖДИ розблокуємо кнопку
+//     }
+//   };
+//
+//   // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
+//   if (items.length === 0 && step !== 'success' && !isSubmitting) {
+//     return (
+//       <Container>
+//         <div className={styles.container}>
+//           <div className={styles.emptyContainer}>
+//             <h2 className={styles.title}>Кошик порожній 🛒</h2>
+//             <p className={styles.subTitle}>Додайте щось із каталогу, щоб створити замовлення.</p>
+//             <Link to="/catalog"><Button>До каталогу</Button></Link>
+//           </div>
+//         </div>
+//       </Container>
+//     );
+//   }
+//
+//   return (
+//     <Container>
+//       <div className={styles.container}>
+//         <h1 className={styles.title}>
+//           {step === 'success' ? 'Замовлення прийняте!' : 'Моє замовлення'}
+//         </h1>
+//
+//         <div className={styles.content}>
+//           <ul className={styles.list}>
+//             {items.map((item) => (
+//               <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
+//             ))}
+//           </ul>
+//
+//           <div className={styles.summary}>
+//             {/* КРОК 1: ПІДСУМОК */}
+//             {step === 'summary' && (
+//               <div className={styles.animateFade}>
+//                 <h3>Разом:</h3>
+//                 <div className={styles.prices}>
+//                   <span className={styles.eur}>{totalPriceEur.toLocaleString()} €</span>
+//                   <span className={styles.uah}>{totalPriceUah.toLocaleString()} ₴</span>
+//                 </div>
+//                 <button
+//                   className={styles.orderBtn}
+//                   onClick={() => {
+//                     setStep('checkout'); // ПЕРЕМИКАЄМО НА ФОРМУ
+//                     trigger('tick');
+//                   }}
+//                 >
+//                   Оформити замовлення
+//                 </button>
+//               </div>
+//             )}
+//
+//             {/* КРОК 2: ФОРМА ОФОРМЛЕННЯ */}
+//             {step === 'checkout' && (
+//               <div className={styles.animateFade}>
+//                 <h3 className={styles.checkoutTitle}>Оформлення замовлення</h3>
+//
+//                 {/* 1. ПІБ */}
+//                 <div className={styles.row}>
+//                   <div className={styles.field}>
+//                     <label>Прізвище *</label>
+//                     <input
+//                       className={styles.input}
+//                       value={lastName}
+//                       onChange={(e) => setLastName(e.target.value)}
+//                       placeholder="Кондратюк"
+//                     />
+//                   </div>
+//                   <div className={styles.field}>
+//                     <label>Ім'я *</label>
+//                     <input
+//                       className={styles.input}
+//                       value={firstName}
+//                       onChange={(e) => setFirstName(e.target.value)}
+//                       placeholder="Юрій"
+//                     />
+//                   </div>
+//                 </div>
+//
+//                 {/* 2. Телефон з маскою */}
+//                 <div className={styles.field}>
+//                   <label>Телефон *</label>
+//                   <InputMask
+//                     mask="+38 (0__) ___-__-__"
+//                     replacement={{_: /\d/}}
+//                     value={phone}
+//                     onChange={(e) => setPhone(e.target.value)}
+//                     className={`${styles.input} ${!isPhoneValid && cleanPhone.length > 3 ? styles.error : ''}`}
+//                     placeholder="+38 (0__) ___-__-__"
+//                   />
+//                 </div>
+//
+//                 {/* 3. Вибір способу доставки */}
+//                 <div className={styles.field}>
+//                   <label>Спосіб доставки *</label>
+//                   <select
+//                     className={styles.select}
+//                     value={deliveryMethod}
+//                     onChange={(e) => {
+//                       setDeliveryMethod(e.target.value);
+//                       setBranch(''); // Очищаємо поле при зміні методу
+//                     }}
+//                   >
+//                     {Object.entries(DELIVERY_CONFIG).map(([key, cfg]) => (
+//                       <option key={key} value={key}>{cfg.label}</option>
+//                     ))}
+//                   </select>
+//                 </div>
+//
+//                 {/* 4. Місто */}
+//                 {/* Відображаємо місто тільки якщо це НЕ самовивіз */}
+//                 {deliveryMethod !== 'self' && (
+//                   <div className={styles.field}>
+//                     <label>Місто *</label>
+//                     <input
+//                       type="text"
+//                       className={styles.input}
+//                       value={city}
+//                       onChange={(e) => setCity(e.target.value)}
+//                       placeholder="Наприклад: Полтава"
+//                     />
+//                   </div>
+//                 )}
+//
+//                 {/* Динамічне поле (Відділення / Адреса) — ховаємо для самовивозу */}
+//                 {deliveryMethod !== 'self' && (
+//                   <div className={styles.field}>
+//                     <label>
+//                       {currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}
+//                     </label>
+//                     <input
+//                       type="text"
+//                       className={styles.input}
+//                       value={branch}
+//                       onChange={(e) => setBranch(e.target.value)}
+//                       placeholder={currentDelivery.placeholder}
+//                     />
+//                   </div>
+//                 )}
+//
+//                 {/* 6. Спосіб оплати */}
+//                 <div className={styles.field}>
+//                   <label htmlFor="paymentMethod">Спосіб оплати *</label>
+//                   <select
+//                     id="paymentMethod"
+//                     className={styles.select}
+//                     value={paymentMethod}
+//                     onChange={(e) => setPaymentMethod(e.target.value)}
+//                   >
+//                     <option value="cod">Оплата при отриманні</option>
+//                     <option value="card">Оплата на карту</option>
+//                   </select>
+//                 </div>
+//
+//                 {/* 7. Примітки */}
+//                 <div className={styles.field}>
+//                   <label>Примітки</label>
+//                   <textarea
+//                     className={styles.textarea}
+//                     value={notes}
+//                     onChange={(e) => setNotes(e.target.value)}
+//                     placeholder="Додаткова інформація..."
+//                   />
+//                 </div>
+//
+//                 <button
+//                   className={styles.confirmBtn}
+//                   onClick={handleFinalOrder}
+//                   disabled={!isFormValid || isSubmitting}
+//                 >
+//                   {isSubmitting ? 'Відправка...' : 'Підтвердити'}
+//                 </button>
+//                 <button className={styles.backLink} onClick={() => setStep('summary')}>
+//                   Назад
+//                 </button>
+//               </div>
+//             )}
+//
+//             {/* КРОК 3: УСПІХ (ПОВЕРНУВ ЦЕЙ БЛОК) */}
+//             {step === 'success' && (
+//               <div className={styles.animateFade}>
+//                 <div className={styles.successIcon}>✓</div>
+//                 <h3 style={{color: '#2ecc71'}}>Готово!</h3>
+//                 <p>Замовлення №{displayOrderNumber} успішно створене.</p>
+//                 <p>Дякуємо Вам за довіру!</p>
+//                 <p style={{fontSize: '0.7rem', marginTop: '20px', textAlign: 'center',}}>При потребі ми зв'яжемося з
+//                   Вами за номером:<br/>
+//                   <strong>{phone}</strong> для уточнення деталей.</p>
+//                 <Link to="/catalog"
+//                       style={{
+//                         marginTop: '20px',
+//                         display: 'block',
+//                         textAlign: 'center',
+//                         // justifyContent: 'center',
+//                         // alignItems: 'center'
+//                       }}>
+//                   <Button>За новими покупками</Button>
+//                 </Link>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </Container>
+//   );
+// };
+//
+// export default CartPage;
+
+
+import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { InputMask } from '@react-input/mask';
@@ -513,6 +936,9 @@ const CartPage = () => {
   const rate = useSelector((state) => state.currency.rate);
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
+
+  // Реф для запобігання подвійним натисканням (спрацьовує миттєво)
+  const isProcessing = useRef(false);
 
   const [step, setStep] = useState('summary');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -572,7 +998,7 @@ const CartPage = () => {
         user_email: clientEmail,
         user_phone: phone,
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `НП: ${city}, №${branch}`,
-        total_price_eur: totalPriceEur,
+        total_price_eur: totalPriceEur, // Бекенд чекає саме таку назву
         total_price_uah: totalPriceUahFinal,
         items: itemsWithUahPrice,
       };
@@ -594,32 +1020,30 @@ const CartPage = () => {
 
   // --- ГОЛОВНА ФУНКЦІЯ ---
   const handleFinalOrder = async () => {
+    // 1. Захист від подвійного кліку
+    if (isProcessing.current) return;
+
     if (!user?.id) {
       toast.error("Будь ласка, увійдіть в акаунт");
       return;
     }
 
     console.log("🚀 [ORDER START]");
+    isProcessing.current = true;
     setIsSubmitting(true);
 
     try {
-      // КРОК 0: ПРОБИВАЄМО ЗАМОК АВТОРИЗАЦІЇ (БЕЗПЕЧНИЙ ВАРІАНТ)
+      // КРОК 0: ПРОБИВАЄМО ЗАМОК АВТОРИЗАЦІЇ (2 секунди таймауту)
       console.log("🛰️ Step 0: Refreshing session lock...");
-
-      // Створюємо "перегони": або сесія відповість, або вийде час (1 сек)
       await Promise.race([
         supabase.auth.getSession(),
-        new Promise((resolve) => setTimeout(resolve, 1000))
+        new Promise((resolve) => setTimeout(resolve, 2000))
       ]);
-
       console.log("✅ Step 0: Moving forward (lock cleared or bypassed).");
 
       // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
       console.log("📦 Step 1: Inserting order...");
-
-      // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
-      console.log("📦 Step 1: Inserting order...");
-      const {data: order, error: orderError} = await supabase
+      const {data: orderData, error: orderError} = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
@@ -635,10 +1059,12 @@ const CartPage = () => {
           ship_branch: branch,
           ship_notes: notes
         }])
-        .select('id, order_number')
-        .single();
+        .select('id, order_number');
 
       if (orderError) throw orderError;
+      if (!orderData || orderData.length === 0) throw new Error("Помилка отримання даних замовлення");
+
+      const order = orderData[0];
       console.log("✅ Step 1: Order created ID:", order.id);
 
       // КРОК 2: ТОВАРИ
@@ -657,7 +1083,7 @@ const CartPage = () => {
       if (itemsError) throw itemsError;
       console.log("✅ Step 2: Items inserted.");
 
-      // --- МОМЕНТ УСПІХУ (ВІЗУАЛ) ---
+      // --- УСПІХ ---
       const formattedOrderNumber = String(order.order_number).padStart(6, '0');
       setDisplayOrderNumber(formattedOrderNumber);
       setStep('success');
@@ -668,8 +1094,8 @@ const CartPage = () => {
       console.log("🧹 Step 3: Clearing cart...");
       dispatch(clearEntireCart(user.id));
 
-      // КРОК 4: ФОНОВІ ОНОВЛЕННЯ (без await, щоб не чекати)
-      console.log("⚙️ Step 4: Starting background tasks (Email & Profile)...");
+      // КРОК 4: ФОНОВІ ОНОВЛЕННЯ
+      console.log("⚙️ Step 4: Starting background tasks...");
       sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
 
       supabase.from('profiles')
@@ -683,18 +1109,18 @@ const CartPage = () => {
           delivery_method: deliveryMethod,
           updated_at: new Date()
         })
-        .then(() => console.log("👤 Profile updated in background"));
+        .then(() => console.log("👤 Profile updated"));
 
     } catch (error) {
-      console.error("🚨 [ORDER CRITICAL ERROR]:", error);
+      console.error("🚨 [CRITICAL ERROR]:", error);
       toast.error(error.message || "Сталася помилка");
     } finally {
       console.log("🏁 [ORDER FINISHED]");
-      setIsSubmitting(false); // ЗАВЖДИ розблокуємо кнопку
+      setIsSubmitting(false);
+      isProcessing.current = false; // Розблокування кнопки
     }
   };
 
-  // Порожній кошик показуємо тільки якщо замовлення ще не оформлене
   if (items.length === 0 && step !== 'success' && !isSubmitting) {
     return (
       <Container>
@@ -724,7 +1150,6 @@ const CartPage = () => {
           </ul>
 
           <div className={styles.summary}>
-            {/* КРОК 1: ПІДСУМОК */}
             {step === 'summary' && (
               <div className={styles.animateFade}>
                 <h3>Разом:</h3>
@@ -735,7 +1160,7 @@ const CartPage = () => {
                 <button
                   className={styles.orderBtn}
                   onClick={() => {
-                    setStep('checkout'); // ПЕРЕМИКАЄМО НА ФОРМУ
+                    setStep('checkout');
                     trigger('tick');
                   }}
                 >
@@ -744,12 +1169,10 @@ const CartPage = () => {
               </div>
             )}
 
-            {/* КРОК 2: ФОРМА ОФОРМЛЕННЯ */}
             {step === 'checkout' && (
               <div className={styles.animateFade}>
                 <h3 className={styles.checkoutTitle}>Оформлення замовлення</h3>
 
-                {/* 1. ПІБ */}
                 <div className={styles.row}>
                   <div className={styles.field}>
                     <label>Прізвище *</label>
@@ -757,7 +1180,7 @@ const CartPage = () => {
                       className={styles.input}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Кондратюк"
+                      placeholder="Прізвище"
                     />
                   </div>
                   <div className={styles.field}>
@@ -766,12 +1189,11 @@ const CartPage = () => {
                       className={styles.input}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Юрій"
+                      placeholder="Ім'я"
                     />
                   </div>
                 </div>
 
-                {/* 2. Телефон з маскою */}
                 <div className={styles.field}>
                   <label>Телефон *</label>
                   <InputMask
@@ -784,7 +1206,6 @@ const CartPage = () => {
                   />
                 </div>
 
-                {/* 3. Вибір способу доставки */}
                 <div className={styles.field}>
                   <label>Спосіб доставки *</label>
                   <select
@@ -792,7 +1213,7 @@ const CartPage = () => {
                     value={deliveryMethod}
                     onChange={(e) => {
                       setDeliveryMethod(e.target.value);
-                      setBranch(''); // Очищаємо поле при зміні методу
+                      setBranch('');
                     }}
                   >
                     {Object.entries(DELIVERY_CONFIG).map(([key, cfg]) => (
@@ -801,8 +1222,6 @@ const CartPage = () => {
                   </select>
                 </div>
 
-                {/* 4. Місто */}
-                {/* Відображаємо місто тільки якщо це НЕ самовивіз */}
                 {deliveryMethod !== 'self' && (
                   <div className={styles.field}>
                     <label>Місто *</label>
@@ -811,12 +1230,11 @@ const CartPage = () => {
                       className={styles.input}
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="Наприклад: Полтава"
+                      placeholder="Місто"
                     />
                   </div>
                 )}
 
-                {/* Динамічне поле (Відділення / Адреса) — ховаємо для самовивозу */}
                 {deliveryMethod !== 'self' && (
                   <div className={styles.field}>
                     <label>
@@ -832,7 +1250,6 @@ const CartPage = () => {
                   </div>
                 )}
 
-                {/* 6. Спосіб оплати */}
                 <div className={styles.field}>
                   <label htmlFor="paymentMethod">Спосіб оплати *</label>
                   <select
@@ -846,7 +1263,6 @@ const CartPage = () => {
                   </select>
                 </div>
 
-                {/* 7. Примітки */}
                 <div className={styles.field}>
                   <label>Примітки</label>
                   <textarea
@@ -870,24 +1286,13 @@ const CartPage = () => {
               </div>
             )}
 
-            {/* КРОК 3: УСПІХ (ПОВЕРНУВ ЦЕЙ БЛОК) */}
             {step === 'success' && (
               <div className={styles.animateFade}>
                 <div className={styles.successIcon}>✓</div>
                 <h3 style={{color: '#2ecc71'}}>Готово!</h3>
                 <p>Замовлення №{displayOrderNumber} успішно створене.</p>
                 <p>Дякуємо Вам за довіру!</p>
-                <p style={{fontSize: '0.7rem', marginTop: '20px', textAlign: 'center',}}>При потребі ми зв'яжемося з
-                  Вами за номером:<br/>
-                  <strong>{phone}</strong> для уточнення деталей.</p>
-                <Link to="/catalog"
-                      style={{
-                        marginTop: '20px',
-                        display: 'block',
-                        textAlign: 'center',
-                        // justifyContent: 'center',
-                        // alignItems: 'center'
-                      }}>
+                <Link to="/catalog" style={{marginTop: '20px', display: 'block', textAlign: 'center'}}>
                   <Button>За новими покупками</Button>
                 </Link>
               </div>
