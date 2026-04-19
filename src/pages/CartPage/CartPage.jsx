@@ -44,6 +44,7 @@ const CartPage = () => {
 
   const [step, setStep] = useState('summary');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false); // Прапорець для useEffect
 
   // Оголошуємо всі поля, для відправки в базу
   const [firstName, setFirstName] = useState(user?.first_name || '');
@@ -56,29 +57,43 @@ const CartPage = () => {
   const [notes, setNotes] = useState(''); // Стейт для приміток
   const [displayOrderNumber, setDisplayOrderNumber] = useState('');
 
-  // Додатково: якщо дані підтягуються з бази після завантаження сторінки
+  // // Додатково: якщо дані підтягуються з бази після завантаження сторінки
+  // useEffect(() => {
+  //   // // ЯКЩО МИ ВЖЕ ВІДПРАВЛЯЄМО - ВИХОДИМО, НЕ ЧІПАЄМО СТЕЙТИ!
+  //   if (isSubmitting) return;
+  //
+  //   if (user) {
+  //     if (user.first_name) setFirstName(user.first_name);
+  //     if (user.last_name) setLastName(user.last_name);
+  //     if (user.phone) setPhone(user.phone);
+  //     if (user.city) setCity(user.city);
+  //     if (user.branch) setBranch(user.branch);
+  //     if (user.delivery_method) {
+  //       setDeliveryMethod(user.delivery_method);
+  //     }
+  //
+  //     // Форматуємо телефон під маску, якщо він є в базі
+  //     if (user.phone) {
+  //       const formatted = formatPhoneToMask(user.phone);
+  //       setPhone(formatted);
+  //     }
+  //   }
+  // }, [user]);
+
+  // 1. ЗАПОВНЮЄМО ДАНІ ОДИН РАЗ ПРИ ЗАВАНТАЖЕННІ
   useEffect(() => {
-    // // ЯКЩО МИ ВЖЕ ВІДПРАВЛЯЄМО - ВИХОДИМО, НЕ ЧІПАЄМО СТЕЙТИ!
-    if (isSubmitting) return;
-
-    if (user) {
-      if (user.first_name) setFirstName(user.first_name);
-      if (user.last_name) setLastName(user.last_name);
-      if (user.phone) setPhone(user.phone);
-      if (user.city) setCity(user.city);
-      if (user.branch) setBranch(user.branch);
-      if (user.delivery_method) {
-        setDeliveryMethod(user.delivery_method);
-      }
-
-      // Форматуємо телефон під маску, якщо він є в базі
+    if (user && !isDataLoaded && !isSubmitting) {
+      setFirstName(user.first_name || '');
+      setLastName(user.last_name || '');
+      setCity(user.city || '');
+      setBranch(user.branch || '');
+      setDeliveryMethod(user.delivery_method || 'np_branch');
       if (user.phone) {
-        const formatted = formatPhoneToMask(user.phone);
-        setPhone(formatted);
+        setPhone(formatPhoneToMask(user.phone));
       }
+      setIsDataLoaded(true); // Більше не заходимо сюди, щоб не перебивати ручне введення
     }
-  }, [user]);
-
+  }, [user, isDataLoaded, isSubmitting]);
 
   // // 🔥 "ТИХИЙ ПРОГРІВ" СЕСІЇ (той самий костиль)
   // useEffect(() => {
@@ -107,7 +122,6 @@ const CartPage = () => {
   // console.log("Дані користувача з контексту:", user);
 
   const totalPriceUah = Math.round(totalPriceEur * rate);
-
   const cleanPhone = phone.replace(/\D/g, '');
   const isPhoneValid = cleanPhone.length === 12;
 
@@ -123,55 +137,59 @@ const CartPage = () => {
     isCityValid &&
     isBranchValid;
 
+  const sendOrderEmail = (orderId, currentItems, totalPrice) => {
+    // 1. Не чекаємо Supabase! Беремо email прямо з об'єкта user, який уже є в CartPage
+    const clientEmail = user?.email || "email-not-found@test.com";
 
-  const sendOrderEmail = async (orderId, currentItems, totalPrice) => {
     try {
-      // 1. Отримуємо пошту ПРЯМО ТУТ
-      const {data: {user: authUser}} = await supabase.auth.getUser();
-      const clientEmail = authUser?.email;
-
-      // === НОВА ЛОГІКА: Додаємо ціну в грн для кожного товару ===
+      // 2. Формуємо товари з ціною в грн (це швидко, робиться в пам'яті)
       const itemsWithUahPrice = currentItems.map(item => ({
         ...item,
-        price_uah: Math.round(item.price_eur * rate) // Рахуємо за тим самим курсом, що бачить юзер
+        price_uah: Math.round(item.price_eur * rate)
       }));
 
-      // 2. Формуємо об'єкт (Payload)
-      // Якщо значення порожнє, ми примусово ставимо текст, щоб побачити його в дампі
+      // 3. Формуємо Payload
       const payload = {
         order_id: orderId,
-        user_name: `${firstName} ${lastName}` || "Unknown User",
-        user_email: clientEmail || "email-not-found@test.com",
-        user_phone: phone || "phone-not-found",
+        user_name: `${firstName} ${lastName}`.trim() || "Unknown User",
+        user_email: clientEmail,
+        user_phone: phone,
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `Нова Пошта: ${city}, відд. №${branch}`,
         total_price: totalPrice,
         total_price_uah: totalPriceUah,
         items: itemsWithUahPrice,
       };
 
-      console.log("📤 REACT ПЕРЕДАЄ ЦЕЙ ОБ'ЄКТ:", payload);
+      console.log("📤 ВІДПРАВКА НА БЕКЕНД:", payload);
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-      const response = await fetch(`${API_URL}/api/cart/checkout`, {
+      // 4. ВІДПРАВКА БЕЗ AWAIT (Background)
+      fetch(`${API_URL}/api/cart/checkout`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload),
-      });
+      })
+        .then(response => {
+          if (response.ok) {
+            console.log('✅ Лист успішно поставлено в чергу відправки');
+          } else {
+            console.error('⚠️ Бекенд повернув помилку:', response.status);
+          }
+        })
+        .catch(error => {
+          console.error('🌐 Помилка мережі (Render не відповідає):', error);
+        });
 
-      if (!response.ok) throw new Error("Server error");
-      console.log('✅ Бекенд отримав дані');
-
-    } catch (error) {
-      console.error('🌐 Помилка відправки:', error);
+    } catch (err) {
+      console.error("❌ Помилка при підготовці листа:", err);
     }
+
+    // Функція завершилась, React іде далі, а fetch живе своїм життям
   };
 
   const handleFinalOrder = async () => {
-    console.log("--- 🔍 СТАРТ ДІАГНОСТИКИ ЗАМОВЛЕННЯ ---");
-
-    if (!user || !user.id) {
-      console.error("❌ Помилка: Юзер відсутній в контексті");
+    if (!user?.id) {
       toast.error("Будь ласка, увійдіть в акаунт");
       return;
     }
@@ -179,17 +197,7 @@ const CartPage = () => {
     setIsSubmitting(true);
 
     try {
-      // ПЕРЕВІРКА СЕСІЇ (Додаємо цей блок)
-      console.log("1. Перевірка сесії Supabase...");
-      const {data: sessionData, error: sessionError} = await supabase.auth.getSession();
-      console.log("   Результат сесії:", {sessionData, sessionError});
-
-      if (sessionError) throw new Error(`Auth Error: ${sessionError.message}`);
-      if (!sessionData.session) throw new Error("Сесія протухла. Спробуйте вийти і зайти знову.");
-
-      // 1. СТВОРЮЄМО ЗАМОВЛЕННЯ
-      console.log("2. Спроба запису в таблицю 'orders'...");
-
+// КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
       const {data: order, error: orderError} = await supabase
         .from('orders')
         .insert([{
@@ -209,15 +217,9 @@ const CartPage = () => {
         .select('id, order_number')
         .single();
 
-      console.log("3. Результат запису 'orders':", {order, orderError});
+      if (orderError) throw orderError;
 
-      if (orderError) {
-        console.error("❌ РЕАЛЬНА ПОМИЛКА SUPABASE (Крок 1):", orderError);
-        throw orderError;
-      }
-
-      // 2. ЗАПИСУЄМО ТОВАРИ
-      console.log("4. Підготовка товарів для запису...");
+// КРОК 2: ТОВАРИ
       const itemsToInsert = items.map(item => ({
         order_id: order.id,
         product_id: item.product_id,
@@ -228,16 +230,8 @@ const CartPage = () => {
         quantity: item.quantity
       }));
 
-      console.log("5. Спроба запису товарів...");
-      const {error: itemsError} = await supabase
-        .from('order_items')
-        .insert(itemsToInsert);
-
-      if (itemsError) {
-        console.error("❌ ПОМИЛКА ЗАПИСУ ТОВАРІВ (Крок 2):", itemsError);
-        throw itemsError;
-      }
-      console.log("✅ Товари збережено успішно");
+      const {error: itemsError} = await supabase.from('order_items').insert(itemsToInsert);
+      if (itemsError) throw itemsError;
 
       // --- МОМЕНТ УСПІХУ ---
       const formattedOrderNumber = String(order.order_number).padStart(6, '0');
@@ -250,27 +244,30 @@ const CartPage = () => {
       dispatch(clearEntireCart(user.id));
 
       // 3. ФОНОВІ ПРОЦЕСИ
-      console.log("6. Запуск фонових процесів (Email & Profile)...");
       sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
 
-      supabase.from('profiles').upsert({
-        id: user.id,
-        first_name: firstName,
-        last_name: lastName,
-        phone: cleanPhone,
-        city: city,
-        branch: branch,
-        delivery_method: deliveryMethod,
-        updated_at: new Date()
-      }).then(({error: profileError}) => {
-        if (profileError) console.error("Profile Update Error:", profileError);
-        else console.log("✅ Профіль оновлено");
-      });
+// ПИШИ ТАК:
+      supabase.from('profiles')
+        .upsert({
+          id: user.id,
+          first_name: firstName,
+          last_name: lastName,
+          phone: cleanPhone,
+          city: city,
+          branch: branch,
+          delivery_method: deliveryMethod,
+          updated_at: new Date()
+        })
+        .then(({error}) => {
+          if (error) console.error("Profile upsert error:", error);
+          else console.log("✅ Профіль оновлено");
+        });
 
     } catch (error) {
-      console.error("🚨 КРИТИЧНА ПОМИЛКА:", error);
+      console.error("🚨 Помилка:", error);
       toast.error(error.message || "Сталася помилка");
-      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false); // ЗАВЖДИ розблокуємо кнопку
     }
   };
 
