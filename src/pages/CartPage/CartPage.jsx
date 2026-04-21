@@ -999,6 +999,7 @@ const CartPage = () => {
         user_email: clientEmail,
         user_phone: phone,
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `НП: ${city}, №${branch}`,
+        payment_method: paymentMethod,
         total_price_eur: totalPriceEur,
         total_price_uah: totalPriceUahFinal,
         items: itemsWithUahPrice,
