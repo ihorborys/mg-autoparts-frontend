@@ -1088,28 +1088,38 @@ const CartPage = () => {
       setDisplayOrderNumber(formattedOrderNumber);
       setStep('success');
       trigger('success');
-      toast.success("Замовлення прийняте!");
+      toast.success("Замовлення відправлене!");
 
       // КРОК 3: ОЧИЩЕННЯ КОШИКА
       console.log("🧹 Step 3: Clearing cart...");
       dispatch(clearEntireCart(user.id));
 
-      // КРОК 4: ФОНОВІ ОНОВЛЕННЯ
+      // КРОК 4: ФОНОВІ ОНОВЛЕННЯ (Тепер робимо їх послідовними)
       console.log("⚙️ Step 4: Starting background tasks...");
+
+      // 4.1 Відправка Email (залишаємо як є, але це окремий fetch)
       sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
 
-      supabase.from('profiles')
-        .upsert({
-          id: user.id,
-          first_name: firstName,
-          last_name: lastName,
-          phone: cleanPhone,
-          city: city,
-          branch: branch,
-          delivery_method: deliveryMethod,
-          updated_at: new Date()
-        })
-        .then(() => console.log("👤 Profile updated"));
+      // 4.2 Оновлення профілю (ДОДАЄМО AWAIT)
+      console.log("👤 Step 4.2: Updating profile...");
+      try {
+        const {error: profileError} = await supabase.from('profiles')
+          .upsert({
+            id: user.id,
+            first_name: firstName,
+            last_name: lastName,
+            phone: cleanPhone,
+            city: city,
+            branch: branch,
+            delivery_method: deliveryMethod,
+            updated_at: new Date()
+          });
+
+        if (profileError) console.error("⚠️ Profile update warning:", profileError);
+        else console.log("✅ Profile updated successfully");
+      } catch (pErr) {
+        console.error("❌ Profile upsert crashed:", pErr);
+      }
 
     } catch (error) {
       console.error("🚨 [CRITICAL ERROR]:", error);
@@ -1139,7 +1149,7 @@ const CartPage = () => {
     <Container>
       <div className={styles.container}>
         <h1 className={styles.title}>
-          {step === 'success' ? 'Замовлення прийняте!' : 'Моє замовлення'}
+          {step === 'success' ? 'Замовлення відправлене!' : 'Моє замовлення'}
         </h1>
 
         <div className={styles.content}>
@@ -1289,10 +1299,19 @@ const CartPage = () => {
             {step === 'success' && (
               <div className={styles.animateFade}>
                 <div className={styles.successIcon}>✓</div>
-                <h3 style={{color: '#2ecc71'}}>Готово!</h3>
-                <p>Замовлення №{displayOrderNumber} успішно створене.</p>
-                <p>Дякуємо Вам за довіру!</p>
-                <Link to="/catalog" style={{marginTop: '20px', display: 'block', textAlign: 'center'}}>
+                <h3 style={{color: '#2ecc71', textAlign: 'center'}}>Готово!</h3>
+                <p style={{marginTop: '10px', textAlign: 'center'}}>
+                  Замовлення №{displayOrderNumber} успішно створене.</p>
+                <p style={{fontSize: '0.7rem', marginTop: '10px', textAlign: 'center',}}>
+                  При потребі ми зв'яжемося з Вами для уточнення деталей.</p>
+                <Link to="/catalog"
+                      style={{
+                        marginTop: '20px',
+                        display: 'block',
+                        textAlign: 'center',
+                        // justifyContent: 'center',
+                        // alignItems: 'center'
+                      }}>
                   <Button>За новими покупками</Button>
                 </Link>
               </div>
