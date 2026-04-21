@@ -16,11 +16,6 @@ const CartItem = ({item}) => {
   const maxStock = item.stock ?? 0;
   const {trigger} = useHaptics();
 
-  // const {items} = useSelector((state) => state.products);
-
-  // console.log(item);
-
-  // console.log(item);
 
   // Функція зміни кількості
   const changeQty = (newQty) => {
@@ -33,8 +28,6 @@ const CartItem = ({item}) => {
       });
       return;
     }
-
-    // console.log(newQty);
 
     dispatch(updateCartQuantity({
       user_id: user.id,
@@ -57,7 +50,6 @@ const CartItem = ({item}) => {
     // Використовуємо 'medium' або 'impactMedium' для відчутного фідбеку
     trigger('remove');
   };
-
 
   return (
     <li className={styles.item}>
@@ -96,7 +88,6 @@ const CartItem = ({item}) => {
           {/* Можна додати інфо про залишок для зручності */}
           <small className={styles.stockInfo}>Залишок: {item.stock} шт.</small>
         </div>
-
 
         <div className={styles.itemTotal}>
           <p>{(item.price_eur * item.quantity).toLocaleString('uk-UA', {

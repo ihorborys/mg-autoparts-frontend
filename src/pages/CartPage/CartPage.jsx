@@ -955,7 +955,7 @@ const CartPage = () => {
   const [displayOrderNumber, setDisplayOrderNumber] = useState('');
 
   useEffect(() => {
-    if (user && !isDataLoaded && !isSubmitting) {
+    if (user && !isDataLoaded) {
       setFirstName(user.first_name || '');
       setLastName(user.last_name || '');
       setCity(user.city || '');
@@ -966,7 +966,7 @@ const CartPage = () => {
       }
       setIsDataLoaded(true);
     }
-  }, [user, isDataLoaded, isSubmitting]);
+  }, [user, isDataLoaded]);
 
   const totalPriceUah = Math.round(totalPriceEur * rate);
   const cleanPhone = phone.replace(/\D/g, '');
@@ -983,9 +983,10 @@ const CartPage = () => {
     isCityValid &&
     isBranchValid;
 
-  // --- ВІДПРАВКА EMAIL (ФОНОВА) ---
-  const sendOrderEmail = (orderId, currentItems, totalPriceUahFinal) => {
+// --- ВІДПРАВКА EMAIL (ТЕПЕР ОФІЦІЙНО АСИНХРОННА) ---
+  const sendOrderEmail = async (orderId, currentItems, totalPriceUahFinal) => {
     const clientEmail = user?.email || "no-email@maxgear.com.ua";
+
     try {
       const itemsWithUahPrice = currentItems.map(item => ({
         ...item,
@@ -998,25 +999,33 @@ const CartPage = () => {
         user_email: clientEmail,
         user_phone: phone,
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `НП: ${city}, №${branch}`,
-        total_price_eur: totalPriceEur, // Бекенд чекає саме таку назву
+        total_price_eur: totalPriceEur,
         total_price_uah: totalPriceUahFinal,
         items: itemsWithUahPrice,
       };
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-      fetch(`${API_URL}/api/cart/checkout`, {
+      // Додаємо await, щоб функція не завершувалася завчасно
+      const response = await fetch(`${API_URL}/api/cart/checkout`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload),
-      })
-        .then(r => console.log("📧 Email status:", r.status))
-        .catch(e => console.error("📧 Email network error:", e));
+      });
+
+      console.log("📧 Email status:", response.status);
+      return response; // Повертаємо результат для await у головній функції
 
     } catch (err) {
-      console.error("❌ Email preparation error:", err);
+      console.error("❌ Email network/preparation error:", err);
+      // Не викидаємо помилку далі, щоб не ламати успішне замовлення,
+      // якщо просто не відправився імейл
     }
   };
+
+  const timeout = (ms) => new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Час очікування вичерпано")), ms)
+  );
 
   // --- ГОЛОВНА ФУНКЦІЯ ---
   const handleFinalOrder = async () => {
@@ -1041,11 +1050,11 @@ const CartPage = () => {
       ]);
       console.log("✅ Step 0: Moving forward (lock cleared or bypassed).");
 
-      // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ
-      console.log("📦 Step 1: Inserting order...");
-      const {data: orderData, error: orderError} = await supabase
-        .from('orders')
-        .insert([{
+      // КРОК 1: СТВОРЮЄМО ЗАМОВЛЕННЯ (з тайм-аутом)
+      console.log("📦 Step 1: Inserting order with safety timeout...");
+
+      const {data: orderData, error: orderError} = await Promise.race([
+        supabase.from('orders').insert([{
           user_id: user.id,
           total_price_eur: totalPriceEur,
           total_price_uah: totalPriceUah,
@@ -1058,8 +1067,9 @@ const CartPage = () => {
           ship_method: deliveryMethod,
           ship_branch: branch,
           ship_notes: notes
-        }])
-        .select('id, order_number');
+        }]).select('id, order_number'),
+        timeout(5000) // 7 секунд на відповідь від бази
+      ]);
 
       if (orderError) throw orderError;
       if (!orderData || orderData.length === 0) throw new Error("Помилка отримання даних замовлення");
@@ -1098,7 +1108,8 @@ const CartPage = () => {
       console.log("⚙️ Step 4: Starting background tasks...");
 
       // 4.1 Відправка Email (залишаємо як є, але це окремий fetch)
-      sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
+      console.log("📧 Step 4.1: Sending email...");
+      await sendOrderEmail(formattedOrderNumber, items, totalPriceUah);
 
       // 4.2 Оновлення профілю (ДОДАЄМО AWAIT)
       console.log("👤 Step 4.2: Updating profile...");
@@ -1123,7 +1134,14 @@ const CartPage = () => {
 
     } catch (error) {
       console.error("🚨 [CRITICAL ERROR]:", error);
-      toast.error(error.message || "Сталася помилка");
+
+      if (error.message === "Час очікування вичерпано") {
+        toast.error("Непередбачувана помилка. Будь ласка, перезавантажте сторінку та спробуйте ще раз.", {
+          duration: 6000,
+        });
+      } else {
+        toast.error(error.message || "Сталася помилка");
+      }
     } finally {
       console.log("🏁 [ORDER FINISHED]");
       setIsSubmitting(false);
@@ -1303,7 +1321,7 @@ const CartPage = () => {
                 <p style={{marginTop: '10px', textAlign: 'center'}}>
                   Замовлення №{displayOrderNumber} успішно створене.</p>
                 <p style={{fontSize: '0.7rem', marginTop: '10px', textAlign: 'center',}}>
-                  При потребі ми зв'яжемося з Вами для уточнення деталей.</p>
+                  При потребі ми сконтактуємось з Вами для уточнення деталей.</p>
                 <Link to="/catalog"
                       style={{
                         marginTop: '20px',
