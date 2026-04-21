@@ -1288,7 +1288,7 @@ const CartPage = () => {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   >
                     <option value="cod">Оплата при отриманні</option>
-                    <option value="card">Оплата на карту</option>
+                    <option value="card">Оплата на картку</option>
                   </select>
                 </div>
 
