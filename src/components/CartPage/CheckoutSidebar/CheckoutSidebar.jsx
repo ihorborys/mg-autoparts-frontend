@@ -58,7 +58,7 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
         notes: notes,
         items: itemsWithUahPrice,
       };
-      
+
       console.log(payload);
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -214,109 +214,112 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
       {step === 'checkout' && (
         <div className={styles.animateFade}>
           <h3 className={styles.checkoutTitle}>Оформлення замовлення</h3>
-          <div className={styles.row}>
+          {/* Обгортаємо все в fieldset і прив'язуємо до isSubmitting */}
+          <fieldset disabled={isSubmitting} className={styles.fieldset}>
+            <div className={styles.row}>
+              <div className={styles.field}>
+                <label>Прізвище *</label>
+                <input
+                  className={styles.input}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Прізвище"
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Ім'я *</label>
+                <input
+                  className={styles.input}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Ім'я"
+                />
+              </div>
+            </div>
+
             <div className={styles.field}>
-              <label>Прізвище *</label>
-              <input
-                className={styles.input}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Прізвище"
+              <label>Телефон *</label>
+              <InputMask
+                mask="+38 (0__) ___-__-__"
+                replacement={{_: /\d/}}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className={`${styles.input} ${!isPhoneValid && cleanPhoneValid.length > 3 ? styles.error : ''}`}
+                placeholder="+38 (0__) ___-__-__"
               />
             </div>
+
             <div className={styles.field}>
-              <label>Ім'я *</label>
-              <input
-                className={styles.input}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Ім'я"
+              <label>Спосіб доставки *</label>
+              <select
+                className={styles.select}
+                value={deliveryMethod}
+                onChange={(e) => {
+                  setDeliveryMethod(e.target.value);
+                  setBranch('');
+                }}
+              >
+                {Object.entries(DELIVERY_CONFIG).map(([key, cfg]) => (
+                  <option key={key} value={key}>{cfg.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {deliveryMethod !== 'self' && (
+              <div className={styles.field}>
+                <label>Місто *</label>
+                <input
+                  className={styles.input}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Місто"
+                />
+              </div>
+            )}
+
+            {deliveryMethod !== 'self' && (
+              <div className={styles.field}>
+                <label>{currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}</label>
+                <input
+                  className={styles.input}
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  placeholder={currentDelivery.placeholder}
+                />
+              </div>
+            )}
+
+            <div className={styles.field}>
+              <label>Спосіб оплати *</label>
+              <select
+                className={styles.select}
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <option value="cod">Оплата при отриманні</option>
+                <option value="card">Оплата на карту</option>
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label>Примітки</label>
+              <textarea
+                className={styles.textarea}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Додаткова інформація..."
               />
             </div>
-          </div>
 
-          <div className={styles.field}>
-            <label>Телефон *</label>
-            <InputMask
-              mask="+38 (0__) ___-__-__"
-              replacement={{_: /\d/}}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={`${styles.input} ${!isPhoneValid && cleanPhoneValid.length > 3 ? styles.error : ''}`}
-              placeholder="+38 (0__) ___-__-__"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label>Спосіб доставки *</label>
-            <select
-              className={styles.select}
-              value={deliveryMethod}
-              onChange={(e) => {
-                setDeliveryMethod(e.target.value);
-                setBranch('');
-              }}
+            <button
+              className={styles.confirmBtn}
+              onClick={handleFinalOrder}
+              disabled={!isFormValid || isSubmitting}
             >
-              {Object.entries(DELIVERY_CONFIG).map(([key, cfg]) => (
-                <option key={key} value={key}>{cfg.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {deliveryMethod !== 'self' && (
-            <div className={styles.field}>
-              <label>Місто *</label>
-              <input
-                className={styles.input}
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Місто"
-              />
-            </div>
-          )}
-
-          {deliveryMethod !== 'self' && (
-            <div className={styles.field}>
-              <label>{currentDelivery.fieldLabel} {currentDelivery.required ? '*' : ''}</label>
-              <input
-                className={styles.input}
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                placeholder={currentDelivery.placeholder}
-              />
-            </div>
-          )}
-
-          <div className={styles.field}>
-            <label>Спосіб оплати *</label>
-            <select
-              className={styles.select}
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-              <option value="cod">Оплата при отриманні</option>
-              <option value="card">Оплата на карту</option>
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label>Примітки</label>
-            <textarea
-              className={styles.textarea}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Додаткова інформація..."
-            />
-          </div>
-
-          <button
-            className={styles.confirmBtn}
-            onClick={handleFinalOrder}
-            disabled={!isFormValid || isSubmitting}
-          >
-            {isSubmitting ? 'Відправка...' : 'Підтвердити'}
-          </button>
-          <button className={styles.backLink} onClick={() => setStep('summary')}>Назад</button>
+              {isSubmitting ? 'Відправка...' : 'Підтвердити'}
+            </button>
+            <button className={styles.backLink} onClick={() => setStep('summary')}>Назад</button>
+          </fieldset>
         </div>
       )}
 

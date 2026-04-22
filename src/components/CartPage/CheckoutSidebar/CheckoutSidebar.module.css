@@ -443,6 +443,27 @@
     box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
 }
 
+.fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Коли fieldset заблокований, робимо його напівпрозорим */
+.fieldset[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Можна також змінити колір фону інпутів у стані disabled */
+.fieldset[disabled] .input,
+.fieldset[disabled] .select,
+.fieldset[disabled] .textarea {
+    background-color: #f5f5f5;
+    color: #888;
+}
+
 /* --- АНІМАЦІЯ ПЕРЕМИКАННЯ КРОКІВ --- */
 
 .animateFade {
