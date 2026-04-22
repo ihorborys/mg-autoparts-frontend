@@ -43,17 +43,23 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
         price_uah: Math.round(item.price_eur * rate)
       }));
 
+
       const payload = {
         order_id: orderId,
-        user_name: `${firstName} ${lastName}`.trim(),
+        full_user_name: `${lastName} ${firstName}`.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         user_email: clientEmail,
         user_phone: phone,
         delivery_info: deliveryMethod === 'self' ? 'Самовивіз (Самбір)' : `НП: ${city}, №${branch}`,
         payment_method: paymentMethod,
         total_price_eur: totalPriceEur,
         total_price_uah: totalPriceUahFinal,
+        notes: notes,
         items: itemsWithUahPrice,
       };
+      
+      console.log(payload);
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       return await fetch(`${API_URL}/api/cart/checkout`, {
