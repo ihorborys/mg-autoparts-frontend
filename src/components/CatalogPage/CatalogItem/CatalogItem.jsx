@@ -8,7 +8,6 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
 import { addToCart, fetchCart } from '../../../redux/cart/cartOps';
-import catalogLayout from "../../../layouts/CatalogLayout/CatalogLayout.jsx";
 
 
 const CatalogItem = ({product}) => {
@@ -69,7 +68,7 @@ const CatalogItem = ({product}) => {
 // --- ОНОВЛЕНА ФУНКЦІЯ ДОДАВАННЯ ЧЕРЕЗ REDUX ---
   const handleAddToCart = async () => {
 
-    console.log("DEBUG Product object:", product);
+    // console.log("DEBUG Product object:", product);
     if (!user) {
       toast.error("Будь ласка, увійдіть в акаунт, щоб додати товар у кошик", {
         icon: '🔐',
