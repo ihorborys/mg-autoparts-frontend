@@ -63,3 +63,17 @@ export const DELIVERY_CONFIG = {
     required: false,
   },
 };
+
+
+export const formatPhoneToMask = (phone) => {
+  if (!phone) return '';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('380')) {
+    const code = digits.slice(2, 5);
+    const part1 = digits.slice(5, 8);
+    const part2 = digits.slice(8, 10);
+    const part3 = digits.slice(10, 12);
+    return `+38 (${code}) ${part1}-${part2}-${part3}`;
+  }
+  return digits.startsWith('+') ? digits : `+${digits}`;
+};
