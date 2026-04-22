@@ -10,7 +10,7 @@ import { DELIVERY_CONFIG, formatPhoneToMask } from '../../../utils/helpers.js';
 import styles from './CheckoutSidebar.module.css';
 
 
-const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigger, onSuccess}) => {
+const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigger, onSuccess, onLoading}) => {
   const dispatch = useDispatch();
 
   // 1. Усі хуки та рефи на самому початку
@@ -81,6 +81,7 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
 
     isProcessing.current = true;
     setIsSubmitting(true);
+    if (onLoading) onLoading(true); // <--- Повідомляємо, що почали
 
     try {
       // КРОК 0: ПРОБИВАЄМО ЗАМОК АВТОРИЗАЦІЇ (2 секунди)
@@ -169,6 +170,7 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
     } finally {
       console.log("🏁 [ORDER FINISHED]");
       setIsSubmitting(false);
+      if (onLoading) onLoading(false); // <--- Повідомляємо, що закінчили
       isProcessing.current = false;
     }
   };

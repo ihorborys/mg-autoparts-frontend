@@ -9,6 +9,7 @@ import styles from './CartPage.module.css';
 import CheckoutSidebar from "../../components/CartPage/CheckoutSidebar/CheckoutSidebar.jsx";
 import { useState } from "react";
 
+
 const CartPage = () => {
   const {user} = useAuth();
   const {items, totalPriceEur} = useSelector((state) => state.cart);
@@ -16,6 +17,7 @@ const CartPage = () => {
   const {trigger} = useHaptics();
 
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isCartDisabled, setIsCartDisabled] = useState(false);
 
   // Обчислюємо гривні тут тільки для передачі в Sidebar
   const totalPriceUah = Math.round(totalPriceEur * rate);
@@ -45,10 +47,13 @@ const CartPage = () => {
 
           {/* ЛІВА ЧАСТИНА: ТОВАРИ (Залишається тут) */}
           <ul className={styles.list}>
-            {/* Якщо успіх - список товарів зникає, залишається тільки сайдбар з "Гатово" */}
-            {!orderSuccess && items.map((item) => (
-              <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
-            ))}
+            {/* Якщо успіх - список товарів зникає, залишається тільки сайдбар з "Готово" */}
+            {/* Список товарів */}
+            <div className={`${styles.cartItems} ${isCartDisabled ? styles.disabled : ''}`}>
+              {!orderSuccess && items.map((item) => (
+                <CartItem key={`${item.code}-${item.supplier_id}`} item={item}/>
+              ))}
+            </div>
           </ul>
 
           {/* ПРАВА ЧАСТИНА: САЙДБАР (Вся логіка тепер там) */}
@@ -59,6 +64,7 @@ const CartPage = () => {
             totalPriceUah={totalPriceUah}
             rate={rate}
             trigger={trigger}
+            onLoading={setIsCartDisabled} // Передаємо функцію керування стейтом
             onSuccess={() => setOrderSuccess(true)}
           />
 
