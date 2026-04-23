@@ -161,8 +161,8 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
 
       // ПЕРЕВІРКА НА ТАЙМАУТИ (Крок 0 або Крок 1)
       if (error.message === "SESSION_TIMEOUT" || error.message === "Час очікування вичерпано") {
-        toast.error("Непередбачувана помилка. Будь ласка, перезавантажте сторінку та спробуйте ще раз.", {
-          duration: 6000,
+        toast.error("Упсссс... Помилка відправлення. Будь ласка, перезавантажте сторінку та спробуйте ще раз.", {
+          duration: 8000,
         });
       } else {
         toast.error(error.message || "Сталася помилка");
