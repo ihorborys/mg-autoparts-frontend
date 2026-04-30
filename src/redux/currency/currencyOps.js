@@ -5,10 +5,16 @@ export const fetchExchangeRate = createAsyncThunk(
   "currency/fetchRate",
   async (_, thunkAPI) => {
     try {
-      const response = await api.get("/api/rates/latest");
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 5000); // реально скасовує запит
+
+      const response = await api.get("/api/rates/latest", {
+        signal: controller.signal
+      });
       return response.data.rate;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data?.detail || error.message);
+      // При будь-якій помилці — мовчки повертаємо дефолт
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
 );

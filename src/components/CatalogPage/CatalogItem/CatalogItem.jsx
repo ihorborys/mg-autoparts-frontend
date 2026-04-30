@@ -15,10 +15,8 @@ const CatalogItem = ({product}) => {
   const {trigger} = useHaptics();
   const dispatch = useDispatch();
 
-
   // 1. БЕРЕМО КУРС ПРЯМО З REDUX
   const exchangeRate = useSelector((state) => state.currency.rate);
-
 
   // Отримуємо список товарів з Redux стору кошика
   const cartItems = useSelector((state) => state.cart.items);
@@ -31,7 +29,6 @@ const CatalogItem = ({product}) => {
 // Скільки ще МОЖНА додати (залишок - те що в кошику)
   const availableToAdd = product.stock - alreadyInCartQty;
 
-
   const deliveryTerm = getDeliveryTime(product.supplier_id);
   const supplierName = getSupplierName(product.supplier_id);
 
@@ -42,12 +39,6 @@ const CatalogItem = ({product}) => {
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false); // Стан завантаження для кнопки
-
-  // Функції для зміни кількості
-  // const increment = () => {
-  //   if (quantity < product.stock) setQuantity(prev => prev + 1);
-  //   trigger('tick'); // Вібруємо при кожному натисканні +
-  // };
 
   const increment = () => {
     // Тепер ліміт — це не весь склад, а те, що залишилося вільним

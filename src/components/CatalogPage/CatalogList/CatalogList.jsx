@@ -35,7 +35,7 @@ const CatalogList = () => {
   };
 
   // 2. Логіка відображення лоадера
-  if ((isLoading && items.length === 0) || isRateLoading) {
+  if (isLoading && items.length === 0) {
     return (
       <div className={styles.loadInfoContainer}>
         <Loader/>
