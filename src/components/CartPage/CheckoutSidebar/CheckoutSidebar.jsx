@@ -689,8 +689,7 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
           <h3 style={{color: '#2ecc71', textAlign: 'center', marginBottom: '10px'}}>Готово!</h3>
           <p style={{textAlign: 'center', marginBottom: '10px'}}>Замовлення №{displayOrderNumber} успішно створене.</p>
           <p style={{fontSize: '0.7rem', textAlign: 'center', marginBottom: '10px'}}>
-            За необхідності ми зв'яжемося з Вами за номером:<br/>
-            <strong>{phone}</strong> для уточнення деталей.
+            За необхідності ми зв'яжемося з Вами для уточнення деталей.
           </p>
           <p style={{textAlign: 'center', marginBottom: '10px'}}>Дякуємо за довіру!</p>
           <Link to="/catalog" style={{marginTop: '20px', display: 'block', textAlign: 'center'}}>
