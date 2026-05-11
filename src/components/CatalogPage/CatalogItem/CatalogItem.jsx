@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useHaptics } from '../../../hooks/useHaptics';
 import { addToCart, fetchCart } from '../../../redux/cart/cartOps';
+import { PRICE_MARKUP } from '../../../utils/helpers.js';
 
 
 const CatalogItem = ({product}) => {
@@ -33,8 +34,8 @@ const CatalogItem = ({product}) => {
   const supplierName = getSupplierName(product.supplier_id);
 
   // Розрахунки цін
-  const priceEuro27 = (product.price_eur / 1.33 * 1.27).toFixed(2);
-  const priceUah27 = (product.price_eur / 1.33 * 1.27 * exchangeRate).toFixed(0);
+  const priceEuro27 = (product.price_eur * PRICE_MARKUP).toFixed(2);
+  const priceUah27 = (product.price_eur * PRICE_MARKUP * exchangeRate).toFixed(0);
 
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);

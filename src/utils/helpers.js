@@ -77,3 +77,6 @@ export const formatPhoneToMask = (phone) => {
   }
   return digits.startsWith('+') ? digits : `+${digits}`;
 };
+
+
+export const PRICE_MARKUP = parseFloat(import.meta.env.VITE_PRICE_MARKUP || '1.27');
