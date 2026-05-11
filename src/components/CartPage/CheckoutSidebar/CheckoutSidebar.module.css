@@ -539,3 +539,15 @@
     color: #666;
     padding: 8px 12px;
 }
+
+/*.warehouseSelectorWrapper {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    gap: 4px;*/
+/*}*/
+
+/*.warehouseCount {*/
+/*    font-size: 0.75rem;*/
+/*    color: #888;*/
+/*    text-align: right;*/
+/*}*/
