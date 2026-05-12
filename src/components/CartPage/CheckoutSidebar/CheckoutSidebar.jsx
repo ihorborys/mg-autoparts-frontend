@@ -468,7 +468,7 @@ const CheckoutSidebar = ({user, items, totalPriceEur, totalPriceUah, rate, trigg
                   onSelect={handleCitySelect}
                   suggestions={citySuggestions}
                   isLoading={isCityLoading}
-                  placeholder="Введіть назву населеного пункту..."
+                  placeholder="Введіть назву..."
                   disabled={isSubmitting}
                   hasError={!isCityValid && cityQuery.length > 1}
                   renderItem={(city) => city.description}
