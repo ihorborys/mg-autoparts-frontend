@@ -80,3 +80,25 @@ export const formatPhoneToMask = (phone) => {
 
 
 export const PRICE_MARKUP = parseFloat(import.meta.env.VITE_PRICE_MARKUP || '1.27');
+
+
+export const getErrorMessage = (error) => {
+  const msg = error.message?.toLowerCase() || '';
+
+  if (msg.includes('invalid login credentials'))
+    return 'Невірний email або пароль';
+  if (msg.includes('email not confirmed'))
+    return 'Підтвердіть email — перевірте пошту';
+  if (msg.includes('user already registered'))
+    return 'Цей email вже зареєстрований. Спробуйте увійти';
+  if (msg.includes('password should be at least'))
+    return 'Пароль має бути не менше 6 символів';
+  if (msg.includes('unable to validate email'))
+    return 'Невірний формат email';
+  if (msg.includes('email rate limit exceeded'))
+    return 'Забагато спроб. Спробуйте пізніше';
+  if (msg.includes('network') || msg.includes('fetch'))
+    return 'Помилка з\'єднання. Перевірте інтернет';
+
+  return 'Щось пішло не так. Спробуйте ще раз';
+};

@@ -122,6 +122,7 @@
 //   );
 // };
 
+
 // import styles from './Auth.module.css';
 // import { useState } from 'react';
 // import { supabase } from '../../supabaseClient';
@@ -261,6 +262,8 @@ import styles from './Auth.module.css';
 import { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '../../utils/helpers';
+
 
 export const Auth = () => {
   const [email, setEmail] = useState('');
@@ -301,7 +304,8 @@ export const Auth = () => {
       });
 
     if (error) {
-      toast.error(`Помилка: ${error.message}`);
+      // toast.error(`Помилка: ${error.message}`);
+      toast.error(getErrorMessage(error));
       setLoading(false);
     } else {
       if (!isLogin) {
