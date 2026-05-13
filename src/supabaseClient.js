@@ -10,7 +10,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // Це гарантує, що жодні старі сесії або інші проєкти на localhost не заважатимуть.
     storageKey: 'maxgear-auth-v1',
     persistSession: true,
-    autoRefreshToken: false,
+    autoRefreshToken: true,
     detectSessionInUrl: true,
   }
 });

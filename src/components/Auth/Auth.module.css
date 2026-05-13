@@ -1,3 +1,51 @@
+/*.container {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    gap: 15px;*/
+/*    max-width: 350px;*/
+/*    margin: 80px auto;*/
+/*    padding: 25px;*/
+/*    background-color: #1a1a1a;*/
+/*    border-radius: 16px;*/
+/*    color: white;*/
+/*    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);*/
+/*}*/
+
+/*.submitButton {*/
+/*    padding: 12px;*/
+/*    background-color: #2563eb;*/
+/*    color: white;*/
+/*    border: none;*/
+/*    border-radius: 8px;*/
+/*    cursor: pointer;*/
+/*    font-weight: bold;*/
+/*    margin-top: 5px;*/
+/*}*/
+
+/*.googleLoginButton {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    gap: 10px;*/
+/*    padding: 12px;*/
+/*    background-color: transparent;*/
+/*    color: white;*/
+/*    border: 1px solid #444;*/
+/*    border-radius: 8px;*/
+/*    cursor: pointer;*/
+/*    font-weight: 500;*/
+/*    transition: background 0.3s;*/
+/*}*/
+
+/*.authInput {*/
+/*    padding: 12px;*/
+/*    border: 1px solid #444;*/
+/*    border-radius: 8px;*/
+/*    background-color: #222;*/
+/*    color: white;*/
+/*}*/
+
+
 .container {
     display: flex;
     flex-direction: column;
@@ -11,6 +59,24 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
+/* Обгортка форми з позиціонуванням для оверлею */
+.formWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Темний оверлей поверх форми при loading */
+.overlay {
+    position: absolute;
+    inset: -5px; /* розтягується на весь formWrapper */
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    z-index: 10;
+    cursor: not-allowed;
+}
+
 .submitButton {
     padding: 12px;
     background-color: #2563eb;
@@ -20,6 +86,12 @@
     cursor: pointer;
     font-weight: bold;
     margin-top: 5px;
+    transition: opacity 0.2s;
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .googleLoginButton {
@@ -37,10 +109,24 @@
     transition: background 0.3s;
 }
 
+.googleLoginButton:hover:not(:disabled) {
+    background-color: #333;
+}
+
+.googleLoginButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .authInput {
     padding: 12px;
     border: 1px solid #444;
     border-radius: 8px;
     background-color: #222;
     color: white;
+}
+
+.authInput:focus {
+    outline: none;
+    border-color: #2563eb;
 }
