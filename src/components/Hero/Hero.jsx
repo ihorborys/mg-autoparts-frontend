@@ -9,9 +9,9 @@ const Hero = () => {
       <Container>
         <div className={styles.container}>
           <div className={styles.content}>
-            <h1 className={styles.title}>Автозапчастини, які Вам потрібні</h1>
+            <h1 className={styles.title}>Надійні комплектуючі для Вашого авто</h1>
             <h3 className={styles.subTitle}>
-              Ви можете знайти все необхідне у нашому каталозі
+              Понад 1 000 000 позицій — від оригінальних деталей до якісних аналогів
             </h3>
             <Link to="/catalog">
               <Button>До каталогу</Button>
