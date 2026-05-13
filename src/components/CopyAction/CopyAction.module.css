@@ -6,7 +6,6 @@
     cursor: pointer;
     gap: 5px;
     max-width: 100%;
-    /*transition: color 0.3s ease;*/
 }
 
 .copyButton {
@@ -22,7 +21,3 @@
 .copyButton:hover {
     color: var(--red);
 }
-
-/*.copyContainer:hover {*/
-/*    color: var(--red);*/
-/*}*/

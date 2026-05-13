@@ -20,7 +20,6 @@
 .input:focus {
     outline: none;
     border-color: var(--black); /* Твій новий колір при фокусі (синій, зелений тощо) */
-    /*text-align: left;*/
 }
 
 .input::placeholder {
