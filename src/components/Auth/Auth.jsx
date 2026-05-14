@@ -34,7 +34,7 @@ export const Auth = () => {
 
     const currentOrigin = window.location.origin;
 
-    const {error} = isLogin
+    const {data, error} = isLogin
       ? await supabase.auth.signInWithPassword({email, password})
       : await supabase.auth.signUp({
         email,
@@ -49,10 +49,14 @@ export const Auth = () => {
       setLoading(false);
     } else {
       if (!isLogin) {
-        toast.success('Підтвердіть реєстрацію - лист надіслано на пошту.', {
+        if (data?.user?.identities?.length === 0) {
+          toast.error('Цей email вже зареєстрований. Спробуйте увійти.');
+          setLoading(false);
+          return;
+        }
+        toast.success('Підтвердіть реєстрацію - лист надіслано на пошту. Натисніть на посилання в листі', {
           duration: 8000,
         });
-        setLoading(false);
       }
     }
   };
