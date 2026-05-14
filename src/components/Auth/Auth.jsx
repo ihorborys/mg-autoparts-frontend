@@ -1,5 +1,6 @@
 import styles from './Auth.module.css';
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../../utils/helpers';
@@ -10,6 +11,7 @@ export const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -21,10 +23,9 @@ export const Auth = () => {
     });
 
     if (error) {
-      toast.error(`Помилка Google: ${error.message}`);
+      toast.error(getErrorMessage(error));
       setLoading(false);
     }
-    // при успіху — редирект, loading залишається true
   };
 
   const handleAuth = async (e) => {
@@ -44,7 +45,6 @@ export const Auth = () => {
       });
 
     if (error) {
-      // toast.error(`Помилка: ${error.message}`);
       toast.error(getErrorMessage(error));
       setLoading(false);
     } else {
@@ -54,7 +54,6 @@ export const Auth = () => {
         });
         setLoading(false);
       }
-      // при успішному вході loading залишається true поки AuthContext не спрацює
     }
   };
 
@@ -64,10 +63,7 @@ export const Auth = () => {
         {isLogin ? 'Вхід у Maxgear' : 'Реєстрація клієнта'}
       </h2>
 
-      {/* Обгортка з відносним позиціонуванням для оверлею */}
       <div className={styles.formWrapper}>
-
-        {/* Затемнення поверх форми при loading */}
         {loading && <div className={styles.overlay}/>}
 
         <form onSubmit={handleAuth} style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
@@ -79,14 +75,31 @@ export const Auth = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <input
-            className={styles.authInput}
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+
+          {/* Поле пароля з кнопкою показу/приховування */}
+          <div className={styles.passwordWrapper}>
+            <input
+              className={styles.authInput}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className={styles.eyeBtn}
+              onClick={() => setShowPassword(prev => !prev)}
+              tabIndex={-1} // не потрапляє в tab-порядок
+              aria-label={showPassword ? 'Сховати пароль' : 'Показати пароль'}
+            >
+              {showPassword
+                ? <EyeOff size={18} color="#888"/>
+                : <Eye size={18} color="#888"/>
+              }
+            </button>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -130,9 +143,7 @@ export const Auth = () => {
             {isLogin ? 'Зареєструватися' : 'Увійти'}
           </span>
         </p>
-
       </div>
     </div>
   );
 };
-

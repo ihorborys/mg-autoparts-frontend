@@ -12,13 +12,10 @@
     border-radius: 16px;
     color: white;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-
-    /* Забороняємо зміну розміру при появі довших текстів */
     box-sizing: border-box;
     overflow: hidden;
 }
 
-/* Обгортка форми з позиціонуванням для оверлею */
 .formWrapper {
     position: relative;
     display: flex;
@@ -28,10 +25,9 @@
     justify-content: space-between;
 }
 
-/* Темний оверлей поверх форми при loading */
 .overlay {
     position: absolute;
-    inset: -10px; /* розтягується трохи поза formWrapper */
+    inset: -10px;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 12px;
     z-index: 10;
@@ -80,14 +76,46 @@
 }
 
 .authInput {
+    width: 100%;
     padding: 12px;
     border: 1px solid #444;
     border-radius: 8px;
     background-color: #222;
     color: white;
+    box-sizing: border-box;
 }
 
 .authInput:focus {
     outline: none;
     border-color: #2563eb;
+}
+
+/* Обгортка поля пароля — для позиціонування кнопки ока */
+.passwordWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.passwordWrapper .authInput {
+    /* Залишаємо місце справа для кнопки ока */
+    padding-right: 44px;
+}
+
+/* Кнопка показу/приховування пароля */
+.eyeBtn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.9s;
+}
+
+.eyeBtn:hover {
+    opacity: 0.7;
 }
