@@ -57,6 +57,7 @@ export const Auth = () => {
         toast.success('Підтвердіть реєстрацію - лист надіслано на пошту. Натисніть на посилання в листі', {
           duration: 8000,
         });
+        setLoading(false);
       }
     }
   };
