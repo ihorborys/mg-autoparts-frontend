@@ -43,7 +43,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    width: 170px;
+    width: 180px;
 }
 
 .brand {
@@ -132,7 +132,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
+    width: 52px;
 
     color: var(--white);
     font-weight: 600;
@@ -226,7 +226,7 @@
 
 @media (max-width: 820px) {
     .container {
-        padding: 12px 24px;
+        padding: 6px 12px;
     }
 
     .brand, .code, .unicode {
@@ -236,6 +236,11 @@
     .stock, .price {
         font-size: 14px;
     }
+
+    .stock {
+        width: 46px;
+    }
+
 
     .qtyInput {
         font-size: 14px;
@@ -248,12 +253,16 @@
     .qtyInput {
         width: 32px;
     }
+
+    .actions {
+        gap: 18px;
+    }
 }
 
 
 @media (max-width: 700px) {
     .container {
-        padding: 6px 12px;
+        padding: 4px 8px;
     }
 
     .image {
@@ -287,6 +296,14 @@
         width: 24px;
     }
 
+    .actions {
+        gap: 14px;
+    }
+
+    .brandCodeContainer {
+        width: 160px;
+    }
+
 }
 
 @media (max-width: 620px) {
@@ -304,23 +321,20 @@
 }
 
 @media (max-width: 560px) {
-    .actions {
-        gap: 10px;
-    }
-
     .infoContainer {
         gap: 5px;
     }
-
 }
 
 @media (max-width: 520px) {
-
+    .actions {
+        gap: 8px;
+    }
 }
 
 @media (max-width: 490px) {
     .container {
-        gap: 10px;
+        gap: 6px;
         padding: 2px 4px;
     }
 
@@ -334,7 +348,7 @@
     }
 
     .stock {
-        width: 28px;
+        width: 30px;
         font-size: 9px;
         padding: 2px 4px;
     }
