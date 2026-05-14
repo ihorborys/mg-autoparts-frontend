@@ -132,7 +132,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 20px;
+    width: 38px;
 
     color: var(--white);
     font-weight: 600;
@@ -321,7 +321,7 @@
 @media (max-width: 490px) {
     .container {
         gap: 10px;
-        padding: 4px 8px;
+        padding: 2px 4px;
     }
 
     .brand, .code, .unicode, .supplier {
@@ -329,12 +329,19 @@
     }
 
 
-    .stock, .price {
+    .price {
         font-size: 11px;
     }
 
-    .delivery {
+    .stock {
+        width: 28px;
         font-size: 9px;
+        padding: 2px 4px;
+    }
+
+
+    .delivery {
+        font-size: 6px;
     }
 
     .actions {
@@ -354,13 +361,13 @@
     }
 
     .wrapper {
-        padding: 1px;
+        padding: 0;
     }
 }
 
 @media (max-width: 420px) {
     .brandCodeContainer {
-        width: 110px;
+        width: 130px;
     }
 }
 
@@ -385,6 +392,16 @@
         height: 100px;
         min-width: 100px;
         min-height: 100px;
+    }
+
+    .stock {
+        width: 38px;
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .delivery {
+        font-size: 9px;
     }
 }
 

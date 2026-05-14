@@ -53,7 +53,7 @@ const CatalogList = () => {
   if (searchPerformed && items.length === 0) {
     return (
       <div style={{textAlign: 'center', marginTop: '50px'}}>
-        <h3>Нічого не знайдено за запитом <span style={{color: 'red'}}>"{lastQuery}"</span></h3>
+        <h3>Нажаль, за запитом <span style={{color: 'red'}}>"{lastQuery}"</span> нічого не знайдено...</h3>
       </div>
     );
   }
