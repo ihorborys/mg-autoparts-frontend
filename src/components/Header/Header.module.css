@@ -1,5 +1,6 @@
 .wrapper {
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2); /* світла тінь */
+    background-color: var(--black-light);
 }
 
 .headerComponents {
@@ -27,3 +28,40 @@
         flex-direction: column;
     }
 }
+
+
+/*.wrapper {*/
+/*    position: sticky; !* Напряму до екрана *!*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*    z-index: 100;*/
+/*    !*background-color: #1a1a1a;*!*/
+/*    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);*/
+/*}*/
+
+/*.headerComponents {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    gap: 15px;*/
+/*}*/
+
+/*.userActions {*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*    gap: 30px;*/
+/*}*/
+
+/*@media (max-width: 680px) {*/
+/*    .userActions {*/
+/*        gap: 10px;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 360px) {*/
+/*    .headerComponents {*/
+/*        flex-direction: column;*/
+/*    }*/
+/*}*/
