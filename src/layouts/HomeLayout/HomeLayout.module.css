@@ -3,3 +3,11 @@
     flex-direction: column;
     min-height: 100vh;
 }
+
+.stickyHeader {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--black);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}

@@ -1,7 +1,7 @@
 .container {
     width: 100%;
     max-width: clamp(320px, 95vw, 1440px); /* Трохи збільшили 90vw -> 95vw для мобільних */
-    padding: clamp(8px, 2vh, 16px) clamp(6px, 4vw, 32px);
+    padding: clamp(6px, 1vh, 10px) clamp(4px, 2vw, 16px);
     margin: 0 auto;
     box-sizing: border-box;
 }
