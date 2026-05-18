@@ -34,8 +34,8 @@ const CatalogItem = ({product}) => {
   const supplierName = getSupplierName(product.supplier_id);
 
   // Розрахунки цін
-  const priceEuro27 = (product.price_eur * PRICE_MARKUP).toFixed(2);
-  const priceUah27 = (product.price_eur * PRICE_MARKUP * exchangeRate).toFixed(0);
+  const priceEuro = (product.price_eur * PRICE_MARKUP).toFixed(2);
+  const priceUah = (product.price_eur * PRICE_MARKUP * exchangeRate).toFixed(0);
 
   // 1. Стан для вибору кількості (мінімум 1)
   const [quantity, setQuantity] = useState(1);
@@ -80,7 +80,7 @@ const CatalogItem = ({product}) => {
       brand: product.brand,
       name: product.name,
       quantity: quantity,
-      price_eur: parseFloat(priceEuro27) // Відправляємо ціну з твоєю націнкою
+      price_eur: parseFloat(priceEuro) // Відправляємо ціну з твоєю націнкою
     };
 
     try {
@@ -158,10 +158,10 @@ const CatalogItem = ({product}) => {
 
           <div className={styles.stockPrice}>
             <p className={styles.price}>
-              {priceEuro27} €
+              {priceEuro} €
             </p>
             <p className={styles.price}>
-              {priceUah27} ₴
+              {priceUah} ₴
             </p>
           </div>
 

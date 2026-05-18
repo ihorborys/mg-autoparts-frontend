@@ -79,7 +79,7 @@ export const formatPhoneToMask = (phone) => {
 };
 
 
-export const PRICE_MARKUP = parseFloat(import.meta.env.VITE_PRICE_MARKUP || '1.27');
+export const PRICE_MARKUP = parseFloat(import.meta.env.VITE_PRICE_MARKUP || '1.33');
 
 
 export const getErrorMessage = (error) => {
