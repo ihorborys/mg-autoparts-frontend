@@ -151,3 +151,21 @@
 .resendButton:hover:not(:disabled) {
     opacity: 0.8; /* Ефект при наведенні */
 }
+
+.enterRegButtonSection {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.enterRegButton {
+    color: var(--blue);
+    cursor: pointer;
+    margin-left: 8px;
+    text-decoration: underline;
+    transition: opacity 0.3s;
+}
+
+.enterRegButton:hover {
+    opacity: 0.8; /* Ефект при наведенні */
+}

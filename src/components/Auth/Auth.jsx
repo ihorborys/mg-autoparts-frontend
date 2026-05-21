@@ -144,10 +144,8 @@ export const Auth = () => {
               disabled={loading}
               className={styles.resendButton}
             >
-              <>
-                Не прийшов лист підтвердження?<br />
-                <span>Надіслати ще раз</span>
-              </>
+              Не прийшов лист підтвердження?<br/>
+              <span>Надіслати ще раз</span>
             </button>
           )}
         </form>
@@ -172,16 +170,11 @@ export const Auth = () => {
           Продовжити з Google
         </button>
 
-        <p style={{textAlign: 'center', fontSize: '14px', marginTop: '10px'}}>
+        <p className={styles.enterRegButtonSection}>
           {isLogin ? 'Ще не маєте акаунту?' : 'Вже є акаунт?'}
           <span
             onClick={() => !loading && setIsLogin(!isLogin)}
-            style={{
-              color: loading ? '#555' : '#60a5fa',
-              cursor: loading ? 'default' : 'pointer',
-              marginLeft: '8px',
-              textDecoration: 'underline',
-            }}
+            className={styles.enterRegButton}
           >
             {isLogin ? 'Зареєструватися' : 'Увійти'}
           </span>
