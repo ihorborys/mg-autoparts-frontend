@@ -51,6 +51,10 @@
     cursor: not-allowed;
 }
 
+.submitButton:hover:not(:disabled) {
+    opacity: 0.8;
+}
+
 .googleLoginButton {
     display: flex;
     align-items: center;
@@ -118,4 +122,32 @@
 
 .eyeBtn:hover {
     opacity: 0.7;
+}
+
+.resendButton {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 12px;
+    cursor: pointer;
+    /*text-decoration: underline;*/
+    margin-top: -5px;
+    line-height: 1.4; /* Для кращого інтервалу між рядками */
+    text-align: center; /* Центруємо текст */
+    transition: opacity 0.3s;
+}
+
+.resendButton span {
+    color: #60a5fa; /* Поточний синій колір */
+    /*text-decoration: underline;*/
+    /*font-weight: bold; !* Жирний шрифт для виділення *!*/
+}
+
+.resendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.resendButton:hover:not(:disabled) {
+    opacity: 0.8; /* Ефект при наведенні */
 }

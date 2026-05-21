@@ -83,22 +83,25 @@ export const PRICE_MARKUP = parseFloat(import.meta.env.VITE_PRICE_MARKUP || '1.3
 
 
 export const getErrorMessage = (error) => {
+  // Логуємо помилку в консоль, щоб розробник бачив реальну причину
+  console.error('Supabase Auth Error:', error);
+
   const msg = error.message?.toLowerCase() || '';
 
   if (msg.includes('invalid login credentials'))
     return 'Невірний email або пароль';
   if (msg.includes('email not confirmed'))
     return 'Підтвердіть email — перевірте пошту';
-  if (msg.includes('user already registered'))
+  if (msg.includes('user already registered') || msg.includes('already exists'))
     return 'Цей email вже зареєстрований. Спробуйте увійти';
   if (msg.includes('password should be at least'))
     return 'Пароль має бути не менше 6 символів';
   if (msg.includes('unable to validate email'))
     return 'Невірний формат email';
-  if (msg.includes('email rate limit exceeded'))
-    return 'Забагато спроб. Спробуйте пізніше';
+  if (msg.includes('rate limit') || msg.includes('60 seconds') || msg.includes('too many requests'))
+    return 'Забагато спроб. Зачекайте хвилину та спробуйте ще раз';
   if (msg.includes('network') || msg.includes('fetch'))
     return 'Помилка з\'єднання. Перевірте інтернет';
 
-  return 'Щось пішло не так. Спробуйте ще раз';
+  return 'Щось пішло не так. Спробуйте ще раз пізніше';
 };

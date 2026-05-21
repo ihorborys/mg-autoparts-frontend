@@ -28,6 +28,28 @@ export const Auth = () => {
     }
   };
 
+  const handleResendEmail = async () => {
+    if (!email) {
+      toast.error('Введіть email для повторного відправлення');
+      return;
+    }
+    setLoading(true);
+    const {error} = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/catalog`,
+      },
+    });
+
+    if (error) {
+      toast.error(getErrorMessage(error));
+    } else {
+      toast.success('Лист підтвердження надіслано повторно!');
+    }
+    setLoading(false);
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,13 +71,15 @@ export const Auth = () => {
       setLoading(false);
     } else {
       if (!isLogin) {
+        // У Supabase, якщо email_confirmations: true, то при реєстрації існуючого юзера
+        // повертається data.user, але identities буде порожнім (щоб не палити існуючі емейли)
         if (data?.user?.identities?.length === 0) {
-          toast.error('Цей email вже зареєстрований. Спробуйте увійти.');
+          toast.error('Цей email вже зареєстрований. Спробуйте увійти або відновіть доступ.');
           setLoading(false);
           return;
         }
-        toast.success('Підтвердіть реєстрацію - лист надіслано на пошту. Натисніть на посилання в листі', {
-          duration: 8000,
+        toast.success('Підтвердіть реєстрацію - лист надіслано на пошту. Перевірте папку Спам, якщо не бачите листа.', {
+          duration: 10000,
         });
         setLoading(false);
       }
@@ -89,7 +113,7 @@ export const Auth = () => {
               placeholder="Пароль"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              required={!loading}
             />
             <button
               type="button"
@@ -112,6 +136,20 @@ export const Auth = () => {
           >
             {loading ? 'Секунду...' : (isLogin ? 'Увійти' : 'Створити акаунт')}
           </button>
+
+          {!isLogin && (
+            <button
+              type="button"
+              onClick={handleResendEmail}
+              disabled={loading}
+              className={styles.resendButton}
+            >
+              <>
+                Не прийшов лист підтвердження?<br />
+                <span>Надіслати ще раз</span>
+              </>
+            </button>
+          )}
         </form>
 
         <div style={{display: 'flex', alignItems: 'center', margin: '10px 0'}}>
